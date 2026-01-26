@@ -908,7 +908,312 @@ describe('Translation Agent', () => {
   });
 
   describe('10.2.5: Retry logic with mock failures', () => {
-    it('should retry on failure and eventually use fallback', async () => {
+    it('should retry exactly 3 times before using fallback', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject.mockRejectedValue(new Error('API Error'));
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should have called generateObject exactly 3 times
+      expect(mockGenerateObject).toHaveBeenCalledTimes(3);
+      
+      // Should return fallback after retries
+      expect(result).toBeDefined();
+      expect(result.descriptor.name).toBe('Nasik Onions');
+    });
+
+    it('should succeed on first attempt if API works', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to succeed
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject.mockResolvedValue({
+        object: {
+          descriptor: {
+            name: 'Test Onions',
+            symbol: '/icons/onion.png'
+          },
+          price: {
+            value: 50,
+            currency: 'INR'
+          },
+          quantity: {
+            available: { count: 100 },
+            unit: 'kg'
+          },
+          tags: {
+            grade: 'A',
+            perishability: 'medium',
+            logistics_provider: 'India Post'
+          }
+        }
+      } as any);
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should have called generateObject only once
+      expect(mockGenerateObject).toHaveBeenCalledTimes(1);
+      
+      // Should return AI result, not fallback
+      expect(result.descriptor.name).toBe('Test Onions');
+    });
+
+    it('should succeed on second attempt after first failure', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail once, then succeed
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject
+        .mockRejectedValueOnce(new Error('API Error'))
+        .mockResolvedValueOnce({
+          object: {
+            descriptor: {
+              name: 'Retry Success Onions',
+              symbol: '/icons/onion.png'
+            },
+            price: {
+              value: 45,
+              currency: 'INR'
+            },
+            quantity: {
+              available: { count: 200 },
+              unit: 'kg'
+            },
+            tags: {
+              grade: 'A',
+              perishability: 'medium',
+              logistics_provider: 'India Post'
+            }
+          }
+        } as any);
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should have called generateObject twice
+      expect(mockGenerateObject).toHaveBeenCalledTimes(2);
+      
+      // Should return AI result from second attempt
+      expect(result.descriptor.name).toBe('Retry Success Onions');
+      expect(result.price.value).toBe(45);
+    });
+
+    it('should succeed on third attempt after two failures', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail twice, then succeed
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject
+        .mockRejectedValueOnce(new Error('API Error 1'))
+        .mockRejectedValueOnce(new Error('API Error 2'))
+        .mockResolvedValueOnce({
+          object: {
+            descriptor: {
+              name: 'Third Time Lucky Onions',
+              symbol: '/icons/onion.png'
+            },
+            price: {
+              value: 55,
+              currency: 'INR'
+            },
+            quantity: {
+              available: { count: 300 },
+              unit: 'kg'
+            },
+            tags: {
+              grade: 'A',
+              perishability: 'medium',
+              logistics_provider: 'India Post'
+            }
+          }
+        } as any);
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should have called generateObject three times
+      expect(mockGenerateObject).toHaveBeenCalledTimes(3);
+      
+      // Should return AI result from third attempt
+      expect(result.descriptor.name).toBe('Third Time Lucky Onions');
+      expect(result.price.value).toBe(55);
+    });
+
+    it('should implement exponential backoff timing (1s, 2s, 4s)', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject.mockRejectedValue(new Error('API Error'));
+      
+      // Track timing
+      const startTime = Date.now();
+      
+      await translateVoiceToJsonWithFallback('test input');
+      
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Total backoff time should be approximately 1000ms + 2000ms = 3000ms
+      // (no backoff after 3rd attempt since it's the last one)
+      // Allow some tolerance for execution time (±500ms)
+      expect(totalTime).toBeGreaterThanOrEqual(2500);
+      expect(totalTime).toBeLessThan(4000);
+    });
+
+    it('should wait 1 second before second attempt', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail once, then succeed
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject
+        .mockRejectedValueOnce(new Error('API Error'))
+        .mockResolvedValueOnce({
+          object: {
+            descriptor: {
+              name: 'Test Onions',
+              symbol: '/icons/onion.png'
+            },
+            price: {
+              value: 50,
+              currency: 'INR'
+            },
+            quantity: {
+              available: { count: 100 },
+              unit: 'kg'
+            },
+            tags: {
+              grade: 'A',
+              perishability: 'medium',
+              logistics_provider: 'India Post'
+            }
+          }
+        } as any);
+      
+      const startTime = Date.now();
+      await translateVoiceToJsonWithFallback('test input');
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should wait approximately 1 second (1000ms) before second attempt
+      // Allow tolerance for execution time (±300ms)
+      expect(totalTime).toBeGreaterThanOrEqual(900);
+      expect(totalTime).toBeLessThan(1500);
+    });
+
+    it('should wait 2 seconds before third attempt', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail twice, then succeed
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject
+        .mockRejectedValueOnce(new Error('API Error 1'))
+        .mockRejectedValueOnce(new Error('API Error 2'))
+        .mockResolvedValueOnce({
+          object: {
+            descriptor: {
+              name: 'Test Onions',
+              symbol: '/icons/onion.png'
+            },
+            price: {
+              value: 50,
+              currency: 'INR'
+            },
+            quantity: {
+              available: { count: 100 },
+              unit: 'kg'
+            },
+            tags: {
+              grade: 'A',
+              perishability: 'medium',
+              logistics_provider: 'India Post'
+            }
+          }
+        } as any);
+      
+      const startTime = Date.now();
+      await translateVoiceToJsonWithFallback('test input');
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should wait 1s + 2s = 3s total before third attempt
+      // Allow tolerance for execution time (±500ms)
+      expect(totalTime).toBeGreaterThanOrEqual(2500);
+      expect(totalTime).toBeLessThan(3800);
+    });
+
+    it('should return fallback catalog after all 3 retries fail', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to always fail
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject.mockRejectedValue(new Error('Persistent API Error'));
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should return the hardcoded fallback catalog
+      expect(result).toBeDefined();
+      expect(result.descriptor.name).toBe('Nasik Onions');
+      expect(result.descriptor.symbol).toBe('/icons/onion.png');
+      expect(result.price.value).toBe(40);
+      expect(result.price.currency).toBe('INR');
+      expect(result.quantity.available.count).toBe(500);
+      expect(result.quantity.unit).toBe('kg');
+      expect(result.tags.grade).toBe('A');
+      expect(result.tags.perishability).toBe('medium');
+      expect(result.tags.logistics_provider).toBe('India Post');
+    });
+
+    it('should validate fallback catalog is valid Beckn Protocol JSON', async () => {
       const originalKey = process.env.OPENAI_API_KEY;
       
       // Set API key to trigger retry logic
@@ -922,9 +1227,61 @@ describe('Translation Agent', () => {
       
       process.env.OPENAI_API_KEY = originalKey;
       
-      // Should return fallback after retries
+      // Validate against Beckn schema
+      const validation = BecknCatalogItemSchema.safeParse(result);
+      expect(validation.success).toBe(true);
+    });
+
+    it('should handle different error types during retry', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail with different errors
+      const { generateObject } = await import('ai');
+      const mockGenerateObject = vi.mocked(generateObject);
+      mockGenerateObject
+        .mockRejectedValueOnce(new Error('Network Error'))
+        .mockRejectedValueOnce(new Error('Timeout Error'))
+        .mockRejectedValueOnce(new Error('Rate Limit Error'));
+      
+      const result = await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should handle all error types and return fallback
       expect(result).toBeDefined();
       expect(result.descriptor.name).toBe('Nasik Onions');
+      expect(mockGenerateObject).toHaveBeenCalledTimes(3);
+    });
+
+    it('should log retry attempts appropriately', async () => {
+      const originalKey = process.env.OPENAI_API_KEY;
+      const consoleSpy = vi.spyOn(console, 'log');
+      const consoleErrorSpy = vi.spyOn(console, 'error');
+      
+      // Set API key to trigger retry logic
+      process.env.OPENAI_API_KEY = 'test-key';
+      
+      // Mock generateObject to fail
+      const { generateObject } = await import('ai');
+      vi.mocked(generateObject).mockRejectedValue(new Error('API Error'));
+      
+      await translateVoiceToJsonWithFallback('test input');
+      
+      process.env.OPENAI_API_KEY = originalKey;
+      
+      // Should log each attempt
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Translation attempt 1/3'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Translation attempt 2/3'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Translation attempt 3/3'));
+      
+      // Should log errors for each failed attempt
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
+      
+      consoleSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
 
     it('should apply default values for optional fields', () => {
