@@ -88,33 +88,33 @@
 ## Phase 4: Server Actions
 
 ### 4.1 Translation Action
-- [ ] 4.1.1 Create app/actions.ts file with "use server" directive
-- [ ] 4.1.2 Implement translateVoiceAction function
-- [ ] 4.1.3 Add input validation for voice text
-- [ ] 4.1.4 Call translation agent and handle errors
-- [ ] 4.1.5 Return typed result object with success flag
+- [x] 4.1.1 Create app/actions.ts file with "use server" directive
+- [x] 4.1.2 Implement translateVoiceAction function
+- [x] 4.1.3 Add input validation for voice text
+- [x] 4.1.4 Call translation agent and handle errors
+- [x] 4.1.5 Return typed result object with success flag
 
 ### 4.2 Catalog Management Actions
-- [ ] 4.2.1 Implement saveCatalogAction to persist catalog to database
-- [ ] 4.2.2 Add farmer ID validation
-- [ ] 4.2.3 Implement error handling for database constraints
-- [ ] 4.2.4 Return catalog ID on success
-- [ ] 4.2.5 Implement getCatalogAction to fetch catalog by ID
-- [ ] 4.2.6 Implement getCatalogsByFarmerAction for farmer's catalog list
+- [x] 4.2.1 Implement saveCatalogAction to persist catalog to database
+- [x] 4.2.2 Add farmer ID validation
+- [x] 4.2.3 Implement error handling for database constraints
+- [x] 4.2.4 Return catalog ID on success
+- [x] 4.2.5 Implement getCatalogAction to fetch catalog by ID
+- [x] 4.2.6 Implement getCatalogsByFarmerAction for farmer's catalog list
 
 ### 4.3 Broadcast Action
-- [ ] 4.3.1 Implement broadcastCatalogAction function
-- [ ] 4.3.2 Update catalog status to BROADCASTED
-- [ ] 4.3.3 Log OUTGOING_CATALOG event to NetworkLog
-- [ ] 4.3.4 Trigger network simulator
-- [ ] 4.3.5 Return broadcast result with bid data
+- [x] 4.3.1 Implement broadcastCatalogAction function
+- [x] 4.3.2 Update catalog status to BROADCASTED
+- [x] 4.3.3 Log OUTGOING_CATALOG event to NetworkLog
+- [x] 4.3.4 Trigger network simulator
+- [x] 4.3.5 Return broadcast result with bid data
 
 ### 4.4 Network Log Actions
-- [ ] 4.4.1 Implement getNetworkLogsAction with pagination
-- [ ] 4.4.2 Add filter parameter for log type
-- [ ] 4.4.3 Implement sorting by timestamp (descending)
-- [ ] 4.4.4 Calculate total pages for pagination
-- [ ] 4.4.5 Return logs array and pagination metadata
+- [x] 4.4.1 Implement getNetworkLogsAction with pagination
+- [x] 4.4.2 Add filter parameter for log type
+- [x] 4.4.3 Implement sorting by timestamp (descending)
+- [x] 4.4.4 Calculate total pages for pagination
+- [x] 4.4.5 Return logs array and pagination metadata
 
 ## Phase 5: Network Simulator
 
