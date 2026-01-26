@@ -1,64 +1,64 @@
+/**
+ * Beckn Schema Tests
+ * Phase 10.3: Beckn Schema Tests
+ * 
+ * Tests for Beckn Protocol schema validation using Zod.
+ */
+
 import { describe, it, expect } from 'vitest';
 import {
+  BecknCatalogItemSchema,
   BecknDescriptorSchema,
   BecknPriceSchema,
   BecknQuantitySchema,
-  BecknTagsSchema,
-  BecknCatalogItemSchema,
-  type BecknCatalogItem
+  BecknTagsSchema
 } from './beckn-schema';
+import {
+  SAMPLE_ONION_CATALOG,
+  SAMPLE_MANGO_CATALOG,
+  SAMPLE_TOMATO_CATALOG,
+  INVALID_CATALOG_MISSING_FIELDS,
+  INVALID_CATALOG_WRONG_TYPES
+} from '@/tests/fixtures/beckn-catalog';
 
-describe('Beckn Protocol Schema Validation', () => {
-  describe('BecknDescriptorSchema', () => {
-    it('should validate a valid descriptor', () => {
+describe('Beckn Schema Validation', () => {
+  describe('10.3.1: Schema validation with valid data', () => {
+    it('should validate onion catalog successfully', () => {
+      const result = BecknCatalogItemSchema.safeParse(SAMPLE_ONION_CATALOG);
+      
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.descriptor.name).toBe('Nasik Onions');
+        expect(result.data.price.value).toBe(40);
+        expect(result.data.quantity.available.count).toBe(500);
+      }
+    });
+
+    it('should validate mango catalog successfully', () => {
+      const result = BecknCatalogItemSchema.safeParse(SAMPLE_MANGO_CATALOG);
+      
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.descriptor.name).toBe('Alphonso Mangoes');
+        expect(result.data.price.value).toBe(120);
+        expect(result.data.quantity.unit).toBe('crate');
+      }
+    });
+
+    it('should validate tomato catalog successfully', () => {
+      const result = BecknCatalogItemSchema.safeParse(SAMPLE_TOMATO_CATALOG);
+      
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.descriptor.name).toBe('Fresh Tomatoes');
+        expect(result.data.tags.perishability).toBe('high');
+      }
+    });
+
+    it('should validate descriptor schema', () => {
       const validDescriptor = {
-        name: 'Nasik Onions',
-        symbol: 'https://example.com/onion.png'
-      };
-      
-      const result = BecknDescriptorSchema.parse(validDescriptor);
-      expect(result).toEqual(validDescriptor);
-    });
-
-    it('should reject empty name', () => {
-      const invalidDescriptor = {
-        name: '',
-        symbol: 'https://example.com/onion.png'
-      };
-      
-      expect(() => BecknDescriptorSchema.parse(invalidDescriptor)).toThrow();
-    });
-
-    it('should reject invalid URL', () => {
-      const invalidDescriptor = {
-        name: 'Nasik Onions',
-        symbol: 'not-a-url'
-      };
-      
-      expect(() => BecknDescriptorSchema.parse(invalidDescriptor)).toThrow();
-    });
-  });
-
-  describe('BecknPriceSchema', () => {
-    it('should validate a valid price', () => {
-      const validPrice = {
-        value: 40,
-        currency: 'INR'
-      };
-      
-      const result = BecknPriceSchema.parse(validPrice);
-      expect(result).toEqual(validPrice);
-    });
-
-    it('should apply default currency', () => {
-      const priceWithoutCurrency = {
-        value: 40
-      };
-      
-      const result = BecknPriceSchema.parse(priceWithoutCurrency);
-      expect(result.currency).toBe('INR');
-    });
-
+        name: 'Test Product',
+        symbol: 'http://example.co
     it('should reject negative price', () => {
       const invalidPrice = {
         value: -10,
