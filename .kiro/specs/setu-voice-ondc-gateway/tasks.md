@@ -223,9 +223,9 @@
 ## Phase 9: Deployment Script
 
 ### 9.1 Script Structure
-- [ ] 9.1.1 Create install_setu.sh with bash shebang
-- [ ] 9.1.2 Add script header with description and usage
-- [ ] 9.1.3 Set script to exit on error (set -e)
+- [x] 9.1.1 Create install_setu.sh with bash shebang
+- [x] 9.1.2 Add script header with description and usage
+- [x] 9.1.3 Set script to exit on error (set -e)
 
 ### 9.2 Dependency Checks
 - [ ] 9.2.1 Check for Docker installation
