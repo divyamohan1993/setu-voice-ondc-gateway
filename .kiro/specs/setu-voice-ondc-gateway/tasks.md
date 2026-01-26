@@ -136,7 +136,7 @@
 
 ### 6.1 Voice Injector Component
 - [x] 6.1.1 Create components/VoiceInjector.tsx
-- [ ] 6.1.2 Define VoiceScenario interface and sample scenarios
+- [x] 6.1.2 Define VoiceScenario interface and sample scenarios
 - [x] 6.1.3 Implement dropdown UI using Shadcn Select
 - [ ] 6.1.4 Add scenario icons using Lucide React
 - [ ] 6.1.5 Implement onScenarioSelect handler
