@@ -362,6 +362,19 @@ goto db_wait_loop
 :db_ready
 echo.
 
+REM Verify password authentication works
+echo [INFO] Verifying database authentication...
+docker compose exec -T db psql -U setu -d setu_db -c "SELECT 1;" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Database authentication failed
+    echo [INFO] Password mismatch between .env and Docker containers
+    echo [INFO] This should not happen - please check .env file
+    pause
+    exit /b 1
+)
+echo [OK] Database authentication verified
+echo.
+
 REM ============================================================================
 REM Step 6: Database Initialization
 REM ============================================================================
