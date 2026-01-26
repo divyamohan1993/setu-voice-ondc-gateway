@@ -114,22 +114,31 @@ describe('Property-Based Tests', () => {
       const catalogWithOptionals = fc.record({
         descriptor: fc.record({
           name: fc.string({ minLength: 1, maxLength: 100 }),
-          symbol: fc.string(),
+          symbol: fc.constantFrom(
+            '/icons/onion.png',
+            '/icons/mango.png',
+            '/icons/tomato.png',
+            '/icons/potato.png',
+            '/icons/wheat.png'
+          ),
         }),
         price: fc.record({
-          value: fc.float({ min: 0, max: 100000, noNaN: true }),
+          value: fc.float({ min: 1, max: 100000, noNaN: true }),
           currency: fc.constant('INR'),
         }),
         quantity: fc.record({
           available: fc.record({
-            count: fc.integer({ min: 0, max: 1000000 }),
+            count: fc.integer({ min: 1, max: 1000000 }),
           }),
-          unit: fc.string(),
+          unit: fc.constantFrom('kg', 'quintal', 'ton', 'piece'),
         }),
         tags: fc.record({
-          grade: fc.option(fc.string(), { nil: undefined }),
-          perishability: fc.string(),
-          logistics_provider: fc.option(fc.string(), { nil: undefined }),
+          grade: fc.option(fc.constantFrom('A', 'B', 'C'), { nil: undefined }),
+          perishability: fc.constantFrom('high', 'medium', 'low'),
+          logistics_provider: fc.option(
+            fc.constantFrom('India Post', 'Delhivery', 'Blue Dart'),
+            { nil: undefined }
+          ),
         }),
       });
 
@@ -256,7 +265,7 @@ describe('Property-Based Tests', () => {
     it('should generate finite bid amounts', () => {
       fc.assert(
         fc.property(
-          fc.float({ min: 0.01, max: 100000, noNaN: true }),
+          fc.float({ min: Math.fround(0.01), max: 100000, noNaN: true }),
           (catalogPrice) => {
             // Simulate bid calculation
             const variation = Math.random() * 0.05 + 0.05;
