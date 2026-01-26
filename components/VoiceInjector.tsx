@@ -207,10 +207,10 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
 
         <CardContent className="space-y-6">
           {/* Scenario Selection Dropdown */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label 
               htmlFor="scenario-select" 
-              className="block text-lg font-semibold text-slate-700"
+              className="block text-xl font-bold text-slate-900"
             >
               Choose Voice Scenario
             </label>
@@ -279,17 +279,19 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
-                className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4"
+                className="bg-blue-100 border-3 border-blue-300 rounded-xl p-6 shadow-sm"
                 role="region"
                 aria-label="Selected voice scenario"
               >
                 <div className="flex items-start gap-4">
-                  <Volume2 className="h-6 w-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="p-2 bg-blue-200 rounded-lg border-2 border-blue-300">
+                    <Volume2 className="h-7 w-7 text-blue-800 mt-1 flex-shrink-0" />
+                  </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-blue-800 mb-2">
+                    <h3 className="font-bold text-blue-900 mb-3 text-lg">
                       Selected Voice Input:
                     </h3>
-                    <p className="text-blue-700 text-lg italic leading-relaxed">
+                    <p className="text-blue-800 text-xl italic leading-relaxed font-medium bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
                       "{getCurrentScenario()?.text}"
                     </p>
                   </div>
@@ -306,30 +308,32 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
-                className="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 text-center"
+                className="bg-amber-100 border-3 border-amber-300 rounded-xl p-8 text-center shadow-sm"
                 role="status"
                 aria-live="polite"
                 aria-label="Processing voice input"
               >
-                <div className="flex items-center justify-center gap-3 mb-3">
-                  <Loader2 className="h-8 w-8 text-amber-600 animate-spin" />
-                  <span className="text-xl font-semibold text-amber-800">
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className="p-2 bg-amber-200 rounded-lg border-2 border-amber-300">
+                    <Loader2 className="h-10 w-10 text-amber-800 animate-spin" />
+                  </div>
+                  <span className="text-2xl font-bold text-amber-900">
                     Processing Voice Input...
                   </span>
                 </div>
-                <p className="text-amber-700">
+                <p className="text-amber-800 text-lg font-medium">
                   Converting voice command to Beckn Protocol JSON
                 </p>
                 
                 {/* Processing Animation */}
                 <div className="mt-4 flex justify-center">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-3 h-3 bg-amber-500 rounded-full"
+                        className="w-4 h-4 bg-amber-600 rounded-full border border-amber-700"
                         animate={{
-                          scale: [1, 1.2, 1],
+                          scale: [1, 1.3, 1],
                           opacity: [0.7, 1, 0.7],
                         }}
                         transition={{
