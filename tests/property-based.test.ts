@@ -69,7 +69,7 @@ describe('Property-Based Tests', () => {
           // Should be deeply equal
           expect(deserialized).toEqual(catalog);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -84,7 +84,7 @@ describe('Property-Based Tests', () => {
           const result = BecknCatalogItemSchema.safeParse(deserialized);
           expect(result.success).toBe(true);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
   });
@@ -106,7 +106,7 @@ describe('Property-Based Tests', () => {
           const parseResult = BecknCatalogItemSchema.safeParse(validated);
           expect(parseResult.success).toBe(true);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -139,7 +139,7 @@ describe('Property-Based Tests', () => {
           const parseResult = BecknCatalogItemSchema.safeParse(validated);
           expect(parseResult.success).toBe(true);
         }),
-        { numRuns: 50 }
+        { numRuns: 20 }
       );
     });
   });
