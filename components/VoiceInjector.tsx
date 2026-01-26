@@ -161,6 +161,9 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
             >
               Choose Voice Scenario
             </label>
+            <div id="scenario-description" className="sr-only">
+              Select a pre-configured voice scenario to test the translation system. Each scenario represents a realistic farmer voice command in Hinglish.
+            </div>
             
             <Select
               value={selectedScenario || ""}
@@ -185,6 +188,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                       value={scenario.id}
                       className="h-16 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-colors"
                       style={{ minHeight: "44px" }} // Ensure minimum touch target
+                      aria-label={`${scenario.label}: ${scenario.description}`}
                     >
                       <div className="flex items-center gap-4 w-full">
                         <scenario.icon className="h-8 w-8 text-green-600 flex-shrink-0" />
@@ -213,6 +217,8 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
                 className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4"
+                role="region"
+                aria-label="Selected voice scenario"
               >
                 <div className="flex items-start gap-4">
                   <Volume2 className="h-6 w-6 text-blue-600 mt-1 flex-shrink-0" />
@@ -238,6 +244,9 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 className="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 text-center"
+                role="status"
+                aria-live="polite"
+                aria-label="Processing voice input"
               >
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <Loader2 className="h-8 w-8 text-amber-600 animate-spin" />
