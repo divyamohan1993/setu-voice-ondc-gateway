@@ -236,19 +236,21 @@ setup_environment() {
         
         cat > .env << 'EOF'
 # Database Configuration
-DATABASE_URL="postgresql://setu_user:setu_password@localhost:5432/setu_db?schema=public"
+POSTGRES_USER=setu
+POSTGRES_PASSWORD=setu_password
+POSTGRES_DB=setu_db
+
+# Database URL for Prisma (used by the application)
+DATABASE_URL=postgresql://setu:setu_password@localhost:5432/setu_db
 
 # OpenAI API Configuration
 # Replace with your actual OpenAI API key for AI-powered translation
 # If not provided, the system will use fallback responses
-OPENAI_API_KEY="your-openai-api-key-here"
+OPENAI_API_KEY=
 
 # Application Configuration
-NODE_ENV="production"
-PORT=3000
-
-# Next.js Configuration
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
 EOF
         
         print_success ".env file created with default values"
@@ -295,7 +297,7 @@ wait_for_database() {
     local max_wait=$DB_HEALTH_CHECK_TIMEOUT
     
     while [ $elapsed -lt $max_wait ]; do
-        if docker compose exec -T db pg_isready -U setu_user -d setu_db &> /dev/null; then
+        if docker compose exec -T db pg_isready -U setu -d setu_db &> /dev/null; then
             print_success "PostgreSQL is ready!"
             echo ""
             return 0
@@ -335,8 +337,8 @@ initialize_database() {
     
     # Verify seed data
     print_info "Verifying seed data..."
-    local farmer_count=$(docker compose exec -T db psql -U setu_user -d setu_db -t -c "SELECT COUNT(*) FROM farmers;" 2>/dev/null | tr -d ' \n\r')
-    local catalog_count=$(docker compose exec -T db psql -U setu_user -d setu_db -t -c "SELECT COUNT(*) FROM catalogs;" 2>/dev/null | tr -d ' \n\r')
+    local farmer_count=$(docker compose exec -T db psql -U setu -d setu_db -t -c "SELECT COUNT(*) FROM farmers;" 2>/dev/null | tr -d ' \n\r')
+    local catalog_count=$(docker compose exec -T db psql -U setu -d setu_db -t -c "SELECT COUNT(*) FROM catalogs;" 2>/dev/null | tr -d ' \n\r')
     
     if [ "$farmer_count" -gt 0 ] && [ "$catalog_count" -gt 0 ]; then
         print_success "Seed data verified: $farmer_count farmers, $catalog_count catalogs"
@@ -379,7 +381,7 @@ EOF
     echo -e "${GREEN}✓ Application URL:${NC}      ${CYAN}http://localhost:$APP_PORT${NC}"
     echo -e "${GREEN}✓ Database:${NC}             ${CYAN}PostgreSQL on localhost:$DB_PORT${NC}"
     echo -e "${GREEN}✓ Database Name:${NC}        ${CYAN}setu_db${NC}"
-    echo -e "${GREEN}✓ Database User:${NC}        ${CYAN}setu_user${NC}"
+    echo -e "${GREEN}✓ Database User:${NC}        ${CYAN}setu${NC}"
     echo -e "${GREEN}✓ Deployment Time:${NC}      ${CYAN}${duration} seconds${NC}"
     echo -e "${GREEN}✓ Timestamp:${NC}            ${CYAN}$(date '+%Y-%m-%d %H:%M:%S')${NC}"
     
