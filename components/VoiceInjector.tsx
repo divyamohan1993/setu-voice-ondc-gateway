@@ -37,40 +37,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
- * VoiceScenario
+ * VoiceScenario Interface
  * 
- * Represents a pre-configured voice input scenario
+ * Represents a pre-configured voice scenario for testing
  */
 export interface VoiceScenario {
   id: string;
   label: string;
   text: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
 }
 
 /**
  * Pre-configured voice scenarios
  * 
  * These scenarios simulate realistic farmer voice commands in Hinglish
+ * as specified in the requirements:
+ * - Scenario 1: "Arre bhai, 500 kilo pyaaz hai Nasik se, Grade A hai, aaj hi uthana hai"
+ * - Scenario 2: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai"
  */
 const VOICE_SCENARIOS: VoiceScenario[] = [
   {
-    id: "scenario-1",
-    label: "Onions from Nasik",
+    id: "onion-scenario",
+    label: "Nasik Onions - Grade A",
     text: "Arre bhai, 500 kilo pyaaz hai Nasik se, Grade A hai, aaj hi uthana hai",
-    icon: "🧅"
+    icon: Wheat, // Using Wheat as a placeholder for onion
+    description: "500kg premium onions from Nasik, urgent pickup"
   },
   {
-    id: "scenario-2",
-    label: "Alphonso Mangoes",
+    id: "mango-scenario", 
+    label: "Alphonso Mangoes - Organic",
     text: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai",
-    icon: "🥭"
-  },
-  {
-    id: "scenario-3",
-    label: "Wheat from Punjab",
-    text: "1000 kilo gehun hai Punjab se, best quality, fresh harvest",
-    icon: "🌾"
+    icon: Apple, // Using Apple as a placeholder for mango
+    description: "20 crates of organic Alphonso mangoes from Ratnagiri"
   }
 ];
 
