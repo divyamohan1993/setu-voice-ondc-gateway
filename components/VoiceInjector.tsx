@@ -111,18 +111,31 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
   /**
    * Handle scenario selection
    * 
-   * Triggers the translation process when a scenario is selected
+   * Triggers the translation process when a scenario is selected.
+   * Implements error handling gracefully as specified in the design requirements.
    */
   const handleScenarioSelect = async (scenarioId: string) => {
+    // Validate scenario exists
     const scenario = VOICE_SCENARIOS.find(s => s.id === scenarioId);
-    if (!scenario) return;
+    if (!scenario) {
+      console.error("Invalid scenario selected:", scenarioId);
+      return;
+    }
 
+    // Update selected scenario state
     setSelectedScenario(scenarioId);
 
     try {
+      // Trigger translation process
       await onScenarioSelect(scenario.text);
     } catch (error) {
       console.error("Error processing scenario:", error);
+      
+      // Reset selected scenario on error to allow retry
+      setSelectedScenario(null);
+      
+      // Re-throw error to allow parent component to handle user feedback
+      throw error;
     }
   };
 
