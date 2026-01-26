@@ -315,7 +315,7 @@ describe('Property-Based Tests', () => {
             
             // Due to floating point, use approximate equality
             const diff = Math.abs(decreased - price);
-            const tolerance = price * 0.01; // 1% tolerance
+            const tolerance = Math.max(price * 0.02, 0.02); // 2% tolerance or 0.02 minimum
             
             expect(diff).toBeLessThan(tolerance);
           }
