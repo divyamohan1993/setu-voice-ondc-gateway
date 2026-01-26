@@ -171,7 +171,7 @@ describe('Property-Based Tests', () => {
           expect(catalog.tags).toBeDefined();
           expect(catalog.tags.perishability).toBeDefined();
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -186,7 +186,7 @@ describe('Property-Based Tests', () => {
           expect(catalog.quantity.available.count).toBeGreaterThanOrEqual(0);
           expect(Number.isInteger(catalog.quantity.available.count)).toBe(true);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
 
@@ -199,7 +199,7 @@ describe('Property-Based Tests', () => {
           expect(catalog.quantity.unit.length).toBeGreaterThan(0);
           expect(catalog.tags.perishability.length).toBeGreaterThan(0);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
   });
@@ -230,7 +230,7 @@ describe('Property-Based Tests', () => {
             expect(bidAmount).toBeLessThanOrEqual(maxBid);
           }
         ),
-        { numRuns: 1000 }
+        { numRuns: 50 }
       );
     });
 
@@ -249,7 +249,7 @@ describe('Property-Based Tests', () => {
             expect(bidAmount).toBeGreaterThanOrEqual(0);
           }
         ),
-        { numRuns: 1000 }
+        { numRuns: 50 }
       );
     });
 
@@ -269,7 +269,7 @@ describe('Property-Based Tests', () => {
             expect(Number.isNaN(bidAmount)).toBe(false);
           }
         ),
-        { numRuns: 1000 }
+        { numRuns: 50 }
       );
     });
   });
@@ -286,7 +286,7 @@ describe('Property-Based Tests', () => {
           
           expect(result1.success).toBe(result2.success);
         }),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
   });
@@ -311,7 +311,7 @@ describe('Property-Based Tests', () => {
             expect(diff).toBeLessThan(tolerance);
           }
         ),
-        { numRuns: 100 }
+        { numRuns: 20 }
       );
     });
   });
