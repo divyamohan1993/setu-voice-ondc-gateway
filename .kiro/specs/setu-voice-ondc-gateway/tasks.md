@@ -331,10 +331,10 @@
 - [x] 11.2.4 Document database schema
 
 ### 11.3 Developer Guide
-- [-] 11.3.1 Create CONTRIBUTING.md
-- [ ] 11.3.2 Document development workflow
-- [ ] 11.3.3 Document testing procedures
-- [ ] 11.3.4 Document deployment process
+- [x] 11.3.1 Create CONTRIBUTING.md
+- [x] 11.3.2 Document development workflow
+- [x] 11.3.3 Document testing procedures
+- [x] 11.3.4 Document deployment process
 
 ## Phase 12: Final Polish
 
