@@ -6,7 +6,7 @@ setlocal EnableDelayedExpansion
 :: ==========================================
 set "REPO_URL=https://github.com/divyamohan1993/setu-voice-ondc-gateway.git"
 set "BRANCH=main"
-set "SYNC_INTERVAL=60"
+set "SYNC_INTERVAL=30"
 
 :: Navigate to the directory where this script is located
 cd /d "%~dp0"
