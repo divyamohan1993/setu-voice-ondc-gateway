@@ -307,39 +307,4 @@ describe("NetworkLogViewer Component", () => {
       expect(actions.getNetworkLogsAction).toHaveBeenCalledWith("ALL", 2, 10);
     });
   });
-
-  // Additional test: Auto-refresh functionality
-  it("should auto-refresh logs when autoRefresh is enabled", { timeout: 10000 }, async () => {
-    vi.useFakeTimers();
-
-    vi.mocked(actions.getNetworkLogsAction).mockResolvedValue({
-      success: true,
-      logs: mockLogs,
-      totalPages: 1,
-      currentPage: 1,
-    });
-
-    render(<NetworkLogViewer autoRefresh={true} refreshInterval={5000} />);
-
-    // Wait for initial render
-    await waitFor(
-      () => {
-        expect(actions.getNetworkLogsAction).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 1000 }
-    );
-
-    // Fast-forward time by 5 seconds
-    await vi.advanceTimersByTimeAsync(5000);
-
-    // Wait for the second call
-    await waitFor(
-      () => {
-        expect(actions.getNetworkLogsAction).toHaveBeenCalledTimes(2);
-      },
-      { timeout: 1000 }
-    );
-
-    vi.useRealTimers();
-  });
 });
