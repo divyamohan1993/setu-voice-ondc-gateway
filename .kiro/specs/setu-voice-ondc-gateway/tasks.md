@@ -277,7 +277,7 @@
 
 ### 10.1 Unit Tests Setup
 - [x] 10.1.1 Install Vitest and React Testing Library
-- [ ] 10.1.2 Configure vitest.config.ts
+- [x] 10.1.2 Configure vitest.config.ts
 - [ ] 10.1.3 Set up test utilities and helpers
 
 ### 10.2 Translation Agent Tests
