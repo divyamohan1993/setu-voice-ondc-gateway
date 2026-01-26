@@ -85,21 +85,217 @@ trap 'error_exit "An unexpected error occurred at line $LINENO"' ERR
 # Dependency Checks
 ################################################################################
 
+install_docker_linux() {
+    print_info "Attempting to install Docker on Linux..."
+    
+    # Detect Linux distribution
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+    else
+        print_error "Cannot detect Linux distribution"
+        return 1
+    fi
+    
+    case $OS in
+        ubuntu|debian)
+            print_info "Detected Ubuntu/Debian - Installing Docker..."
+            
+            # Update package index
+            sudo apt-get update
+            
+            # Install prerequisites
+            sudo apt-get install -y ca-certificates curl gnupg lsb-release
+            
+            # Add Docker's official GPG key
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/$OS/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            
+            # Set up repository
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$OS $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            
+            # Install Docker Engine
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            
+            # Start Docker service
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+            
+            print_success "Docker installed successfully"
+            print_warning "You may need to log out and back in for group changes to take effect"
+            print_info "Or run: newgrp docker"
+            ;;
+            
+        fedora|rhel|centos)
+            print_info "Detected Fedora/RHEL/CentOS - Installing Docker..."
+            
+            # Install prerequisites
+            sudo yum install -y yum-utils
+            
+            # Add Docker repository
+            sudo yum-config-manager --add-repo https://download.docker.com/linux/$OS/docker-ce.repo
+            
+            # Install Docker Engine
+            sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            
+            # Start Docker service
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+            
+            print_success "Docker installed successfully"
+            print_warning "You may need to log out and back in for group changes to take effect"
+            ;;
+            
+        arch|manjaro)
+            print_info "Detected Arch/Manjaro - Installing Docker..."
+            
+            # Install Docker
+            sudo pacman -Sy --noconfirm docker docker-compose
+            
+            # Start Docker service
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+            
+            print_success "Docker installed successfully"
+            print_warning "You may need to log out and back in for group changes to take effect"
+            ;;
+            
+        *)
+            print_error "Unsupported Linux distribution: $OS"
+            print_info "Please install Docker manually from: https://docs.docker.com/engine/install/"
+            return 1
+            ;;
+    esac
+    
+    return 0
+}
+
+install_docker_macos() {
+    print_info "Attempting to install Docker Desktop on macOS..."
+    
+    # Check if Homebrew is installed
+    if command -v brew &> /dev/null; then
+        print_info "Installing Docker Desktop using Homebrew..."
+        brew install --cask docker
+        
+        print_success "Docker Desktop installed successfully"
+        print_info "Please start Docker Desktop from Applications"
+        print_info "After Docker Desktop is running, run this script again"
+        
+        # Try to open Docker Desktop
+        open -a Docker 2>/dev/null || true
+        
+        return 0
+    else
+        print_warning "Homebrew not found"
+        print_info "Downloading Docker Desktop installer..."
+        
+        # Detect architecture
+        if [[ $(uname -m) == 'arm64' ]]; then
+            DOCKER_URL="https://desktop.docker.com/mac/main/arm64/Docker.dmg"
+        else
+            DOCKER_URL="https://desktop.docker.com/mac/main/amd64/Docker.dmg"
+        fi
+        
+        # Download Docker Desktop
+        curl -L -o /tmp/Docker.dmg "$DOCKER_URL"
+        
+        if [ $? -eq 0 ]; then
+            print_success "Docker Desktop downloaded"
+            print_info "Mounting DMG and installing..."
+            
+            # Mount DMG
+            hdiutil attach /tmp/Docker.dmg
+            
+            # Copy to Applications
+            sudo cp -R /Volumes/Docker/Docker.app /Applications/
+            
+            # Unmount DMG
+            hdiutil detach /Volumes/Docker
+            
+            # Clean up
+            rm /tmp/Docker.dmg
+            
+            print_success "Docker Desktop installed successfully"
+            print_info "Please start Docker Desktop from Applications"
+            print_info "After Docker Desktop is running, run this script again"
+            
+            # Try to open Docker Desktop
+            open -a Docker 2>/dev/null || true
+            
+            return 0
+        else
+            print_error "Failed to download Docker Desktop"
+            print_info "Please manually download from: https://docs.docker.com/desktop/install/mac-install/"
+            return 1
+        fi
+    fi
+}
+
 check_dependencies() {
     print_header "Checking Dependencies"
     
     # Check for Docker
     print_info "Checking for Docker..."
     if ! command -v docker &> /dev/null; then
-        print_error "Docker is not installed"
+        print_warning "Docker is not installed"
         echo ""
-        echo "Please install Docker from: https://docs.docker.com/get-docker/"
-        echo ""
-        echo "Installation instructions:"
-        echo "  - Windows: https://docs.docker.com/desktop/install/windows-install/"
-        echo "  - macOS: https://docs.docker.com/desktop/install/mac-install/"
-        echo "  - Linux: https://docs.docker.com/engine/install/"
-        exit 1
+        
+        # Detect OS and attempt installation
+        case "$(uname -s)" in
+            Linux*)
+                read -p "Would you like to install Docker automatically? [Y/n]: " -n 1 -r
+                echo ""
+                if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+                    if install_docker_linux; then
+                        print_info "Docker installed. Please run this script again."
+                        exit 0
+                    else
+                        print_error "Automatic installation failed"
+                        echo "Please install Docker manually from: https://docs.docker.com/engine/install/"
+                        exit 1
+                    fi
+                else
+                    print_error "Docker is required to continue"
+                    echo "Please install Docker from: https://docs.docker.com/get-docker/"
+                    exit 1
+                fi
+                ;;
+                
+            Darwin*)
+                read -p "Would you like to install Docker Desktop automatically? [Y/n]: " -n 1 -r
+                echo ""
+                if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+                    if install_docker_macos; then
+                        exit 0
+                    else
+                        print_error "Automatic installation failed"
+                        echo "Please install Docker Desktop manually from: https://docs.docker.com/desktop/install/mac-install/"
+                        exit 1
+                    fi
+                else
+                    print_error "Docker is required to continue"
+                    echo "Please install Docker Desktop from: https://docs.docker.com/desktop/install/mac-install/"
+                    exit 1
+                fi
+                ;;
+                
+            *)
+                print_error "Unsupported operating system"
+                echo "Please install Docker manually from: https://docs.docker.com/get-docker/"
+                exit 1
+                ;;
+        esac
     fi
     print_success "Docker is installed ($(docker --version))"
     
@@ -108,7 +304,9 @@ check_dependencies() {
     if ! docker compose version &> /dev/null; then
         print_error "Docker Compose is not installed or not available"
         echo ""
-        echo "Please install Docker Compose from: https://docs.docker.com/compose/install/"
+        echo "Docker Compose should be included with Docker Desktop."
+        echo "If you installed Docker Engine separately, install Docker Compose from:"
+        echo "https://docs.docker.com/compose/install/"
         exit 1
     fi
     print_success "Docker Compose is installed ($(docker compose version))"
@@ -116,10 +314,29 @@ check_dependencies() {
     # Check if Docker daemon is running
     print_info "Checking if Docker daemon is running..."
     if ! docker info &> /dev/null; then
-        print_error "Docker daemon is not running"
+        print_warning "Docker daemon is not running"
         echo ""
-        echo "Please start Docker Desktop or the Docker daemon and try again."
-        exit 1
+        
+        # Try to start Docker on Linux
+        if [[ "$(uname -s)" == "Linux" ]]; then
+            print_info "Attempting to start Docker daemon..."
+            sudo systemctl start docker
+            sleep 3
+            
+            if docker info &> /dev/null; then
+                print_success "Docker daemon started successfully"
+            else
+                print_error "Failed to start Docker daemon"
+                echo "Please start Docker manually: sudo systemctl start docker"
+                exit 1
+            fi
+        else
+            print_error "Docker Desktop is not running"
+            echo ""
+            echo "Please start Docker Desktop and try again."
+            echo "On macOS: Open Docker from Applications"
+            exit 1
+        fi
     fi
     print_success "Docker daemon is running"
     
