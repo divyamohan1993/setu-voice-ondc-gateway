@@ -30,8 +30,8 @@ export default function DebugPage() {
 
   // Default farmer ID (from seed data)
   const FARMER_ID = "farmer-1";
-  const FARMER_NAME = "Ramesh Kumar";
-  const FARMER_LOCATION = "Nasik, Maharashtra";
+  const FARMER_NAME = "राजेश पाटिल";
+  const FARMER_LOCATION = "Mumbai, Maharashtra";
 
   // Fetch catalogs
   useEffect(() => {
