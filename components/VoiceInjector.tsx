@@ -170,7 +170,21 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
               <Mic className="h-8 w-8 text-blue-600" />
             </motion.div>
             Voice Input Simulator
-            {selectedScenario && (
+            {/* Immediate selection feedback */}
+            <AnimatePresence>
+              {isSelecting && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.1 }}
+                  className="p-1 rounded-full bg-blue-100"
+                >
+                  <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {selectedScenario && !isSelecting && (
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -206,7 +220,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
             <Select
               value={selectedScenario || ""}
               onValueChange={handleScenarioSelect}
-              disabled={isProcessing}
+              disabled={isProcessing || isSelecting}
             >
               <SelectTrigger 
                 id="scenario-select"

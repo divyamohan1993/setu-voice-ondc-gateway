@@ -81,7 +81,7 @@ function LogEntry({ log, isExpanded, onToggle }: {
       {/* Header */}
       <button
         onClick={onToggle}
-        className="w-full p-4 flex items-center justify-between hover:bg-white/50 transition-colors"
+        className="w-full p-4 flex items-center justify-between hover:bg-white/50 transition-all duration-75 hover:scale-[1.01] active:scale-[0.99]"
       >
         <div className="flex items-center gap-4">
           <div className={`p-2 rounded-lg ${
@@ -123,7 +123,7 @@ function LogEntry({ log, isExpanded, onToggle }: {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
             <div className="p-4 border-t-2 border-gray-200">

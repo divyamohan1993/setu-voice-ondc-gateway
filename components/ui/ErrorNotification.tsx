@@ -29,7 +29,7 @@ export function ErrorNotification({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
           className="bg-red-50 border-2 border-red-300 rounded-xl p-6 shadow-lg"
         >
           <div className="flex items-start gap-4">
