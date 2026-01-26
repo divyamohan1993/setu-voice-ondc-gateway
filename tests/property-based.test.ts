@@ -308,7 +308,7 @@ describe('Property-Based Tests', () => {
       fc.assert(
         fc.property(
           fc.float({ min: 1, max: 10000, noNaN: true }),
-          fc.float({ min: 0.01, max: 0.5, noNaN: true }),
+          fc.float({ min: Math.fround(0.01), max: Math.fround(0.5), noNaN: true }),
           (price, percentage) => {
             const increased = price * (1 + percentage);
             const decreased = increased * (1 - percentage);
