@@ -150,11 +150,15 @@ The deployment script is **fully automated** and handles:
 
 ### Access the Application
 
-After installation completes:
-
+**With Docker:**
 - **Main Application**: http://localhost:3000
 - **Debug Interface**: http://localhost:3000/debug
 - **Database**: PostgreSQL on localhost:5432
+
+**Without Docker (Testing Only):**
+- Run tests: `npm test`
+- View coverage: `npm run test:coverage`
+- See [LOCAL_SETUP.md](LOCAL_SETUP.md) and [TESTING_SUMMARY.md](TESTING_SUMMARY.md)
 
 ### System Requirements
 
