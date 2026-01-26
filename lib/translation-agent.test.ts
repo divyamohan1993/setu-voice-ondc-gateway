@@ -472,21 +472,85 @@ describe('Translation Agent', () => {
       };
       
       expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Invalid catalog structure/);
     });
 
-    it('should throw error for missing required fields', () => {
+    it('should throw error for missing required fields - descriptor.symbol', () => {
       const invalidCatalog = {
         descriptor: {
           name: 'Test Product'
           // Missing symbol
-        }
-        // Missing price and quantity
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Invalid catalog structure/);
+    });
+
+    it('should throw error for missing required fields - descriptor.name', () => {
+      const invalidCatalog = {
+        descriptor: {
+          // Missing name
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
       };
       
       expect(() => validateCatalog(invalidCatalog)).toThrow();
     });
 
-    it('should throw error for invalid price', () => {
+    it('should throw error for missing required fields - price', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test Product',
+          symbol: '/icons/test.png'
+        },
+        // Missing price
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+    });
+
+    it('should throw error for missing required fields - quantity', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test Product',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        // Missing quantity
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+    });
+
+    it('should throw error for invalid price - negative value', () => {
       const invalidCatalog = {
         descriptor: {
           name: 'Test',
@@ -504,6 +568,197 @@ describe('Translation Agent', () => {
       };
       
       expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Price must be positive/);
+    });
+
+    it('should throw error for invalid price - zero value', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 0, // Zero price
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Price must be positive/);
+    });
+
+    it('should throw error for invalid currency code - wrong length', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INRR' // Invalid 4-letter code
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Currency must be 3-letter code/);
+    });
+
+    it('should throw error for invalid quantity - negative count', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: -10 }, // Negative count
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Count must be positive/);
+    });
+
+    it('should throw error for invalid quantity - zero count', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 0 }, // Zero count
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Count must be positive/);
+    });
+
+    it('should throw error for missing quantity unit', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: '' // Empty unit
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Unit is required/);
+    });
+
+    it('should throw error for invalid symbol - empty string', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '' // Empty symbol
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Symbol is required/);
+    });
+
+    it('should throw error for invalid symbol - invalid URL format', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: 'invalid-url' // Invalid URL format (doesn't start with / or http)
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Symbol must be a valid URL or path/);
+    });
+
+    it('should throw error for empty product name', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: '', // Empty name
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
+      expect(() => validateCatalog(invalidCatalog)).toThrow(/Product name is required/);
+    });
+
+    it('should throw error for invalid perishability enum value', () => {
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {
+          perishability: 'very-high' // Invalid enum value
+        }
+      };
+      
+      expect(() => validateCatalog(invalidCatalog)).toThrow();
     });
 
     it('should validate correct catalog successfully', () => {
@@ -514,6 +769,141 @@ describe('Translation Agent', () => {
       const result = validateCatalog(validCatalog);
       expect(result).toBeDefined();
       expect(result.descriptor.name).toBe('Nasik Onions');
+    });
+
+    it('should accept valid catalog with HTTP URL symbol', () => {
+      const validCatalog = {
+        descriptor: {
+          name: 'Test Product',
+          symbol: 'http://example.com/icon.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(validCatalog)).not.toThrow();
+    });
+
+    it('should accept valid catalog with HTTPS URL symbol', () => {
+      const validCatalog = {
+        descriptor: {
+          name: 'Test Product',
+          symbol: 'https://example.com/icon.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(validCatalog)).not.toThrow();
+    });
+
+    it('should accept valid catalog with path symbol', () => {
+      const validCatalog = {
+        descriptor: {
+          name: 'Test Product',
+          symbol: '/icons/test.png'
+        },
+        price: {
+          value: 50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      expect(() => validateCatalog(validCatalog)).not.toThrow();
+    });
+
+    it('should accept valid perishability values: low, medium, high', () => {
+      const validLow = {
+        descriptor: { name: 'Test', symbol: '/icons/test.png' },
+        price: { value: 50, currency: 'INR' },
+        quantity: { available: { count: 100 }, unit: 'kg' },
+        tags: { perishability: 'low' as const }
+      };
+      
+      const validMedium = {
+        descriptor: { name: 'Test', symbol: '/icons/test.png' },
+        price: { value: 50, currency: 'INR' },
+        quantity: { available: { count: 100 }, unit: 'kg' },
+        tags: { perishability: 'medium' as const }
+      };
+      
+      const validHigh = {
+        descriptor: { name: 'Test', symbol: '/icons/test.png' },
+        price: { value: 50, currency: 'INR' },
+        quantity: { available: { count: 100 }, unit: 'kg' },
+        tags: { perishability: 'high' as const }
+      };
+      
+      expect(() => validateCatalog(validLow)).not.toThrow();
+      expect(() => validateCatalog(validMedium)).not.toThrow();
+      expect(() => validateCatalog(validHigh)).not.toThrow();
+    });
+
+    it('should log validation errors appropriately', () => {
+      const consoleSpy = vi.spyOn(console, 'error');
+      
+      const invalidCatalog = {
+        descriptor: {
+          name: 'Test',
+          symbol: 'invalid-url'
+        },
+        price: {
+          value: -50,
+          currency: 'INR'
+        },
+        quantity: {
+          available: { count: 100 },
+          unit: 'kg'
+        },
+        tags: {}
+      };
+      
+      try {
+        validateCatalog(invalidCatalog);
+      } catch (error) {
+        // Expected to throw
+      }
+      
+      // Verify that error was logged
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('✗ Catalog validation failed:'),
+        expect.anything()
+      );
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should log successful validation', () => {
+      const consoleSpy = vi.spyOn(console, 'log');
+      
+      const validCatalog = SAMPLE_ONION_CATALOG;
+      validateCatalog(validCatalog);
+      
+      // Verify that success was logged
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('✓ Catalog validation successful')
+      );
+      
+      consoleSpy.mockRestore();
     });
   });
 
