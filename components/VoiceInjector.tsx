@@ -203,7 +203,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
             >
               <SelectTrigger 
                 id="scenario-select"
-                className="h-16 text-lg border-2 border-slate-300 hover:border-blue-400 focus:border-blue-500 transition-colors"
+                className="h-16 text-lg border-2 border-slate-300 hover:border-blue-400 focus:border-blue-500 transition-all duration-75 hover:shadow-md active:scale-[0.98]"
                 style={{ minHeight: "44px" }} // Ensure minimum touch target
                 aria-label="Select voice scenario for translation"
                 aria-describedby="scenario-description"
