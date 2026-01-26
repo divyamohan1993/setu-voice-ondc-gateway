@@ -4,7 +4,7 @@ setlocal EnableDelayedExpansion
 :: ==========================================
 :: CONFIGURATION
 :: ==========================================
-set "REPO_URL=https://github.com/divyamohan1993/multilingual-mandi.git"
+set "REPO_URL=https://github.com/divyamohan1993/setu-voice-ondc-gateway.git"
 set "BRANCH=main"
 set "SYNC_INTERVAL=60"
 
