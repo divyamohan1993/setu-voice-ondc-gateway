@@ -236,38 +236,82 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 />
               </SelectTrigger>
               
-              <AnimatePresence>
-                <SelectContent className="border-3 border-slate-300 bg-white shadow-xl">
-                  {VOICE_SCENARIOS.map((scenario) => (
-                    <SelectItem 
-                      key={scenario.id} 
-                      value={scenario.id}
-                      className="h-20 cursor-pointer hover:bg-blue-100 focus:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] border-b border-slate-200 last:border-b-0"
-                      style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px)
-                      aria-label={`${scenario.label}: ${scenario.description}`}
+              <SelectContent className="border-3 border-slate-300 bg-white shadow-xl overflow-hidden">
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ 
+                    duration: 0.2, 
+                    ease: [0.4, 0.0, 0.2, 1] // Custom easing for smooth dropdown animation
+                  }}
+                >
+                  {VOICE_SCENARIOS.map((scenario, index) => (
+                    <motion.div
+                      key={scenario.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ 
+                        duration: 0.3, 
+                        delay: index * 0.1, // Stagger animation for each item
+                        ease: [0.4, 0.0, 0.2, 1]
+                      }}
                     >
-                      <div className="flex items-center gap-4 w-full p-2">
-                        <motion.div 
-                          className={`p-3 rounded-xl shadow-sm ${scenario.id === 'onion-scenario' ? 'bg-orange-200 border-2 border-orange-300' : 'bg-purple-200 border-2 border-purple-300'}`}
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.1 }}
-                          style={{ minHeight: "48px", minWidth: "48px" }} // Ensure icon container meets touch target
-                        >
-                          <scenario.icon className={`h-12 w-12 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-700' : 'text-purple-700'}`} />
-                        </motion.div>
-                        <div className="flex-1 text-left">
-                          <div className="font-bold text-slate-900 text-lg">
-                            {scenario.label}
-                          </div>
-                          <div className="text-base text-slate-700 font-medium">
-                            {scenario.description}
-                          </div>
+                      <SelectItem 
+                        value={scenario.id}
+                        className="h-20 cursor-pointer hover:bg-blue-100 focus:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border-b border-slate-200 last:border-b-0"
+                        style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px)
+                        aria-label={`${scenario.label}: ${scenario.description}`}
+                      >
+                        <div className="flex items-center gap-4 w-full p-2">
+                          <motion.div 
+                            className={`p-3 rounded-xl shadow-sm ${scenario.id === 'onion-scenario' ? 'bg-orange-200 border-2 border-orange-300' : 'bg-purple-200 border-2 border-purple-300'}`}
+                            whileHover={{ 
+                              scale: 1.1,
+                              rotate: [0, -5, 5, 0], // Subtle wiggle animation on hover
+                              transition: { duration: 0.3 }
+                            }}
+                            whileTap={{ 
+                              scale: 0.95,
+                              transition: { duration: 0.1 }
+                            }}
+                            style={{ minHeight: "48px", minWidth: "48px" }} // Ensure icon container meets touch target
+                          >
+                            <motion.div
+                              whileHover={{ 
+                                y: -2,
+                                transition: { duration: 0.2 }
+                              }}
+                            >
+                              <scenario.icon className={`h-12 w-12 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-700' : 'text-purple-700'}`} />
+                            </motion.div>
+                          </motion.div>
+                          <motion.div 
+                            className="flex-1 text-left"
+                            whileHover={{ 
+                              x: 5,
+                              transition: { duration: 0.2 }
+                            }}
+                          >
+                            <motion.div 
+                              className="font-bold text-slate-900 text-lg"
+                              whileHover={{ 
+                                color: "#1e40af", // Blue color on hover
+                                transition: { duration: 0.2 }
+                              }}
+                            >
+                              {scenario.label}
+                            </motion.div>
+                            <div className="text-base text-slate-700 font-medium">
+                              {scenario.description}
+                            </div>
+                          </motion.div>
                         </div>
-                      </div>
-                    </SelectItem>
+                      </SelectItem>
+                    </motion.div>
                   ))}
-                </SelectContent>
-              </AnimatePresence>
+                </motion.div>
+              </SelectContent>
             </Select>
           </div>
 
