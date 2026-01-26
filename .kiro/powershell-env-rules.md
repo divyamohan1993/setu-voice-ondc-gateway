@@ -3,10 +3,17 @@
 **CRITICAL: These rules MUST be followed for ALL command executions in this workspace.**
 
 ## Environment Details
+- **Current System:** Windows 11 64-bit
 - **Shell:** PowerShell (cmd)
 - **Platform:** Windows (win32)
 - **Script Execution:** DISABLED by default
 - **Authorization:** GRANTED to bypass execution restrictions
+
+### Cross-Platform Notes
+- **Linux:** May be Ubuntu 25.04 or latest version
+- **Linux Shell:** Bash (standard Unix commands work)
+- **Linux Scripts:** No execution policy restrictions
+- On Linux: Use `&&` for command chaining, `./script.sh` works directly
 
 ## Mandatory Rules
 
