@@ -176,28 +176,28 @@
 ## Phase 7: Main Application Pages
 
 ### 7.1 Home Page
-- [ ] 7.1.1 Create app/page.tsx with App Router structure
-- [ ] 7.1.2 Implement main layout with header and content area
-- [ ] 7.1.3 Add VoiceInjector component
-- [ ] 7.1.4 Add VisualVerifier component with conditional rendering
-- [ ] 7.1.5 Implement translation flow on scenario selection
-- [ ] 7.1.6 Implement broadcast flow on button click
-- [ ] 7.1.7 Add toast notifications for success/error states
-- [ ] 7.1.8 Implement loading states for async operations
+- [x] 7.1.1 Create app/page.tsx with App Router structure
+- [x] 7.1.2 Implement main layout with header and content area
+- [x] 7.1.3 Add VoiceInjector component
+- [x] 7.1.4 Add VisualVerifier component with conditional rendering
+- [x] 7.1.5 Implement translation flow on scenario selection
+- [x] 7.1.6 Implement broadcast flow on button click
+- [x] 7.1.7 Add toast notifications for success/error states
+- [x] 7.1.8 Implement loading states for async operations
 
 ### 7.2 Debug/Admin Page
-- [ ] 7.2.1 Create app/debug/page.tsx
-- [ ] 7.2.2 Add NetworkLogViewer component
-- [ ] 7.2.3 Add catalog list view with status indicators
-- [ ] 7.2.4 Add farmer profile display
-- [ ] 7.2.5 Style as developer-focused debug interface
+- [x] 7.2.1 Create app/debug/page.tsx
+- [x] 7.2.2 Add NetworkLogViewer component
+- [x] 7.2.3 Add catalog list view with status indicators
+- [x] 7.2.4 Add farmer profile display
+- [x] 7.2.5 Style as developer-focused debug interface
 
 ### 7.3 Layout and Styling
-- [ ] 7.3.1 Create app/layout.tsx with metadata and fonts
-- [ ] 7.3.2 Add Toaster component for notifications
-- [ ] 7.3.3 Configure global styles in app/globals.css
-- [ ] 7.3.4 Add responsive design breakpoints
-- [ ] 7.3.5 Implement dark mode support (optional)
+- [x] 7.3.1 Create app/layout.tsx with metadata and fonts
+- [x] 7.3.2 Add Toaster component for notifications
+- [x] 7.3.3 Configure global styles in app/globals.css
+- [x] 7.3.4 Add responsive design breakpoints
+- [x] 7.3.5 Implement dark mode support (optional)
 
 ## Phase 8: Assets and Static Resources
 
