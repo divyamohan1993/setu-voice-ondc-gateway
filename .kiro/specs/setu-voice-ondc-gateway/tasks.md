@@ -168,10 +168,10 @@
 - [x] 6.3.9 Handle loading and error states
 
 ### 6.4 Utility Components
-- [ ] 6.4.1 Create components/ui/LoadingSpinner.tsx
-- [ ] 6.4.2 Create components/ui/ErrorNotification.tsx
-- [ ] 6.4.3 Create components/ui/BroadcastLoader.tsx with animation
-- [ ] 6.4.4 Create components/ui/BuyerBidNotification.tsx
+- [x] 6.4.1 Create components/ui/LoadingSpinner.tsx
+- [x] 6.4.2 Create components/ui/ErrorNotification.tsx
+- [x] 6.4.3 Create components/ui/BroadcastLoader.tsx with animation
+- [x] 6.4.4 Create components/ui/BuyerBidNotification.tsx
 
 ## Phase 7: Main Application Pages
 
