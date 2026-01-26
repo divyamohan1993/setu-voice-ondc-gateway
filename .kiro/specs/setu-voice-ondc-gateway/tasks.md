@@ -285,7 +285,7 @@
 - [x] 10.2.2 Test specific Hinglish phrase translations
 - [x] 10.2.3 Test commodity name mapping
 - [x] 10.2.4 Test validation error handling
-- [ ] 10.2.5 Test retry logic with mock failures
+- [-] 10.2.5 Test retry logic with mock failures
 
 ### 10.3 Beckn Schema Tests
 - [ ] 10.3.1 Test schema validation with valid data
