@@ -242,6 +242,56 @@ docker compose logs app
 
 Should show no errors, application running on port 3000.
 
+## Helper Scripts
+
+The project includes several helper scripts to make management easier:
+
+### Installation Script
+**Purpose**: Complete automated installation from scratch
+
+**Windows**: `install_setu.bat`  
+**Linux/macOS**: `install_setu.sh`
+
+**What it does**:
+- Installs Docker if not present
+- Starts Docker daemon
+- Manages port conflicts
+- Creates environment configuration
+- Builds and starts containers
+- Initializes database
+- Seeds sample data
+
+### Start Docker Script (Windows Only)
+**Purpose**: Start Docker Desktop and wait for it to be ready
+
+**Windows**: `start_docker.bat`
+
+**When to use**: If Docker Desktop is installed but not running
+
+### Verification Script
+**Purpose**: Verify that the installation is complete and working
+
+**Windows**: `verify_installation.bat`  
+**Linux/macOS**: `verify_installation.sh`
+
+**What it checks**:
+- Docker installed and running
+- Docker Compose available
+- Containers running
+- Application accessible
+- Database accessible
+- Seed data present
+
+**Usage**:
+```bash
+# Windows
+verify_installation.bat
+
+# Linux/macOS
+chmod +x verify_installation.sh
+./verify_installation.sh
+```
+
 ## Post-Installation
 
 ### Adding OpenAI API Key (Optional)
