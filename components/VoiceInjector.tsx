@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
@@ -103,7 +103,6 @@ export interface VoiceInjectorProps {
  */
 export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorProps) {
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   /**
    * Handle scenario selection
@@ -115,14 +114,11 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
     if (!scenario) return;
 
     setSelectedScenario(scenarioId);
-    setIsAnimating(true);
 
     try {
       await onScenarioSelect(scenario.text);
     } catch (error) {
       console.error("Error processing scenario:", error);
-    } finally {
-      setIsAnimating(false);
     }
   };
 
