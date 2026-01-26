@@ -281,7 +281,7 @@
 - [x] 10.1.3 Set up test utilities and helpers
 
 ### 10.2 Translation Agent Tests
-- [ ] 10.2.1 Test fallback mechanism with missing API key
+- [-] 10.2.1 Test fallback mechanism with missing API key
 - [ ] 10.2.2 Test specific Hinglish phrase translations
 - [ ] 10.2.3 Test commodity name mapping
 - [ ] 10.2.4 Test validation error handling
