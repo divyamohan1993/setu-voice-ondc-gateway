@@ -408,50 +408,111 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
           </AnimatePresence>
 
           {/* Processing State */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {isProcessing && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                className="bg-amber-100 border-3 border-amber-300 rounded-xl p-8 text-center shadow-sm"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                transition={{ 
+                  duration: 0.3,
+                  ease: [0.4, 0.0, 0.2, 1]
+                }}
+                className="bg-amber-100 border-3 border-amber-300 rounded-xl p-8 text-center shadow-sm overflow-hidden"
                 role="status"
                 aria-live="polite"
                 aria-label="Processing voice input"
               >
-                <div className="flex items-center justify-center gap-4 mb-4">
-                  <div className="p-2 bg-amber-200 rounded-lg border-2 border-amber-300">
-                    <Loader2 className="h-10 w-10 text-amber-800 animate-spin" />
-                  </div>
-                  <span className="text-2xl font-bold text-amber-900">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="flex items-center justify-center gap-4 mb-4"
+                >
+                  <motion.div 
+                    className="p-2 bg-amber-200 rounded-lg border-2 border-amber-300"
+                    animate={{ 
+                      rotate: 360,
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 1, repeat: Infinity, repeatType: "reverse" }
+                    }}
+                  >
+                    <Loader2 className="h-10 w-10 text-amber-800" />
+                  </motion.div>
+                  <motion.span 
+                    className="text-2xl font-bold text-amber-900"
+                    animate={{ 
+                      opacity: [1, 0.7, 1]
+                    }}
+                    transition={{ 
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
                     Processing Voice Input...
-                  </span>
-                </div>
-                <p className="text-amber-800 text-lg font-medium">
+                  </motion.span>
+                </motion.div>
+                <motion.p 
+                  className="text-amber-800 text-lg font-medium"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
                   Converting voice command to Beckn Protocol JSON
-                </p>
+                </motion.p>
                 
-                {/* Processing Animation */}
-                <div className="mt-4 flex justify-center">
+                {/* Enhanced Processing Animation */}
+                <motion.div 
+                  className="mt-6 flex justify-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
                   <div className="flex space-x-3">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
                         className="w-4 h-4 bg-amber-600 rounded-full border border-amber-700"
                         animate={{
-                          scale: [1, 1.3, 1],
-                          opacity: [0.7, 1, 0.7],
+                          scale: [1, 1.5, 1],
+                          opacity: [0.5, 1, 0.5],
+                          y: [0, -10, 0]
                         }}
                         transition={{
-                          duration: 1.5,
+                          duration: 1.2,
                           repeat: Infinity,
                           delay: i * 0.2,
+                          ease: "easeInOut"
                         }}
                       />
                     ))}
                   </div>
-                </div>
+                </motion.div>
+                
+                {/* Progress bar animation */}
+                <motion.div 
+                  className="mt-4 w-full bg-amber-200 rounded-full h-2 overflow-hidden"
+                  initial={{ opacity: 0, scaleX: 0 }}
+                  animate={{ opacity: 1, scaleX: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <motion.div
+                    className="h-full bg-amber-600 rounded-full"
+                    animate={{ 
+                      x: ["-100%", "100%"]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    style={{ width: "30%" }}
+                  />
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
