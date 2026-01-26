@@ -12,14 +12,17 @@ import { z } from "zod";
  * BecknDescriptorSchema
  * 
  * Represents the descriptor object in a Beckn catalog item.
- * Contains the product name and a symbol (image URL).
+ * Contains the product name and a symbol (image URL or path).
  * 
  * @property name - The product name (required, non-empty string)
- * @property symbol - URL to the product image (required, valid URL)
+ * @property symbol - URL or path to the product image (required, valid URL or path starting with /)
  */
 export const BecknDescriptorSchema = z.object({
   name: z.string().min(1, "Product name is required"),
-  symbol: z.string().url("Symbol must be a valid URL")
+  symbol: z.string().min(1, "Symbol is required").refine(
+    (val) => val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'),
+    "Symbol must be a valid URL or path starting with /"
+  )
 });
 
 /**
