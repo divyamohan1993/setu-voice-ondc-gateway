@@ -25,7 +25,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Loader2, Volume2, Wheat, Apple } from "lucide-react";
+import { Mic, Loader2, Volume2, Cherry, Grape } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -56,20 +56,24 @@ export interface VoiceScenario {
  * as specified in the requirements:
  * - Scenario 1: "Arre bhai, 500 kilo pyaaz hai Nasik se, Grade A hai, aaj hi uthana hai"
  * - Scenario 2: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai"
+ * 
+ * Icons are selected from Lucide React to provide visual identification:
+ * - Cherry icon represents onions (round, layered appearance)
+ * - Grape icon represents mangoes (fruit cluster appearance)
  */
 const VOICE_SCENARIOS: VoiceScenario[] = [
   {
     id: "onion-scenario",
     label: "Nasik Onions - Grade A",
     text: "Arre bhai, 500 kilo pyaaz hai Nasik se, Grade A hai, aaj hi uthana hai",
-    icon: Wheat, // Using Wheat as a placeholder for onion
+    icon: Cherry, // Cherry represents the round, layered appearance of onions
     description: "500kg premium onions from Nasik, urgent pickup"
   },
   {
     id: "mango-scenario", 
     label: "Alphonso Mangoes - Organic",
     text: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai",
-    icon: Apple, // Using Apple as a placeholder for mango
+    icon: Grape, // Grape represents the clustered fruit appearance of mangoes
     description: "20 crates of organic Alphonso mangoes from Ratnagiri"
   }
 ];
