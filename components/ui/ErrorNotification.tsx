@@ -51,7 +51,7 @@ export function ErrorNotification({
                 onClick={onDismiss}
                 variant="ghost"
                 size="sm"
-                className="flex-shrink-0 hover:bg-red-100"
+                className="flex-shrink-0 hover:bg-red-100 transition-colors duration-75"
               >
                 <X className="w-5 h-5 text-red-600" />
               </Button>
