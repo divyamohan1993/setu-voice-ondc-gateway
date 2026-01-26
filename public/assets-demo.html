@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setu Assets Demo - Phase 8</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #444;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .asset-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid #e9ecef;
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .asset-card img {
+            display: block;
+            margin: 0 auto 15px;
+            border-radius: 10px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .asset-card .name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .asset-card .path {
+            font-size: 0.85em;
+            color: #888;
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .asset-card .size {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Setu Assets Demo <span class="badge">Phase 8 Complete</span></h1>
+        <p class="subtitle">Visual Assets for Voice-to-ONDC Gateway</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Commodity Icons</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Logistics Logos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Buyer Logos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Total Assets</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🌾 Commodity Icons</h2>
+            <p class="section-description">
+                Large, high-contrast icons (128x128px) for visual product identification. 
+                Designed for accessibility and recognition by illiterate farmers.
+            </p>
+            <div class="grid">
+                <div class="asset-card">
+                    <img src="/icons/onion.png" alt="Onion" width="128" height="128">
+                    <div class="name">Onion</div>
+                    <div class="size">128 × 128 px</div>
+                    <div class="path">/icons/onion.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/icons/mango.png" alt="Mango" width="128" height="128">
+                    <div class="name">Mango</div>
+                    <div class="size">128 × 128 px</div>
+                    <div class="path">/icons/mango.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/icons/tomato.png" alt="Tomato" width="128" height="128">
+                    <div class="name">Tomato</div>
+                    <div class="size">128 × 128 px</div>
+                    <div class="path">/icons/tomato.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/icons/potato.png" alt="Potato" width="128" height="128">
+                    <div class="name">Potato</div>
+                    <div class="size">128 × 128 px</div>
+                    <div class="path">/icons/potato.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/icons/wheat.png" alt="Wheat" width="128" height="128">
+                    <div class="name">Wheat</div>
+                    <div class="size">128 × 128 px</div>
+                    <div class="path">/icons/wheat.png</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🚚 Logistics Provider Logos</h2>
+            <p class="section-description">
+                Medium-sized logos (64x64px) for logistics provider identification in catalog cards.
+            </p>
+            <div class="grid">
+                <div class="asset-card">
+                    <img src="/logos/india-post.png" alt="India Post" width="64" height="64">
+                    <div class="name">India Post</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/india-post.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/logos/delhivery.png" alt="Delhivery" width="64" height="64">
+                    <div class="name">Delhivery</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/delhivery.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/logos/bluedart.png" alt="BlueDart" width="64" height="64">
+                    <div class="name">BlueDart</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/bluedart.png</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🏪 Buyer Logos</h2>
+            <p class="section-description">
+                Medium-sized logos (64x64px) for buyer identification in network simulation responses.
+            </p>
+            <div class="grid">
+                <div class="asset-card">
+                    <img src="/logos/reliance.png" alt="Reliance" width="64" height="64">
+                    <div class="name">Reliance Fresh</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/reliance.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/logos/bigbasket.png" alt="BigBasket" width="64" height="64">
+                    <div class="name">BigBasket</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/bigbasket.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/logos/paytm.png" alt="Paytm" width="64" height="64">
+                    <div class="name">Paytm Mall</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/paytm.png</div>
+                </div>
+                <div class="asset-card">
+                    <img src="/logos/flipkart.png" alt="Flipkart" width="64" height="64">
+                    <div class="name">Flipkart Grocery</div>
+                    <div class="size">64 × 64 px</div>
+                    <div class="path">/logos/flipkart.png</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Setu Voice-to-ONDC Gateway</strong> - Phase 8: Assets and Static Resources</p>
+            <p style="margin-top: 10px; color: #999;">
+                All assets are placeholder images for development purposes. 
+                Production deployment should use actual brand assets with proper licensing.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
