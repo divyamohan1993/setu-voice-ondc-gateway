@@ -288,22 +288,22 @@
 - [x] 10.2.5 Test retry logic with mock failures
 
 ### 10.3 Beckn Schema Tests
-- [-] 10.3.1 Test schema validation with valid data
-- [-] 10.3.2 Test schema validation with invalid data
-- [-] 10.3.3 Test edge cases (zero prices, empty strings)
-- [-] 10.3.4 Test default value application
+- [x] 10.3.1 Test schema validation with valid data
+- [x] 10.3.2 Test schema validation with invalid data
+- [x] 10.3.3 Test edge cases (zero prices, empty strings)
+- [x] 10.3.4 Test default value application
 
 ### 10.4 Component Tests
-- [-] 10.4.1 Test VoiceInjector rendering and interactions
-- [-] 10.4.2 Test VisualVerifier rendering with various catalog data
-- [-] 10.4.3 Test NetworkLogViewer filtering and pagination
-- [-] 10.4.4 Test broadcast button interactions
+- [x] 10.4.1 Test VoiceInjector rendering and interactions
+- [x] 10.4.2 Test VisualVerifier rendering with various catalog data
+- [x] 10.4.3 Test NetworkLogViewer filtering and pagination
+- [x] 10.4.4 Test broadcast button interactions
 
 ### 10.5 Server Action Tests
-- [-] 10.5.1 Test translateVoiceAction with valid input
-- [-] 10.5.2 Test saveCatalogAction with valid data
-- [-] 10.5.3 Test broadcastCatalogAction flow
-- [-] 10.5.4 Test getNetworkLogsAction pagination
+- [x] 10.5.1 Test translateVoiceAction with valid input
+- [x] 10.5.2 Test saveCatalogAction with valid data
+- [x] 10.5.3 Test broadcastCatalogAction flow
+- [x] 10.5.4 Test getNetworkLogsAction pagination
 
 ### 10.6 Property-Based Tests
 - [x] 10.6.1 Install fast-check library
