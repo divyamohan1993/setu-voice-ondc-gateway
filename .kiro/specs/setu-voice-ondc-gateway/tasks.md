@@ -307,11 +307,11 @@
 
 ### 10.6 Property-Based Tests
 - [x] 10.6.1 Install fast-check library
-- [-] 10.6.2 Create Beckn catalog arbitrary generator
-- [-] 10.6.3 Test round-trip serialization/deserialization
-- [-] 10.6.4 Test all translations produce valid Beckn JSON
-- [-] 10.6.5 Test all catalogs render without errors
-- [-] 10.6.6 Test bid amounts are within valid range
+- [x] 10.6.2 Create Beckn catalog arbitrary generator
+- [x] 10.6.3 Test round-trip serialization/deserialization
+- [x] 10.6.4 Test all translations produce valid Beckn JSON
+- [x] 10.6.5 Test all catalogs render without errors
+- [x] 10.6.6 Test bid amounts are within valid range
 
 ## Phase 11: Documentation
 
