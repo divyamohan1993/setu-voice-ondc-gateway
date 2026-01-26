@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: setu-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-setu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-setu_password}
+      POSTGRES_DB: ${POSTGRES_DB:-setu_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-setu}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - setu-network
+
+  # Next.js Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: setu-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://${POSTGRES_USER:-setu}:${POSTGRES_PASSWORD:-setu_password}@db:5432/${POSTGRES_DB:-setu_db}
+      
+      # AI API Key (optional - fallback mechanism will handle missing key)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      
+      # Next.js configuration
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - setu-network
+    volumes:
+      # Mount prisma directory for migrations
+      - ./prisma:/app/prisma
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+    name: setu_postgres_data
+
+# Network for service communication
+networks:
+  setu-network:
+    driver: bridge
+    name: setu_network

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Farmer {
+  id              String    @id @default(cuid())
+  name            String
+  locationLatLong String?   // Format: "lat,long"
+  languagePref    String    @default("hi") // ISO 639-1 code
+  upiId           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  catalogs        Catalog[]
+  
+  @@map("farmers")
+}
+
+model Catalog {
+  id          String        @id @default(cuid())
+  farmerId    String
+  becknJson   Json          // Stores BecknCatalogItem
+  status      CatalogStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  farmer      Farmer        @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  
+  @@index([farmerId])
+  @@index([status])
+  @@map("catalogs")
+}
+
+enum CatalogStatus {
+  DRAFT
+  BROADCASTED
+  SOLD
+}
+
+model NetworkLog {
+  id        String         @id @default(cuid())
+  type      NetworkLogType
+  payload   Json
+  timestamp DateTime       @default(now())
+  
+  @@index([type])
+  @@index([timestamp])
+  @@map("network_logs")
+}
+
+enum NetworkLogType {
+  OUTGOING_CATALOG
+  INCOMING_BID
+}
