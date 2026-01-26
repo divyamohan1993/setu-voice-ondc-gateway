@@ -195,7 +195,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
                       <div className="flex items-center gap-4 w-full">
-                        <scenario.icon className="h-8 w-8 text-green-600 flex-shrink-0" />
+                        <scenario.icon className="h-12 w-12 text-green-600 flex-shrink-0" />
                         <div className="flex-1 text-left">
                           <div className="font-semibold text-slate-800">
                             {scenario.label}
