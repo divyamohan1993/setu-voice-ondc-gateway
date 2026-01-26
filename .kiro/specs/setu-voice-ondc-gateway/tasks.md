@@ -328,10 +328,10 @@
 - [x] 11.2.1 Add JSDoc comments to all public functions
 - [x] 11.2.2 Add inline comments for complex logic
 - [x] 11.2.3 Document environment variables
-- [-] 11.2.4 Document database schema
+- [x] 11.2.4 Document database schema
 
 ### 11.3 Developer Guide
-- [ ] 11.3.1 Create CONTRIBUTING.md
+- [-] 11.3.1 Create CONTRIBUTING.md
 - [ ] 11.3.2 Document development workflow
 - [ ] 11.3.3 Document testing procedures
 - [ ] 11.3.4 Document deployment process
