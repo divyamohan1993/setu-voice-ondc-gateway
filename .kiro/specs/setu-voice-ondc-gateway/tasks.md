@@ -119,18 +119,18 @@
 ## Phase 5: Network Simulator
 
 ### 5.1 Simulator Core Logic
-- [ ] 5.1.1 Create lib/network-simulator.ts file
-- [ ] 5.1.2 Implement simulateBroadcast function
-- [ ] 5.1.3 Add 8-second delay using setTimeout
-- [ ] 5.1.4 Define buyer pool with names and logos
-- [ ] 5.1.5 Implement random buyer selection
-- [ ] 5.1.6 Implement bid amount calculation (catalog price ± 5-10%)
+- [x] 5.1.1 Create lib/network-simulator.ts file
+- [x] 5.1.2 Implement simulateBroadcast function
+- [x] 5.1.3 Add 8-second delay using setTimeout
+- [x] 5.1.4 Define buyer pool with names and logos
+- [x] 5.1.5 Implement random buyer selection
+- [x] 5.1.6 Implement bid amount calculation (catalog price ± 5-10%)
 
 ### 5.2 Logging and Persistence
-- [ ] 5.2.1 Fetch catalog details from database
-- [ ] 5.2.2 Create NetworkLog entry for INCOMING_BID
-- [ ] 5.2.3 Store bid payload with buyer name, amount, and timestamp
-- [ ] 5.2.4 Return BuyerBid object for UI notification
+- [x] 5.2.1 Fetch catalog details from database
+- [x] 5.2.2 Create NetworkLog entry for INCOMING_BID
+- [x] 5.2.3 Store bid payload with buyer name, amount, and timestamp
+- [x] 5.2.4 Return BuyerBid object for UI notification
 
 ## Phase 6: Frontend Components
 
