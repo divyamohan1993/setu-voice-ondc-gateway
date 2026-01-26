@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Setu - Voice-to-ONDC Gateway",
-  description: "Voice-to-protocol translation system for ONDC",
+  description: "Voice-to-protocol translation system enabling illiterate farmers to participate in ONDC through vernacular voice commands",
+  keywords: ["ONDC", "Beckn Protocol", "Voice Translation", "Agriculture", "Farmers"],
 };
 
 export default function RootLayout({
@@ -28,6 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

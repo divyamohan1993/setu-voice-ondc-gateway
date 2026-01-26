@@ -191,3 +191,142 @@ export function NetworkLogViewer({
     const interval = setInterval(fetchLogs, refreshInterval);
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, filter, currentPage]);
+
+  /**
+   * Handle filter change
+   */
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  /**
+   * Handle page navigation
+   */
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  /**
+   * Toggle log expansion
+   */
+  const toggleLogExpansion = (logId: string) => {
+    setExpandedLogId(expandedLogId === logId ? null : logId);
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-200">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Network Log Viewer
+            </h2>
+            <p className="text-gray-600 mt-1">
+              View raw JSON traffic for debugging
+            </p>
+          </div>
+          
+          {/* Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-gray-600" />
+            <Select value={filter} onValueChange={handleFilterChange}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Events</SelectItem>
+                <SelectItem value="OUTGOING_CATALOG">Outgoing Catalogs</SelectItem>
+                <SelectItem value="INCOMING_BID">Incoming Bids</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            <span className="ml-3 text-gray-600">Loading logs...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+              <div>
+                <p className="font-semibold text-red-900">Error Loading Logs</p>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Logs List */}
+        {!isLoading && !error && (
+          <>
+            {logs.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No logs found</p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Broadcast a catalog to see network events
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {logs.map((log) => (
+                  <LogEntry
+                    key={log.id}
+                    log={log}
+                    isExpanded={expandedLogId === log.id}
+                    onToggle={() => toggleLogExpansion(log.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 pt-6 border-t-2 border-gray-200">
+                <Button
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+                
+                <div className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </div>
+                
+                <Button
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

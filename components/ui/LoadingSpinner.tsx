@@ -1,29 +1,32 @@
 /**
  * LoadingSpinner Component
  * 
- * A simple loading spinner for async operations
+ * A reusable loading spinner component with customizable size and color.
  */
 
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
   text?: string;
 }
 
-export function LoadingSpinner({ size = "md", className, text }: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8",
-    lg: "h-12 w-12"
-  };
+const sizeClasses = {
+  sm: "w-4 h-4",
+  md: "w-6 h-6",
+  lg: "w-8 h-8",
+  xl: "w-12 h-12"
+};
 
+export function LoadingSpinner({ size = "md", className, text }: LoadingSpinnerProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-2", className)}>
-      <Loader2 className={cn("animate-spin text-primary", sizeClasses[size])} />
-      {text && <p className="text-sm text-muted-foreground">{text}</p>}
+    <div className="flex items-center justify-center gap-3">
+      <Loader2 className={cn(sizeClasses[size], "animate-spin text-blue-600", className)} />
+      {text && (
+        <span className="text-gray-600 font-medium">{text}</span>
+      )}
     </div>
   );
 }

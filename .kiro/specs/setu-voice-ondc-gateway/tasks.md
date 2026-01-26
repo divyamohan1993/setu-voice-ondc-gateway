@@ -202,23 +202,23 @@
 ## Phase 8: Assets and Static Resources
 
 ### 8.1 Commodity Icons
-- [ ] 8.1.1 Add onion.png icon (128x128px) to public/icons/
-- [ ] 8.1.2 Add mango.png icon (128x128px) to public/icons/
-- [ ] 8.1.3 Add tomato.png icon (128x128px) to public/icons/
-- [ ] 8.1.4 Add potato.png icon (128x128px) to public/icons/
-- [ ] 8.1.5 Add wheat.png icon (128x128px) to public/icons/
-- [ ] 8.1.6 Create icon mapping utility in lib/icon-mapper.ts
+- [x] 8.1.1 Add onion.png icon (128x128px) to public/icons/
+- [x] 8.1.2 Add mango.png icon (128x128px) to public/icons/
+- [x] 8.1.3 Add tomato.png icon (128x128px) to public/icons/
+- [x] 8.1.4 Add potato.png icon (128x128px) to public/icons/
+- [x] 8.1.5 Add wheat.png icon (128x128px) to public/icons/
+- [x] 8.1.6 Create icon mapping utility in lib/icon-mapper.ts
 
 ### 8.2 Logistics Logos
-- [ ] 8.2.1 Add india-post.png logo (64x64px) to public/logos/
-- [ ] 8.2.2 Add delhivery.png logo (64x64px) to public/logos/
-- [ ] 8.2.3 Add bluedart.png logo (64x64px) to public/logos/
+- [x] 8.2.1 Add india-post.png logo (64x64px) to public/logos/
+- [x] 8.2.2 Add delhivery.png logo (64x64px) to public/logos/
+- [x] 8.2.3 Add bluedart.png logo (64x64px) to public/logos/
 
 ### 8.3 Buyer Logos
-- [ ] 8.3.1 Add reliance.png logo (64x64px) to public/logos/
-- [ ] 8.3.2 Add bigbasket.png logo (64x64px) to public/logos/
-- [ ] 8.3.3 Add paytm.png logo (64x64px) to public/logos/
-- [ ] 8.3.4 Add flipkart.png logo (64x64px) to public/logos/
+- [x] 8.3.1 Add reliance.png logo (64x64px) to public/logos/
+- [x] 8.3.2 Add bigbasket.png logo (64x64px) to public/logos/
+- [x] 8.3.3 Add paytm.png logo (64x64px) to public/logos/
+- [x] 8.3.4 Add flipkart.png logo (64x64px) to public/logos/
 
 ## Phase 9: Deployment Script
 
