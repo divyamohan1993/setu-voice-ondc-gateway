@@ -25,7 +25,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Loader2, Volume2, Circle, Zap } from "lucide-react";
+import { Mic, Loader2, Volume2, Package, Sparkles } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,22 +58,22 @@ export interface VoiceScenario {
  * - Scenario 2: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai"
  * 
  * Icons are selected from Lucide React to provide visual identification:
- * - CircleDot icon represents onions (round, layered bulb appearance)
- * - Banana icon represents mangoes (elongated fruit shape)
+ * - Package icon represents onions (bulk commodity packaging)
+ * - Sparkles icon represents mangoes (premium/special fruit quality)
  */
 const VOICE_SCENARIOS: VoiceScenario[] = [
   {
     id: "onion-scenario",
     label: "Nasik Onions - Grade A",
     text: "Arre bhai, 500 kilo pyaaz hai Nasik se, Grade A hai, aaj hi uthana hai",
-    icon: CircleDot, // CircleDot represents the round, layered bulb appearance of onions
+    icon: Package, // Package represents bulk commodity like onions
     description: "500kg premium onions from Nasik, urgent pickup"
   },
   {
     id: "mango-scenario", 
     label: "Alphonso Mangoes - Organic",
     text: "20 crate Alphonso aam hai, Ratnagiri ka, organic certified hai",
-    icon: Banana, // Banana represents the elongated fruit shape similar to mangoes
+    icon: Sparkles, // Sparkles represents the premium quality of Alphonso mangoes
     description: "20 crates of organic Alphonso mangoes from Ratnagiri"
   }
 ];
@@ -195,7 +195,9 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
                       <div className="flex items-center gap-4 w-full">
-                        <scenario.icon className="h-12 w-12 text-green-600 flex-shrink-0" />
+                        <div className={`p-2 rounded-lg ${scenario.id === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}>
+                          <scenario.icon className={`h-10 w-10 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-600' : 'text-purple-600'}`} />
+                        </div>
                         <div className="flex-1 text-left">
                           <div className="font-semibold text-slate-800">
                             {scenario.label}
