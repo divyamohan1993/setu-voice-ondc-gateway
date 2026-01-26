@@ -17,10 +17,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { VoiceInjector } from "@/components/VoiceInjector";
-import { VisualVerifier } from "@/components/VisualVerifier";
-import { BroadcastLoader } from "@/components/ui/BroadcastLoader";
-import { BuyerBidNotification } from "@/components/ui/BuyerBidNotification";
+import dynamic from "next/dynamic";
 import { translateVoiceAction, saveCatalogAction, broadcastCatalogAction } from "@/app/actions";
 import type { BecknCatalogItem } from "@/lib/beckn-schema";
 import type { BuyerBid } from "@/lib/network-simulator";
@@ -28,6 +25,40 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+
+// Code splitting: Lazy load heavy components
+const VoiceInjector = dynamic(
+  () => import("@/components/VoiceInjector").then(mod => ({ default: mod.VoiceInjector })),
+  {
+    loading: () => <LoadingSpinner />,
+    ssr: false
+  }
+);
+
+const VisualVerifier = dynamic(
+  () => import("@/components/VisualVerifier").then(mod => ({ default: mod.VisualVerifier })),
+  {
+    loading: () => <LoadingSpinner />,
+    ssr: false
+  }
+);
+
+const BroadcastLoader = dynamic(
+  () => import("@/components/ui/BroadcastLoader").then(mod => ({ default: mod.BroadcastLoader })),
+  {
+    loading: () => <LoadingSpinner />,
+    ssr: false
+  }
+);
+
+const BuyerBidNotification = dynamic(
+  () => import("@/components/ui/BuyerBidNotification").then(mod => ({ default: mod.BuyerBidNotification })),
+  {
+    loading: () => <LoadingSpinner />,
+    ssr: false
+  }
+);
 
 export default function Home() {
   const [isTranslating, setIsTranslating] = useState(false);

@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { NetworkLogViewer } from "@/components/NetworkLogViewer";
+import dynamic from "next/dynamic";
 import { getCatalogsByFarmerAction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -18,6 +18,21 @@ import Link from "next/link";
 import { Home, Database, FileJson, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Catalog } from "@prisma/client";
+
+// Code splitting: Lazy load NetworkLogViewer (heavy component with JSON rendering)
+const NetworkLogViewer = dynamic(
+  () => import("@/components/NetworkLogViewer").then(mod => ({ default: mod.NetworkLogViewer })),
+  {
+    loading: () => (
+      <Card className="p-6 bg-white">
+        <div className="py-8">
+          <LoadingSpinner size="lg" text="Loading network logs..." />
+        </div>
+      </Card>
+    ),
+    ssr: false
+  }
+);
 
 export default function DebugPage() {
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
