@@ -1,10 +1,7 @@
 require('dotenv').config({ path: '.env.local' });
 const { PrismaClient } = require('@prisma/client');
 
-// Prisma 7 requires explicit datasource configuration
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL
-});
+const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting database seed...');
