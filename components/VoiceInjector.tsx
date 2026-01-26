@@ -350,13 +350,25 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
           </AnimatePresence>
 
           {/* Instructions */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <h4 className="font-semibold text-slate-700 mb-2">How it works:</h4>
-            <ol className="text-slate-600 space-y-1 text-sm">
-              <li>1. Select a voice scenario from the dropdown above</li>
-              <li>2. The system will translate the voice text to Beckn Protocol JSON</li>
-              <li>3. Review the generated catalog in the Visual Verifier</li>
-              <li>4. Broadcast your listing to the ONDC network</li>
+          <div className="bg-slate-100 border-2 border-slate-300 rounded-xl p-6 shadow-sm">
+            <h4 className="font-bold text-slate-900 mb-3 text-lg">How it works:</h4>
+            <ol className="text-slate-800 space-y-2 text-base font-medium">
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                <span>Select a voice scenario from the dropdown above</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                <span>The system will translate the voice text to Beckn Protocol JSON</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                <span>Review the generated catalog in the Visual Verifier</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                <span>Broadcast your listing to the ONDC network</span>
+              </li>
             </ol>
           </div>
         </CardContent>
