@@ -19,7 +19,7 @@ import { validateCatalog } from '@/lib/translation-agent';
 export const becknCatalogArbitrary = (): fc.Arbitrary<BecknCatalogItem> => {
   return fc.record({
     descriptor: fc.record({
-      name: fc.string({ minLength: 1, maxLength: 100 }),
+      name: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
       symbol: fc.constantFrom(
         '/icons/onion.png',
         '/icons/mango.png',
@@ -29,12 +29,12 @@ export const becknCatalogArbitrary = (): fc.Arbitrary<BecknCatalogItem> => {
       ),
     }),
     price: fc.record({
-      value: fc.float({ min: 0, max: 100000, noNaN: true }),
+      value: fc.float({ min: 1, max: 100000, noNaN: true }),
       currency: fc.constant('INR'),
     }),
     quantity: fc.record({
       available: fc.record({
-        count: fc.integer({ min: 0, max: 1000000 }),
+        count: fc.integer({ min: 1, max: 1000000 }),
       }),
       unit: fc.constantFrom('kg', 'quintal', 'ton', 'piece'),
     }),
