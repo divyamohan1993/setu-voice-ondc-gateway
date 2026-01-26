@@ -107,6 +107,7 @@ export interface VoiceInjectorProps {
  */
 export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorProps) {
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   /**
    * Handle scenario selection
@@ -115,10 +116,14 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
    * Implements error handling gracefully as specified in the design requirements.
    */
   const handleScenarioSelect = async (scenarioId: string) => {
+    // Provide immediate visual feedback (within 100ms requirement)
+    setIsSelecting(true);
+    
     // Validate scenario exists
     const scenario = VOICE_SCENARIOS.find(s => s.id === scenarioId);
     if (!scenario) {
       console.error("Invalid scenario selected:", scenarioId);
+      setIsSelecting(false);
       return;
     }
 
@@ -136,6 +141,8 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
       
       // Re-throw error to allow parent component to handle user feedback
       throw error;
+    } finally {
+      setIsSelecting(false);
     }
   };
 
@@ -222,9 +229,13 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
                       <div className="flex items-center gap-4 w-full">
-                        <div className={`p-2 rounded-lg ${scenario.id === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}>
+                        <motion.div 
+                          className={`p-2 rounded-lg ${scenario.id === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.1 }}
+                        >
                           <scenario.icon className={`h-10 w-10 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-600' : 'text-purple-600'}`} />
-                        </div>
+                        </motion.div>
                         <div className="flex-1 text-left">
                           <div className="font-semibold text-slate-800">
                             {scenario.label}
