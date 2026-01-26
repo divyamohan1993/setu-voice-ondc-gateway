@@ -100,6 +100,8 @@ Setu transforms the farmer experience by providing:
 
 The installation script **automatically handles everything**, including Docker installation if needed.
 
+#### Option 1: Docker Deployment (Recommended)
+
 **Linux / macOS:**
 ```bash
 chmod +x install_setu.sh
@@ -110,6 +112,23 @@ chmod +x install_setu.sh
 ```cmd
 install_setu.bat
 ```
+
+#### Option 2: Local Development (No Docker Required)
+
+**If Docker virtualization is not supported:**
+
+**Linux / macOS:**
+```bash
+chmod +x setup_local.sh
+./setup_local.sh
+```
+
+**Windows:**
+```cmd
+setup_local.bat
+```
+
+This uses SQLite instead of PostgreSQL. See [LOCAL_SETUP.md](LOCAL_SETUP.md) for details.
 
 ### What the Script Does Automatically
 
