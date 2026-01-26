@@ -1,30 +1,36 @@
 # Setu - Local Development Setup (Without Docker)
 
-This guide is for systems where Docker virtualization is not supported. It provides an alternative setup using local Node.js and SQLite.
+This guide is for systems where Docker virtualization is not supported.
+
+## Important Note
+
+The Setu application uses Prisma 7 with PostgreSQL, which requires Docker for the full setup. However, you can still:
+
+1. **Run all tests** - Tests use mocked database connections
+2. **View the code** - Explore the implementation
+3. **Build the application** - Verify the build process works
 
 ## Prerequisites
 
 - Node.js 18+ (you have v24.11.1 ✓)
 - npm 7+ (you have 11.6.2 ✓)
 
-## Quick Start
+## Quick Test Run
 
 ### Windows
 
 ```cmd
-setup_local.bat
+test_local.bat
 ```
 
 ### Linux/macOS
 
 ```bash
-chmod +x setup_local.sh
-./setup_local.sh
+chmod +x test_local.sh
+./test_local.sh
 ```
 
-## Manual Setup
-
-If you prefer to run commands manually:
+## Manual Testing
 
 ### 1. Install Dependencies
 
@@ -32,79 +38,71 @@ If you prefer to run commands manually:
 npm install
 ```
 
-### 2. Configure Environment
+### 2. Run Tests
 
 ```bash
-# Copy the example environment file
-copy .env.example .env.local
-
-# Edit .env.local and update DATABASE_URL to use SQLite:
-# DATABASE_URL="file:./dev.db"
-```
-
-### 3. Initialize Database
-
-```bash
-# Generate Prisma client
-npx prisma generate
-
-# Create database and run migrations
-npx prisma db push
-
-# Seed with sample data
-node prisma/seed.js
-```
-
-### 4. Start Development Server
-
-```bash
-npm run dev
-```
-
-The application will be available at: http://localhost:3000
-
-### 5. Run Tests
-
-```bash
-# Run all tests
+# Run all tests (no database required)
 npm test
+
+# Run tests with UI
+npm run test:ui
 
 # Run tests with coverage
 npm run test:coverage
 ```
 
-## Differences from Docker Setup
+### 3. Build the Application
 
-| Feature | Docker Setup | Local Setup |
-|---------|-------------|-------------|
-| Database | PostgreSQL 16 | SQLite |
-| Port Management | Automatic | Manual |
-| Isolation | Containerized | Local process |
-| Setup Time | 2-5 minutes | 1-2 minutes |
-| Production Ready | Yes | Development only |
+```bash
+# Verify the build works
+npm run build
+```
+
+## What Works Without Docker
+
+✅ **All Tests** - Unit tests, property-based tests, component tests
+✅ **Code Exploration** - Browse and understand the implementation
+✅ **Build Verification** - Ensure the application builds correctly
+✅ **Linting** - Check code quality with `npm run lint`
+
+## What Requires Docker
+
+❌ **Database Operations** - PostgreSQL requires Docker
+❌ **Full Application** - Running the dev server requires database
+❌ **Seed Data** - Database seeding requires PostgreSQL
+❌ **End-to-End Testing** - Full workflow testing requires database
+
+## Recommended Approach
+
+Since Docker virtualization is not supported on your system, we recommend:
+
+1. **Run the test suite** to verify all functionality works correctly
+2. **Review the code** to understand the implementation
+3. **Check the documentation** in the `.kiro/specs` directory
+
+The tests provide comprehensive coverage and don't require a database connection.
+
+## Test Coverage
+
+The project includes:
+
+- **Unit Tests** - Test individual functions and components
+- **Property-Based Tests** - Test universal properties across inputs
+- **Component Tests** - Test React components in isolation
+- **Integration Tests** - Test server actions with mocked database
+
+All tests run without requiring Docker or a database.
+
+## Alternative: Cloud Development Environment
+
+If you need to run the full application, consider:
+
+1. **GitHub Codespaces** - Cloud-based VS Code with Docker support
+2. **GitPod** - Browser-based development environment
+3. **AWS Cloud9** - Cloud IDE with full Docker support
+4. **Local VM** - Run a Linux VM with virtualization enabled
 
 ## Troubleshooting
-
-### Port 3000 Already in Use
-
-```bash
-# Find and kill the process
-netstat -ano | findstr :3000
-taskkill /F /PID <PID>
-
-# Or use a different port
-set PORT=3001
-npm run dev
-```
-
-### Database Issues
-
-```bash
-# Reset database (WARNING: deletes all data)
-del prisma\dev.db
-npx prisma db push
-node prisma/seed.js
-```
 
 ### Module Not Found Errors
 
@@ -115,28 +113,20 @@ del package-lock.json
 npm install
 ```
 
-## Switching to Docker Later
+### Test Failures
 
-When Docker becomes available:
+```bash
+# Clear test cache
+npm test -- --clearCache
 
-1. Stop the local dev server
-2. Update `.env` to use PostgreSQL URL
-3. Run `install_setu.bat` or `install_setu.sh`
+# Run tests in watch mode to see details
+npm run test:watch
+```
 
-## Features Available in Local Setup
+## Next Steps
 
-✅ Voice scenario selection
-✅ AI translation (with fallback)
-✅ Visual catalog verification
-✅ Broadcast simulation
-✅ Network log viewer
-✅ Debug interface
-✅ All tests
+1. Run `npm test` to verify all tests pass
+2. Review the test files in `tests/`, `lib/__tests__/`, and `components/`
+3. Check the implementation in `app/`, `components/`, and `lib/`
+4. Read the design document in `.kiro/specs/setu-voice-ondc-gateway/design.md`
 
-## Notes
-
-- SQLite is used instead of PostgreSQL for simplicity
-- All features work identically to Docker setup
-- Database file is stored as `prisma/dev.db`
-- Perfect for development and testing
-- Not recommended for production deployment
