@@ -224,12 +224,15 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
             >
               <SelectTrigger 
                 id="scenario-select"
-                className="h-16 text-lg border-2 border-slate-300 hover:border-blue-400 focus:border-blue-500 transition-all duration-75 hover:shadow-md active:scale-[0.98]"
-                style={{ minHeight: "44px" }} // Ensure minimum touch target
+                className="h-16 text-lg font-semibold border-3 border-slate-400 hover:border-blue-500 focus:border-blue-600 focus:ring-4 focus:ring-blue-200 bg-white hover:bg-blue-50 transition-all duration-150 hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px for better accessibility)
                 aria-label="Select voice scenario for translation"
                 aria-describedby="scenario-description"
               >
-                <SelectValue placeholder="Select a voice scenario..." />
+                <SelectValue 
+                  placeholder="Select a voice scenario..." 
+                  className="text-slate-700 font-medium"
+                />
               </SelectTrigger>
               
               <AnimatePresence>
