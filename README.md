@@ -96,7 +96,9 @@ Setu transforms the farmer experience by providing:
 
 ## 🚀 Quick Start
 
-### One-Click Deployment
+### ⚡ One-Click Deployment (Works on Blank Systems!)
+
+The installation script **automatically handles everything**, including Docker installation if needed.
 
 **Linux / macOS:**
 ```bash
@@ -109,30 +111,44 @@ chmod +x install_setu.sh
 install_setu.bat
 ```
 
-The deployment script automatically:
-- ✅ Checks dependencies (Docker, Docker Compose)
-- ✅ Manages port conflicts (3000, 5432)
-- ✅ Sets up environment variables
-- ✅ Builds and starts Docker containers
-- ✅ Initializes PostgreSQL database
-- ✅ Runs Prisma migrations
-- ✅ Seeds sample data
-- ✅ Displays success banner with URLs
+### What the Script Does Automatically
 
-**Total deployment time**: 2-5 minutes
+The deployment script is **fully automated** and handles:
+
+- ✅ **Installs Docker** if not present (Windows/macOS/Linux)
+- ✅ **Starts Docker daemon** if not running
+- ✅ **Manages port conflicts** (3000, 5432) - offers to free ports
+- ✅ **Creates .env file** with secure defaults
+- ✅ **Builds and starts Docker containers**
+- ✅ **Initializes PostgreSQL database**
+- ✅ **Runs Prisma migrations**
+- ✅ **Seeds sample data** (2 farmers, 2 catalogs)
+- ✅ **Verifies deployment** and displays success banner
+
+**Total deployment time**: 
+- First run (with Docker installation): 5-10 minutes
+- Subsequent runs: 2-3 minutes
 
 ### Access the Application
+
+After installation completes:
 
 - **Main Application**: http://localhost:3000
 - **Debug Interface**: http://localhost:3000/debug
 - **Database**: PostgreSQL on localhost:5432
 
-### Prerequisites
+### System Requirements
 
-- **Docker** (version 20.10+)
-- **Docker Compose** (version 2.0+)
-- **4GB RAM** minimum (8GB recommended)
-- **2GB free disk space**
+**Minimum**:
+- 4GB RAM (8GB recommended)
+- 2GB free disk space
+- Windows 10/11, macOS 10.15+, or Linux (Ubuntu 18.04+, Debian 10+, Fedora 32+, Arch)
+
+**No prerequisites needed** - the script installs Docker automatically!
+
+### Detailed Installation Guide
+
+For troubleshooting and manual installation options, see [INSTALLATION.md](INSTALLATION.md)
 
 ---
 
