@@ -186,6 +186,31 @@ chmod +x install_setu.sh
 
 After installation completes, verify everything is working:
 
+### Quick Verification
+
+Run the automated verification script:
+
+**Windows:**
+```cmd
+verify_installation.bat
+```
+
+**Linux/macOS:**
+```bash
+chmod +x verify_installation.sh
+./verify_installation.sh
+```
+
+The script checks:
+- ✅ Docker installed and running
+- ✅ Docker Compose available
+- ✅ Setu containers running
+- ✅ Application accessible on port 3000
+- ✅ Database accessible
+- ✅ Seed data present
+
+### Manual Verification
+
 ### 1. Check Containers
 ```bash
 docker compose ps
