@@ -218,23 +218,50 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
               Select a pre-configured voice scenario to test the translation system. Each scenario represents a realistic farmer voice command in Hinglish.
             </div>
             
-            <Select
-              value={selectedScenario || ""}
-              onValueChange={handleScenarioSelect}
-              disabled={isProcessing || isSelecting}
+            <motion.div
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ 
+                scale: 0.98,
+                transition: { duration: 0.1 }
+              }}
             >
-              <SelectTrigger 
-                id="scenario-select"
-                className="h-16 text-lg font-semibold border-3 border-slate-400 hover:border-blue-500 focus:border-blue-600 focus:ring-4 focus:ring-blue-200 bg-white hover:bg-blue-50 transition-all duration-150 hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px for better accessibility)
-                aria-label="Select voice scenario for translation"
-                aria-describedby="scenario-description"
+              <Select
+                value={selectedScenario || ""}
+                onValueChange={handleScenarioSelect}
+                disabled={isProcessing || isSelecting}
               >
-                <SelectValue 
-                  placeholder="Select a voice scenario..." 
-                  className="text-slate-700 font-medium"
-                />
-              </SelectTrigger>
+                <motion.div
+                  animate={selectedScenario ? { 
+                    borderColor: "#3b82f6", // Blue border when selected
+                    boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)"
+                  } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <SelectTrigger 
+                    id="scenario-select"
+                    className="h-16 text-lg font-semibold border-3 border-slate-400 hover:border-blue-500 focus:border-blue-600 focus:ring-4 focus:ring-blue-200 bg-white hover:bg-blue-50 transition-all duration-200 hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px for better accessibility)
+                    aria-label="Select voice scenario for translation"
+                    aria-describedby="scenario-description"
+                  >
+                    <motion.div
+                      animate={selectedScenario ? { 
+                        color: "#1e40af" // Blue text when selected
+                      } : {}}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <SelectValue 
+                        placeholder="Select a voice scenario..." 
+                        className="text-slate-700 font-medium"
+                      />
+                    </motion.div>
+                  </SelectTrigger>
+                </motion.div>
+              </Select>
+            </motion.div>
               
               <SelectContent className="border-3 border-slate-300 bg-white shadow-xl overflow-hidden">
                 <motion.div
@@ -316,30 +343,66 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
           </div>
 
           {/* Selected Scenario Display */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {selectedScenario && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="bg-blue-100 border-3 border-blue-300 rounded-xl p-6 shadow-sm"
+                initial={{ opacity: 0, height: 0, y: -20 }}
+                animate={{ opacity: 1, height: "auto", y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -20 }}
+                transition={{ 
+                  duration: 0.4,
+                  ease: [0.4, 0.0, 0.2, 1],
+                  height: { duration: 0.3 }
+                }}
+                className="bg-blue-100 border-3 border-blue-300 rounded-xl p-6 shadow-sm overflow-hidden"
                 role="region"
                 aria-label="Selected voice scenario"
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-blue-200 rounded-lg border-2 border-blue-300">
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="flex items-start gap-4"
+                >
+                  <motion.div 
+                    className="p-2 bg-blue-200 rounded-lg border-2 border-blue-300"
+                    animate={{ 
+                      rotate: [0, 5, -5, 0],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut"
+                    }}
+                  >
                     <Volume2 className="h-7 w-7 text-blue-800 mt-1 flex-shrink-0" />
-                  </div>
+                  </motion.div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-blue-900 mb-3 text-lg">
+                    <motion.h3 
+                      className="font-bold text-blue-900 mb-3 text-lg"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.2 }}
+                    >
                       Selected Voice Input:
-                    </h3>
-                    <p className="text-blue-800 text-xl italic leading-relaxed font-medium bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+                    </motion.h3>
+                    <motion.p 
+                      className="text-blue-800 text-xl italic leading-relaxed font-medium bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: 0.3 }}
+                      whileHover={{ 
+                        scale: 1.02,
+                        boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
+                        transition: { duration: 0.2 }
+                      }}
+                    >
                       "{getCurrentScenario()?.text}"
-                    </p>
+                    </motion.p>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
