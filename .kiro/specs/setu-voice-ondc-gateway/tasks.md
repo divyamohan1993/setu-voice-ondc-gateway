@@ -25,27 +25,27 @@
 - [x] 1.3.7 Install select/dropdown component
 
 ### 1.4 Docker Configuration
-- [~] 1.4.1 Create Dockerfile for Next.js application
-- [~] 1.4.2 Create docker-compose.yml with app and PostgreSQL services
-- [~] 1.4.3 Configure environment variables in docker-compose.yml
-- [~] 1.4.4 Set up volume mounts for database persistence
+- [x] 1.4.1 Create Dockerfile for Next.js application
+- [x] 1.4.2 Create docker-compose.yml with app and PostgreSQL services
+- [x] 1.4.3 Configure environment variables in docker-compose.yml
+- [x] 1.4.4 Set up volume mounts for database persistence
 
 ### 1.5 Database Setup
-- [~] 1.5.1 Create Prisma schema with Farmer, Catalog, and NetworkLog models
-- [~] 1.5.2 Configure PostgreSQL connection in .env
-- [~] 1.5.3 Generate Prisma client
-- [~] 1.5.4 Create database seed script with sample data
+- [x] 1.5.1 Create Prisma schema with Farmer, Catalog, and NetworkLog models
+- [x] 1.5.2 Configure PostgreSQL connection in .env
+- [x] 1.5.3 Generate Prisma client
+- [x] 1.5.4 Create database seed script with sample data
 
 ## Phase 2: Core Data Layer
 
 ### 2.1 Beckn Protocol Schema Definition
-- [~] 2.1.1 Create lib/beckn-schema.ts file
-- [~] 2.1.2 Define BecknDescriptorSchema with Zod
-- [~] 2.1.3 Define BecknPriceSchema with Zod
-- [~] 2.1.4 Define BecknQuantitySchema with Zod
-- [~] 2.1.5 Define BecknTagsSchema with Zod
-- [~] 2.1.6 Define BecknCatalogItemSchema combining all schemas
-- [~] 2.1.7 Export TypeScript types from Zod schemas
+- [x] 2.1.1 Create lib/beckn-schema.ts file
+- [x] 2.1.2 Define BecknDescriptorSchema with Zod
+- [x] 2.1.3 Define BecknPriceSchema with Zod
+- [x] 2.1.4 Define BecknQuantitySchema with Zod
+- [x] 2.1.5 Define BecknTagsSchema with Zod
+- [x] 2.1.6 Define BecknCatalogItemSchema combining all schemas
+- [x] 2.1.7 Export TypeScript types from Zod schemas
 
 ### 2.2 Prisma Models Implementation
 - [x] 2.2.1 Implement Farmer model with all required fields
