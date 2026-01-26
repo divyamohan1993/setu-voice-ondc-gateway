@@ -150,6 +150,20 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
               <Mic className="h-8 w-8 text-blue-600" />
             </motion.div>
             Voice Input Simulator
+            {selectedScenario && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className={`p-1 rounded-full ${selectedScenario === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}
+              >
+                {(() => {
+                  const scenario = getCurrentScenario();
+                  return scenario ? (
+                    <scenario.icon className={`h-6 w-6 ${selectedScenario === 'onion-scenario' ? 'text-orange-600' : 'text-purple-600'}`} />
+                  ) : null;
+                })()}
+              </motion.div>
+            )}
           </CardTitle>
           <p className="text-slate-600 text-lg mt-2">
             Select a voice scenario to test the translation system
@@ -190,7 +204,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                     <SelectItem 
                       key={scenario.id} 
                       value={scenario.id}
-                      className="h-16 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-colors"
+                      className="h-20 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-colors"
                       style={{ minHeight: "44px" }} // Ensure minimum touch target
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
