@@ -160,14 +160,15 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
       transition={{ duration: 0.5 }}
       className="w-full max-w-2xl mx-auto"
     >
-      <Card className="border-2 border-slate-200 shadow-lg">
-        <CardHeader className="text-center pb-4">
-          <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-slate-800">
+      <Card className="border-3 border-slate-300 shadow-xl bg-white">
+        <CardHeader className="text-center pb-4 bg-gradient-to-b from-slate-50 to-white">
+          <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-slate-900">
             <motion.div
               animate={isProcessing ? { rotate: 360 } : { rotate: 0 }}
               transition={{ duration: 2, repeat: isProcessing ? Infinity : 0, ease: "linear" }}
+              className="p-2 rounded-full bg-blue-100 border-2 border-blue-200"
             >
-              <Mic className="h-8 w-8 text-blue-600" />
+              <Mic className="h-8 w-8 text-blue-700" />
             </motion.div>
             Voice Input Simulator
             {/* Immediate selection feedback */}
@@ -178,9 +179,9 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="p-1 rounded-full bg-blue-100"
+                  className="p-2 rounded-full bg-blue-200 border-2 border-blue-300"
                 >
-                  <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                  <Loader2 className="h-5 w-5 text-blue-800 animate-spin" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -188,18 +189,18 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className={`p-1 rounded-full ${selectedScenario === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}
+                className={`p-2 rounded-full border-2 ${selectedScenario === 'onion-scenario' ? 'bg-orange-200 border-orange-300' : 'bg-purple-200 border-purple-300'}`}
               >
                 {(() => {
                   const scenario = getCurrentScenario();
                   return scenario ? (
-                    <scenario.icon className={`h-6 w-6 ${selectedScenario === 'onion-scenario' ? 'text-orange-600' : 'text-purple-600'}`} />
+                    <scenario.icon className={`h-6 w-6 ${selectedScenario === 'onion-scenario' ? 'text-orange-800' : 'text-purple-800'}`} />
                   ) : null;
                 })()}
               </motion.div>
             )}
           </CardTitle>
-          <p className="text-slate-600 text-lg mt-2">
+          <p className="text-slate-700 text-lg mt-2 font-medium">
             Select a voice scenario to test the translation system
           </p>
         </CardHeader>
@@ -236,28 +237,29 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
               </SelectTrigger>
               
               <AnimatePresence>
-                <SelectContent className="border-2 border-slate-200">
+                <SelectContent className="border-3 border-slate-300 bg-white shadow-xl">
                   {VOICE_SCENARIOS.map((scenario) => (
                     <SelectItem 
                       key={scenario.id} 
                       value={scenario.id}
-                      className="h-20 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-all duration-75 hover:scale-[1.02] active:scale-[0.98]"
-                      style={{ minHeight: "44px" }} // Ensure minimum touch target
+                      className="h-20 cursor-pointer hover:bg-blue-100 focus:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] border-b border-slate-200 last:border-b-0"
+                      style={{ minHeight: "48px", minWidth: "48px" }} // Ensure minimum touch target (increased from 44px)
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
-                      <div className="flex items-center gap-4 w-full">
+                      <div className="flex items-center gap-4 w-full p-2">
                         <motion.div 
-                          className={`p-2 rounded-lg ${scenario.id === 'onion-scenario' ? 'bg-orange-100' : 'bg-purple-100'}`}
+                          className={`p-3 rounded-xl shadow-sm ${scenario.id === 'onion-scenario' ? 'bg-orange-200 border-2 border-orange-300' : 'bg-purple-200 border-2 border-purple-300'}`}
                           whileHover={{ scale: 1.1 }}
                           transition={{ duration: 0.1 }}
+                          style={{ minHeight: "48px", minWidth: "48px" }} // Ensure icon container meets touch target
                         >
-                          <scenario.icon className={`h-10 w-10 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-600' : 'text-purple-600'}`} />
+                          <scenario.icon className={`h-12 w-12 flex-shrink-0 ${scenario.id === 'onion-scenario' ? 'text-orange-700' : 'text-purple-700'}`} />
                         </motion.div>
                         <div className="flex-1 text-left">
-                          <div className="font-semibold text-slate-800">
+                          <div className="font-bold text-slate-900 text-lg">
                             {scenario.label}
                           </div>
-                          <div className="text-sm text-slate-600">
+                          <div className="text-base text-slate-700 font-medium">
                             {scenario.description}
                           </div>
                         </div>
