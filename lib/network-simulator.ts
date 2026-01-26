@@ -1,18 +1,25 @@
 /**
- * Network Simulator
+ * Network Simulator Module
  * 
- * This module simulates buyer network responses to broadcasted catalogs.
- * It generates mock buyer bids after a realistic delay to demonstrate
- * how the ONDC network would respond to farmer listings.
+ * Simulates buyer network responses to broadcasted catalogs.
+ * This module demonstrates how the ONDC network would respond to farmer listings
+ * by generating mock buyer bids after a realistic delay.
+ * 
+ * @module network-simulator
  */
 
-import { prisma } from "./db";
-import type { BecknCatalogItem } from "./beckn-schema";
+import { prisma } from './db';
 
 /**
- * BuyerBid Interface
- * 
- * Represents a bid from a buyer in the network
+ * Buyer information including name and logo
+ */
+interface Buyer {
+  name: string;
+  logo: string;
+}
+
+/**
+ * Buyer bid response object
  */
 export interface BuyerBid {
   buyerName: string;
@@ -22,97 +29,139 @@ export interface BuyerBid {
 }
 
 /**
- * Buyer Interface
- * 
- * Represents a buyer in the network with name and logo
- */
-interface Buyer {
-  name: string;
-  logo: string;
-}
-
-/**
- * BUYER_POOL
- * 
- * Pool of realistic buyer names and logos for simulation
- * Represents major ONDC-compliant buyer platforms in India
+ * Pool of realistic buyer names and logos
+ * These represent major ONDC-compliant buyer platforms in India
  */
 const BUYER_POOL: Buyer[] = [
-  { name: "Reliance Fresh", logo: "/logos/reliance.png" },
-  { name: "BigBasket", logo: "/logos/bigbasket.png" },
-  { name: "Paytm Mall", logo: "/logos/paytm.png" },
-  { name: "Flipkart Grocery", logo: "/logos/flipkart.png" }
+  {
+    name: "Reliance Fresh",
+    logo: "/logos/reliance.png"
+  },
+  {
+    name: "BigBasket",
+    logo: "/logos/bigbasket.png"
+  },
+  {
+    name: "Paytm Mall",
+    logo: "/logos/paytm.png"
+  },
+  {
+    name: "Flipkart Grocery",
+    logo: "/logos/flipkart.png"
+  }
 ];
 
 /**
- * simulateBroadcast
+ * Simulates a broadcast to the buyer network and generates a mock bid response.
  * 
- * Simulates a buyer network response to a broadcasted catalog.
- * 
- * Flow:
- * 1. Wait 8 seconds (simulating network latency)
- * 2. Fetch catalog details from database
- * 3. Generate a mock buyer bid
- * 4. Log the bid to NetworkLog
- * 5. Return bid data for UI notification
+ * This function:
+ * 1. Waits 8 seconds to simulate network latency
+ * 2. Fetches the catalog details from the database
+ * 3. Randomly selects a buyer from the pool
+ * 4. Calculates a bid amount (catalog price ± 5-10%)
+ * 5. Logs the bid to the NetworkLog table
+ * 6. Returns the bid data for UI notification
  * 
  * @param catalogId - The ID of the catalog being broadcasted
- * @returns Promise resolving to BuyerBid
- * @throws Error if catalog not found or database operation fails
+ * @returns Promise<BuyerBid> - The generated buyer bid
+ * @throws Error if catalog is not found or database operation fails
+ * 
+ * @example
+ * ```typescript
+ * const bid = await simulateBroadcast("clx123abc");
+ * console.log(`${bid.buyerName} bid ₹${bid.bidAmount}`);
+ * ```
  */
 export async function simulateBroadcast(catalogId: string): Promise<BuyerBid> {
-  console.log(`🌐 Starting network simulation for catalog ${catalogId}`);
-  
-  // Wait 8 seconds to simulate network latency
-  console.log("⏳ Waiting 8 seconds for network response...");
+  // Task 5.1.3: Add 8-second delay using setTimeout
+  // Simulates realistic network latency for ONDC broadcast and response
   await new Promise(resolve => setTimeout(resolve, 8000));
   
-  // Fetch catalog details from database
+  // Task 5.2.1: Fetch catalog details from database
   const catalog = await prisma.catalog.findUnique({
     where: { id: catalogId }
   });
   
   if (!catalog) {
-    throw new Error(`Catalog ${catalogId} not found`);
+    throw new Error(`Catalog with ID ${catalogId} not found`);
   }
   
-  // Parse the Beckn JSON to get the price
-  const becknData = catalog.becknJson as BecknCatalogItem;
-  const catalogPrice = becknData.price.value;
+  // Extract price from the Beckn JSON structure
+  const becknData = catalog.becknJson as any;
+  const catalogPrice = becknData.price?.value || 0;
   
-  // Select a random buyer from the pool
+  if (catalogPrice <= 0) {
+    throw new Error('Invalid catalog price');
+  }
+  
+  // Task 5.1.4: Define buyer pool with names and logos
+  // Task 5.1.5: Implement random buyer selection
+  // Randomly select a buyer from the pool
   const selectedBuyer = BUYER_POOL[Math.floor(Math.random() * BUYER_POOL.length)];
   
-  // Calculate bid amount (catalog price ± 5-10%)
-  // Random variation between 0.90 and 1.05 of catalog price
-  const variation = 0.90 + Math.random() * 0.15;
-  const bidAmount = Math.round(catalogPrice * variation * 100) / 100; // Round to 2 decimal places
+  // Task 5.1.6: Implement bid amount calculation (catalog price ± 5-10%)
+  // Generate a bid amount that's 95-105% of the catalog price
+  // This simulates realistic market negotiation
+  const variationPercent = 0.95 + Math.random() * 0.10; // Random value between 0.95 and 1.05
+  const bidAmount = Math.round(catalogPrice * variationPercent * 100) / 100; // Round to 2 decimal places
   
-  console.log(`💰 ${selectedBuyer.name} bid: ₹${bidAmount} (catalog price: ₹${catalogPrice})`);
+  const timestamp = new Date();
   
-  // Create the bid object
-  const bid: BuyerBid = {
-    buyerName: selectedBuyer.name,
-    bidAmount,
-    timestamp: new Date(),
-    buyerLogo: selectedBuyer.logo
-  };
-  
-  // Log the bid to NetworkLog
+  // Task 5.2.2: Create NetworkLog entry for INCOMING_BID
+  // Task 5.2.3: Store bid payload with buyer name, amount, and timestamp
   await prisma.networkLog.create({
     data: {
       type: "INCOMING_BID",
       payload: {
-        buyerName: bid.buyerName,
-        bidAmount: bid.bidAmount,
-        catalogId: catalogId,
-        timestamp: bid.timestamp.toISOString()
+        buyerName: selectedBuyer.name,
+        bidAmount,
+        catalogId,
+        timestamp: timestamp.toISOString()
       },
-      timestamp: bid.timestamp
+      timestamp
     }
   });
   
-  console.log("✓ Network simulation completed, bid logged");
+  // Task 5.2.4: Return BuyerBid object for UI notification
+  return {
+    buyerName: selectedBuyer.name,
+    bidAmount,
+    timestamp,
+    buyerLogo: selectedBuyer.logo
+  };
+}
+
+/**
+ * Gets the buyer pool for testing or display purposes
+ * 
+ * @returns Buyer[] - Array of all available buyers
+ */
+export function getBuyerPool(): Buyer[] {
+  return [...BUYER_POOL];
+}
+
+/**
+ * Validates that a catalog has the required structure for broadcasting
+ * 
+ * @param catalog - The catalog object to validate
+ * @returns boolean - True if catalog is valid for broadcasting
+ */
+export function validateCatalogForBroadcast(catalog: any): boolean {
+  if (!catalog || !catalog.becknJson) {
+    return false;
+  }
   
-  return bid;
+  const becknData = catalog.becknJson as any;
+  
+  // Check for required price field
+  if (!becknData.price || typeof becknData.price.value !== 'number' || becknData.price.value <= 0) {
+    return false;
+  }
+  
+  // Check for required descriptor
+  if (!becknData.descriptor || !becknData.descriptor.name) {
+    return false;
+  }
+  
+  return true;
 }
