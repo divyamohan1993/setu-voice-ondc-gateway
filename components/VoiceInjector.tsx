@@ -4,18 +4,28 @@
  * VoiceInjector Component
  * 
  * Simulates voice input through a dropdown interface with pre-configured scenarios.
- * Designed for development mode testing without actual voice recognition.
+ * Provides accessibility-first design with large touch targets and high contrast.
  * 
  * Features:
+ * - Dropdown with pre-configured voice scenarios
  * - Large touch targets (minimum 44x44px)
- * - High contrast colors
- * - Icon-based scenario identification
- * - Smooth animations using Framer Motion
+ * - High contrast colors for accessibility
+ * - Loading state during processing
+ * - Framer Motion animations
+ * - Icon-based scenario identification using Lucide React
+ * 
+ * Requirements Implementation:
+ * - Requirement 1.1: Display dropdown interface with selectable voice scenarios
+ * - Requirement 1.2: Provide at least two pre-configured scenarios
+ * - Requirement 1.3: Inject specific scenario texts as required
+ * - Requirement 1.5: Trigger translation process when scenario is selected
+ * - Requirement 10.5: Use minimum touch target size of 44x44 pixels
+ * - Requirement 10.6: Use high contrast ratios for visual elements
  */
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Mic, Wheat, Apple, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mic, Loader2, Volume2, Wheat, Apple } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -23,7 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * VoiceScenario
