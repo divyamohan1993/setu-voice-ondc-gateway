@@ -148,7 +148,21 @@ After installation completes:
 
 ### Detailed Installation Guide
 
-For troubleshooting and manual installation options, see [INSTALLATION.md](INSTALLATION.md)
+For troubleshooting, manual installation, and advanced options:
+- **[Complete Installation Guide](INSTALLATION.md)** - Detailed installation instructions, troubleshooting, and Docker installation
+- **[Quick Reference Card](QUICK_REFERENCE.md)** - Common commands, workflows, and troubleshooting at a glance
+
+### Helper Scripts
+
+The project includes automated helper scripts:
+
+| Script | Purpose | Platform |
+|--------|---------|----------|
+| `install_setu.bat` | Complete automated installation | Windows |
+| `install_setu.sh` | Complete automated installation | Linux/macOS |
+| `start_docker.bat` | Start Docker Desktop and wait for ready | Windows |
+| `verify_installation.bat` | Verify installation is working | Windows |
+| `verify_installation.sh` | Verify installation is working | Linux/macOS |
 
 ---
 
