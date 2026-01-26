@@ -72,10 +72,40 @@ if errorlevel 1 (
             goto docker_manual_install
         )
         echo [OK] Docker Desktop installed successfully
-        echo [INFO] Please start Docker Desktop and run this script again
-        echo [INFO] Docker Desktop should appear in your Start Menu
-        pause
-        exit /b 0
+        echo.
+        echo [INFO] Starting Docker Desktop...
+        start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+        
+        echo [INFO] Waiting for Docker to initialize (this may take 60-90 seconds)...
+        timeout /t 10 /nobreak >nul
+        
+        REM Refresh PATH to include Docker
+        call refreshenv >nul 2>&1
+        
+        REM Wait for Docker to be ready
+        set /a elapsed=0
+        set /a max_wait=120
+        
+        :docker_init_wait
+        if !elapsed! geq !max_wait! (
+            echo.
+            echo [WARNING] Docker Desktop is taking longer than expected to start
+            echo [INFO] Please ensure Docker Desktop is running and run this script again
+            pause
+            exit /b 0
+        )
+        
+        docker info >nul 2>&1
+        if not errorlevel 1 (
+            echo.
+            echo [OK] Docker Desktop is ready!
+            goto docker_check_complete
+        )
+        
+        echo|set /p="."
+        timeout /t 3 /nobreak >nul
+        set /a elapsed+=3
+        goto docker_init_wait
     ) else (
         goto docker_manual_install
     )
@@ -122,8 +152,9 @@ if errorlevel 1 (
 )
 
 echo [OK] Docker Desktop installed successfully
-echo [INFO] Please start Docker Desktop from the Start Menu
-echo [INFO] After Docker Desktop is running, run this script again
+echo [INFO] Starting Docker Desktop...
+start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+echo [INFO] Please wait for Docker Desktop to start, then run this script again
 pause
 exit /b 0
 
