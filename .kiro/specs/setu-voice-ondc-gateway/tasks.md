@@ -282,7 +282,7 @@
 
 ### 10.2 Translation Agent Tests
 - [x] 10.2.1 Test fallback mechanism with missing API key
-- [ ] 10.2.2 Test specific Hinglish phrase translations
+- [-] 10.2.2 Test specific Hinglish phrase translations
 - [ ] 10.2.3 Test commodity name mapping
 - [ ] 10.2.4 Test validation error handling
 - [ ] 10.2.5 Test retry logic with mock failures
