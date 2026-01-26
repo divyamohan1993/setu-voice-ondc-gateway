@@ -8,20 +8,25 @@
  * 
  * Features:
  * - Large commodity icons (128x128px)
- * - High-contrast price badge with large font
- * - Visual quantity indicators
- * - Logistics provider logo display
+ * - High-contrast price badge with large font (32px)
+ * - Visual quantity indicators with bag icons
+ * - Logistics provider logo display (64x64px)
  * - Thumbprint broadcast button (120x120px)
- * - Framer Motion animations
+ * - Framer Motion animations for card entrance, button interactions, and success
+ * - High-contrast colors and minimal text for accessibility
+ * 
+ * **Validates: Requirements 4, 5, 10**
  */
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Fingerprint, Loader2, CheckCircle2, Package, TrendingUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Fingerprint, Loader2, CheckCircle2, Package, TrendingUp, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { BecknCatalogItem } from "@/lib/beckn-schema";
+import { getCommodityIconFromProduct, getLogisticsLogo } from "@/lib/icon-mapper";
 
 /**
  * VisualVerifierProps
@@ -30,38 +35,6 @@ export interface VisualVerifierProps {
   catalog: BecknCatalogItem;
   onBroadcast: () => Promise<void>;
   isBroadcasting: boolean;
-}
-
-/**
- * Commodity icon mapping
- * Maps product names to emoji icons
- */
-function getCommodityIcon(productName: string): string {
-  const name = productName.toLowerCase();
-  
-  if (name.includes("onion") || name.includes("pyaaz")) return "🧅";
-  if (name.includes("mango") || name.includes("aam")) return "🥭";
-  if (name.includes("tomato") || name.includes("tamatar")) return "🍅";
-  if (name.includes("potato") || name.includes("aloo")) return "🥔";
-  if (name.includes("wheat") || name.includes("gehun")) return "🌾";
-  if (name.includes("rice") || name.includes("chawal")) return "🌾";
-  
-  return "📦"; // Default icon
-}
-
-/**
- * Logistics provider logo mapping
- */
-function getLogisticsIcon(provider?: string): string {
-  if (!provider) return "🚚";
-  
-  const name = provider.toLowerCase();
-  
-  if (name.includes("india post")) return "📮";
-  if (name.includes("delhivery")) return "🚚";
-  if (name.includes("bluedart") || name.includes("blue dart")) return "✈️";
-  
-  return "🚚";
 }
 
 /**
