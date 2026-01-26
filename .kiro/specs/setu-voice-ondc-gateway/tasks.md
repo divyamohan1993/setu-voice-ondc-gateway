@@ -365,6 +365,6 @@
 
 ### 12.5 Demo Preparation
 - [x] 12.5.1 Prepare demo script with realistic scenarios
-- [-] 12.5.2 Create demo video or GIF
-- [-] 12.5.3 Prepare presentation slides
-- [-] 12.5.4 Test demo flow multiple times
+- [x] 12.5.2 Create demo video or GIF
+- [x] 12.5.3 Prepare presentation slides
+- [x] 12.5.4 Test demo flow multiple times
