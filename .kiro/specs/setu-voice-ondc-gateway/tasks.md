@@ -157,15 +157,15 @@
 - [x] 6.2.10 Style with high-contrast colors and minimal text
 
 ### 6.3 Network Log Viewer Component
-- [ ] 6.3.1 Create components/NetworkLogViewer.tsx
-- [ ] 6.3.2 Implement log list UI with chronological ordering
-- [ ] 6.3.3 Add color coding for event types (green/blue)
-- [ ] 6.3.4 Implement expandable log entries
-- [ ] 6.3.5 Add JSON syntax highlighting
-- [ ] 6.3.6 Implement filter dropdown for event types
-- [ ] 6.3.7 Add pagination controls
-- [ ] 6.3.8 Fetch logs using getNetworkLogsAction
-- [ ] 6.3.9 Handle loading and error states
+- [x] 6.3.1 Create components/NetworkLogViewer.tsx
+- [x] 6.3.2 Implement log list UI with chronological ordering
+- [x] 6.3.3 Add color coding for event types (green/blue)
+- [x] 6.3.4 Implement expandable log entries
+- [x] 6.3.5 Add JSON syntax highlighting
+- [x] 6.3.6 Implement filter dropdown for event types
+- [x] 6.3.7 Add pagination controls
+- [x] 6.3.8 Fetch logs using getNetworkLogsAction
+- [x] 6.3.9 Handle loading and error states
 
 ### 6.4 Utility Components
 - [ ] 6.4.1 Create components/ui/LoadingSpinner.tsx
