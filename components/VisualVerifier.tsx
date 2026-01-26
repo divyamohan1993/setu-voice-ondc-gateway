@@ -153,7 +153,7 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
             >
-              <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400">
+              <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400 transition-all duration-75 hover:scale-105 active:scale-95">
                 ₹{catalog.price.value} / {catalog.quantity.unit}
               </Badge>
             </motion.div>
@@ -227,7 +227,7 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
                   onClick={handleBroadcast}
                   disabled={isBroadcasting || broadcastSuccess}
                   size="lg"
-                  className="h-32 w-32 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary border-4 border-primary/30"
+                  className="h-32 w-32 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-75 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary border-4 border-primary/30 active:scale-95"
                 >
                   <AnimatePresence mode="wait">
                     {isBroadcasting ? (

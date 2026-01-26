@@ -217,7 +217,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                     <SelectItem 
                       key={scenario.id} 
                       value={scenario.id}
-                      className="h-20 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-colors"
+                      className="h-20 cursor-pointer hover:bg-blue-50 focus:bg-blue-100 transition-all duration-75 hover:scale-[1.02] active:scale-[0.98]"
                       style={{ minHeight: "44px" }} // Ensure minimum touch target
                       aria-label={`${scenario.label}: ${scenario.description}`}
                     >
@@ -248,7 +248,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
                 className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4"
                 role="region"
                 aria-label="Selected voice scenario"
@@ -275,7 +275,7 @@ export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorP
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
                 className="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 text-center"
                 role="status"
                 aria-live="polite"
