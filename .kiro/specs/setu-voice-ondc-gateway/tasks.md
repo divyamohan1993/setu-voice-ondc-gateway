@@ -139,10 +139,10 @@
 - [x] 6.1.2 Define VoiceScenario interface and sample scenarios
 - [x] 6.1.3 Implement dropdown UI using Shadcn Select
 - [x] 6.1.4 Add scenario icons using Lucide React
-- [ ] 6.1.5 Implement onScenarioSelect handler
-- [ ] 6.1.6 Add loading state during processing
-- [ ] 6.1.7 Style with Tailwind for large touch targets and high contrast
-- [ ] 6.1.8 Add Framer Motion animations for dropdown
+- [x] 6.1.5 Implement onScenarioSelect handler
+- [x] 6.1.6 Add loading state during processing
+- [x] 6.1.7 Style with Tailwind for large touch targets and high contrast
+- [x] 6.1.8 Add Framer Motion animations for dropdown
 
 ### 6.2 Visual Verifier Component
 - [x] 6.2.1 Create components/VisualVerifier.tsx
