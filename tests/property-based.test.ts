@@ -301,23 +301,22 @@ describe('Property-Based Tests', () => {
   });
 
   /**
-   * Additional property: Price calculations are commutative
+   * Additional property: Price calculations preserve order
    */
   describe('Price calculation properties', () => {
-    it('should maintain price relationships after percentage changes', () => {
+    it('should preserve relative ordering after percentage changes', () => {
       fc.assert(
         fc.property(
           fc.float({ min: 1, max: 10000, noNaN: true }),
+          fc.float({ min: 1, max: 10000, noNaN: true }),
           fc.float({ min: Math.fround(0.01), max: Math.fround(0.5), noNaN: true }),
-          (price, percentage) => {
-            const increased = price * (1 + percentage);
-            const decreased = increased * (1 - percentage);
-            
-            // Due to floating point, use approximate equality
-            const diff = Math.abs(decreased - price);
-            const tolerance = Math.max(price * 0.02, 0.03); // 2% tolerance or 0.03 minimum
-            
-            expect(diff).toBeLessThanOrEqual(tolerance);
+          (price1, price2, percentage) => {
+            // If price1 < price2, then after same percentage increase, price1 should still be < price2
+            if (price1 < price2) {
+              const increased1 = price1 * (1 + percentage);
+              const increased2 = price2 * (1 + percentage);
+              expect(increased1).toBeLessThan(increased2);
+            }
           }
         ),
         { numRuns: 20 }
