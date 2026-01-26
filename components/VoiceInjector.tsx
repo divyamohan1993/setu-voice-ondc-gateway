@@ -25,7 +25,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Loader2, Volume2, CircleDot, Banana } from "lucide-react";
+import { Mic, Loader2, Volume2, Circle, Zap } from "lucide-react";
 import {
   Select,
   SelectContent,
