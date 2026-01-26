@@ -148,6 +148,8 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
+              id="commodity-description"
+              aria-label={`Product: ${catalog.descriptor.name}`}
             >
               {catalog.descriptor.name}
             </motion.h2>
@@ -158,7 +160,9 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
             >
-              <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400 transition-all duration-75 hover:scale-105 active:scale-95">
+              <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400 transition-all duration-75 hover:scale-105 active:scale-95"
+                     aria-label={`Price: ${catalog.price.value} rupees per ${catalog.quantity.unit}`}
+                     role="status">
                 ₹{catalog.price.value} / {catalog.quantity.unit}
               </Badge>
             </motion.div>
@@ -169,8 +173,10 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
               className="flex items-center gap-4 text-2xl md:text-3xl bg-muted/50 px-6 py-3 rounded-full"
+              role="status"
+              aria-label={`Available quantity: ${catalog.quantity.available.count} ${catalog.quantity.unit}`}
             >
-              <Package className="h-10 w-10 text-primary" strokeWidth={2.5} />
+              <Package className="h-10 w-10 text-primary" strokeWidth={2.5} aria-hidden="true" />
               <span className="font-bold text-foreground">
                 {catalog.quantity.available.count} {catalog.quantity.unit}
               </span>
@@ -290,6 +296,12 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               <AnimatePresence>
                 {broadcastSuccess && <ConfettiAnimation />}
               </AnimatePresence>
+              
+              {/* Hidden description for screen readers */}
+              <div id="broadcast-description" className="sr-only">
+                Press this button to broadcast your {catalog.descriptor.name} catalog to the buyer network. 
+                The system will send your product listing to potential buyers who may place bids.
+              </div>
             </motion.div>
 
             {/* Broadcast Success Message with Animation */}
