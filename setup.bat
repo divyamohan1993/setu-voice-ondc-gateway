@@ -6,11 +6,25 @@ REM
 REM This script is IDEMPOTENT and handles:
 REM - Auto-detection of existing installations
 REM - Automatic .env generation with secure random keys
+REM - Password synchronization across all configuration points:
+REM   * POSTGRES_PASSWORD in .env
+REM   * DATABASE_URL in .env (must match POSTGRES_PASSWORD)
+REM   * Docker Compose environment variables (reads from .env)
+REM   * Prisma connection string (uses DATABASE_URL from .env)
 REM - Docker installation and configuration
 REM - Database setup and migrations
 REM - Dependency installation
 REM - Health checks and verification
-REM - Automatic updates and key rotation
+REM - Automatic password validation and rotation with backup
+REM
+REM Password Synchronization Points:
+REM 1. .env file: POSTGRES_PASSWORD=<password>
+REM 2. .env file: DATABASE_URL=postgresql://setu:<password>@localhost:5432/setu_db
+REM 3. docker-compose.yml: Uses ${POSTGRES_PASSWORD} from .env
+REM 4. Prisma: Uses DATABASE_URL from .env
+REM
+REM The script ensures all four points use the SAME password for business continuity.
+REM If mismatch detected, it regenerates .env with backup of old version.
 REM
 REM Usage: setup.bat
 REM
@@ -200,11 +214,68 @@ if exist .env (
     if defined UPDATE_ENV (
         echo [INFO] Updating .env file with missing keys...
         call :generate_random_password
-        echo POSTGRES_PASSWORD=!RANDOM_PASSWORD! >> .env
-        echo DATABASE_URL=postgresql://setu:!RANDOM_PASSWORD!@localhost:%DB_PORT%/setu_db >> .env
-        echo [OK] .env file updated
+        set DB_PASSWORD=!RANDOM_PASSWORD!
+        
+        REM Append missing keys with synchronized password
+        findstr /C:"POSTGRES_PASSWORD" .env >nul 2>&1
+        if errorlevel 1 (
+            echo POSTGRES_PASSWORD=!DB_PASSWORD! >> .env
+        )
+        
+        findstr /C:"DATABASE_URL" .env >nul 2>&1
+        if errorlevel 1 (
+            echo DATABASE_URL=postgresql://setu:!DB_PASSWORD!@localhost:%DB_PORT%/setu_db >> .env
+        )
+        
+        echo [OK] .env file updated with synchronized credentials
     ) else (
         echo [OK] All required keys present
+        echo [INFO] Verifying password synchronization...
+        
+        REM Extract password from .env for verification
+        for /f "tokens=2 delims==" %%a in ('findstr /C:"POSTGRES_PASSWORD" .env') do set EXISTING_PASSWORD=%%a
+        
+        REM Verify DATABASE_URL contains the same password
+        findstr /C:"postgresql://setu:!EXISTING_PASSWORD!@" .env >nul 2>&1
+        if errorlevel 1 (
+            echo [WARNING] Password mismatch detected between POSTGRES_PASSWORD and DATABASE_URL
+            echo [INFO] Regenerating .env file for consistency...
+            
+            REM Backup existing .env
+            copy .env .env.backup.%date:~-4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2% >nul 2>&1
+            
+            REM Generate new password and recreate .env
+            call :generate_random_password
+            set DB_PASSWORD=!RANDOM_PASSWORD!
+            
+            REM Preserve OPENAI_API_KEY if it exists
+            set OPENAI_KEY=
+            for /f "tokens=2 delims==" %%a in ('findstr /C:"OPENAI_API_KEY" .env 2^>nul') do set OPENAI_KEY=%%a
+            
+            (
+                echo # Setu Voice-to-ONDC Gateway - Environment Configuration
+                echo # Regenerated: %date% %time%
+                echo # Previous version backed up
+                echo.
+                echo # Database Configuration
+                echo POSTGRES_USER=setu
+                echo POSTGRES_PASSWORD=!DB_PASSWORD!
+                echo POSTGRES_DB=setu_db
+                echo.
+                echo # Database URL for Prisma
+                echo DATABASE_URL=postgresql://setu:!DB_PASSWORD!@localhost:%DB_PORT%/setu_db
+                echo.
+                echo # OpenAI API Configuration
+                echo OPENAI_API_KEY=!OPENAI_KEY!
+                echo.
+                echo # Application Configuration
+                echo NODE_ENV=production
+                echo NEXT_TELEMETRY_DISABLED=1
+            ) > .env
+            echo [OK] .env file regenerated with synchronized credentials
+        ) else (
+            echo [OK] Password synchronization verified
+        )
     )
 ) else (
     echo [INFO] Creating new .env file with secure defaults...
