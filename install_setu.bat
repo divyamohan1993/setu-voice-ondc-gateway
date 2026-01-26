@@ -146,12 +146,40 @@ REM Check if Docker daemon is running
 echo [INFO] Checking if Docker daemon is running...
 docker info >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker daemon is not running
-    echo.
-    echo Please start Docker Desktop and try again.
-    pause
-    exit /b 1
+    echo [WARNING] Docker daemon is not running
+    echo [INFO] Attempting to start Docker Desktop...
+    
+    REM Try to start Docker Desktop
+    start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    
+    echo [INFO] Waiting for Docker Desktop to start (this may take 30-60 seconds)...
+    set /a elapsed=0
+    set /a max_wait=120
+    
+    :docker_wait_loop
+    if !elapsed! geq !max_wait! (
+        echo.
+        echo [ERROR] Docker Desktop failed to start within 120 seconds
+        echo [INFO] Please start Docker Desktop manually from the Start Menu
+        echo [INFO] After Docker Desktop is running, run this script again
+        pause
+        exit /b 1
+    )
+    
+    docker info >nul 2>&1
+    if not errorlevel 1 (
+        echo.
+        echo [OK] Docker Desktop is now running
+        goto docker_running
+    )
+    
+    echo|set /p="."
+    timeout /t 3 /nobreak >nul
+    set /a elapsed+=3
+    goto docker_wait_loop
 )
+
+:docker_running
 echo [OK] Docker daemon is running
 echo.
 
