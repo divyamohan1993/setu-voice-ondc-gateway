@@ -58,15 +58,76 @@ REM Check for Docker
 echo [INFO] Checking for Docker...
 docker --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker is not installed or not in PATH
+    echo [WARNING] Docker is not installed
+    echo [INFO] Attempting to install Docker Desktop for Windows...
     echo.
-    echo Please install Docker Desktop from: https://docs.docker.com/desktop/install/windows-install/
-    echo.
-    pause
-    exit /b 1
+    
+    REM Check if winget is available (Windows 10 1809+ / Windows 11)
+    winget --version >nul 2>&1
+    if not errorlevel 1 (
+        echo [INFO] Installing Docker Desktop using winget...
+        winget install -e --id Docker.DockerDesktop --accept-package-agreements --accept-source-agreements
+        if errorlevel 1 (
+            echo [ERROR] Failed to install Docker Desktop via winget
+            goto docker_manual_install
+        )
+        echo [OK] Docker Desktop installed successfully
+        echo [INFO] Please start Docker Desktop and run this script again
+        echo [INFO] Docker Desktop should appear in your Start Menu
+        pause
+        exit /b 0
+    ) else (
+        goto docker_manual_install
+    )
 )
 echo [OK] Docker is installed
 docker --version
+goto docker_check_complete
+
+:docker_manual_install
+echo [INFO] Automatic installation not available
+echo [INFO] Downloading Docker Desktop installer...
+echo.
+
+REM Create temp directory for download
+if not exist "%TEMP%\setu_install" mkdir "%TEMP%\setu_install"
+
+REM Download Docker Desktop installer using PowerShell
+powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://desktop.docker.com/win/main/amd64/Docker%%20Desktop%%20Installer.exe' -OutFile '%TEMP%\setu_install\DockerDesktopInstaller.exe'}"
+
+if errorlevel 1 (
+    echo [ERROR] Failed to download Docker Desktop installer
+    echo.
+    echo Please manually download and install Docker Desktop from:
+    echo https://docs.docker.com/desktop/install/windows-install/
+    echo.
+    echo After installation, run this script again.
+    pause
+    exit /b 1
+)
+
+echo [OK] Docker Desktop installer downloaded
+echo [INFO] Running Docker Desktop installer...
+echo [INFO] Please follow the installation wizard
+echo.
+
+start /wait "%TEMP%\setu_install\DockerDesktopInstaller.exe" install --quiet --accept-license
+
+if errorlevel 1 (
+    echo [WARNING] Docker Desktop installation may require manual steps
+    echo [INFO] Please complete the installation and start Docker Desktop
+    echo [INFO] Then run this script again
+    pause
+    exit /b 0
+)
+
+echo [OK] Docker Desktop installed successfully
+echo [INFO] Please start Docker Desktop from the Start Menu
+echo [INFO] After Docker Desktop is running, run this script again
+pause
+exit /b 0
+
+:docker_check_complete
 
 REM Check for Docker Compose
 echo [INFO] Checking for Docker Compose...
