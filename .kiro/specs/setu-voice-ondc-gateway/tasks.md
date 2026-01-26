@@ -285,33 +285,33 @@
 - [x] 10.2.2 Test specific Hinglish phrase translations
 - [x] 10.2.3 Test commodity name mapping
 - [x] 10.2.4 Test validation error handling
-- [-] 10.2.5 Test retry logic with mock failures
+- [x] 10.2.5 Test retry logic with mock failures
 
 ### 10.3 Beckn Schema Tests
-- [ ] 10.3.1 Test schema validation with valid data
-- [ ] 10.3.2 Test schema validation with invalid data
-- [ ] 10.3.3 Test edge cases (zero prices, empty strings)
-- [ ] 10.3.4 Test default value application
+- [-] 10.3.1 Test schema validation with valid data
+- [-] 10.3.2 Test schema validation with invalid data
+- [-] 10.3.3 Test edge cases (zero prices, empty strings)
+- [-] 10.3.4 Test default value application
 
 ### 10.4 Component Tests
-- [ ] 10.4.1 Test VoiceInjector rendering and interactions
-- [ ] 10.4.2 Test VisualVerifier rendering with various catalog data
-- [ ] 10.4.3 Test NetworkLogViewer filtering and pagination
-- [ ] 10.4.4 Test broadcast button interactions
+- [-] 10.4.1 Test VoiceInjector rendering and interactions
+- [-] 10.4.2 Test VisualVerifier rendering with various catalog data
+- [-] 10.4.3 Test NetworkLogViewer filtering and pagination
+- [-] 10.4.4 Test broadcast button interactions
 
 ### 10.5 Server Action Tests
-- [ ] 10.5.1 Test translateVoiceAction with valid input
-- [ ] 10.5.2 Test saveCatalogAction with valid data
-- [ ] 10.5.3 Test broadcastCatalogAction flow
-- [ ] 10.5.4 Test getNetworkLogsAction pagination
+- [-] 10.5.1 Test translateVoiceAction with valid input
+- [-] 10.5.2 Test saveCatalogAction with valid data
+- [-] 10.5.3 Test broadcastCatalogAction flow
+- [-] 10.5.4 Test getNetworkLogsAction pagination
 
 ### 10.6 Property-Based Tests
 - [x] 10.6.1 Install fast-check library
-- [ ] 10.6.2 Create Beckn catalog arbitrary generator
-- [ ] 10.6.3 Test round-trip serialization/deserialization
-- [ ] 10.6.4 Test all translations produce valid Beckn JSON
-- [ ] 10.6.5 Test all catalogs render without errors
-- [ ] 10.6.6 Test bid amounts are within valid range
+- [-] 10.6.2 Create Beckn catalog arbitrary generator
+- [-] 10.6.3 Test round-trip serialization/deserialization
+- [-] 10.6.4 Test all translations produce valid Beckn JSON
+- [-] 10.6.5 Test all catalogs render without errors
+- [-] 10.6.6 Test bid amounts are within valid range
 
 ## Phase 11: Documentation
 
