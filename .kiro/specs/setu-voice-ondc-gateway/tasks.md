@@ -325,9 +325,9 @@
 - [x] 11.1.7 Add troubleshooting section
 
 ### 11.2 Code Documentation
-- [-] 11.2.1 Add JSDoc comments to all public functions
-- [ ] 11.2.2 Add inline comments for complex logic
-- [ ] 11.2.3 Document environment variables
+- [x] 11.2.1 Add JSDoc comments to all public functions
+- [x] 11.2.2 Add inline comments for complex logic
+- [-] 11.2.3 Document environment variables
 - [ ] 11.2.4 Document database schema
 
 ### 11.3 Developer Guide
