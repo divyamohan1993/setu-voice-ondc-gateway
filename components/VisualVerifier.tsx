@@ -129,7 +129,7 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
             >
               <Image
                 src={commodityIconPath}
-                alt={catalog.descriptor.name}
+                alt={`${catalog.descriptor.name} commodity icon`}
                 width={128}
                 height={128}
                 className="object-contain drop-shadow-2xl"
@@ -137,6 +137,8 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
                 sizes="128px"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                role="img"
+                aria-describedby="commodity-description"
               />
             </motion.div>
 
@@ -234,6 +236,14 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
                   disabled={isBroadcasting || broadcastSuccess}
                   size="lg"
                   className="h-32 w-32 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-75 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary border-4 border-primary/30 active:scale-95"
+                  aria-label={
+                    isBroadcasting 
+                      ? "Broadcasting catalog to network..." 
+                      : broadcastSuccess 
+                        ? "Catalog successfully broadcasted" 
+                        : `Broadcast ${catalog.descriptor.name} catalog to buyer network`
+                  }
+                  aria-describedby="broadcast-description"
                 >
                   <AnimatePresence mode="wait">
                     {isBroadcasting ? (
