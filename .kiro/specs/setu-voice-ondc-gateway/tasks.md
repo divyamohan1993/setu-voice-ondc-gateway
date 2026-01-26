@@ -306,7 +306,7 @@
 - [ ] 10.5.4 Test getNetworkLogsAction pagination
 
 ### 10.6 Property-Based Tests
-- [ ] 10.6.1 Install fast-check library
+- [x] 10.6.1 Install fast-check library
 - [ ] 10.6.2 Create Beckn catalog arbitrary generator
 - [ ] 10.6.3 Test round-trip serialization/deserialization
 - [ ] 10.6.4 Test all translations produce valid Beckn JSON
