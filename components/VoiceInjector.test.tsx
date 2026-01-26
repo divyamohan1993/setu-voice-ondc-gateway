@@ -171,6 +171,68 @@ describe('VoiceInjector Component', () => {
       });
     });
 
+    it('should render scenario icons in dropdown options', async () => {
+      const user = userEvent.setup();
+      const mockOnScenarioSelect = vi.fn();
+      
+      render(
+        <VoiceInjector 
+          onScenarioSelect={mockOnScenarioSelect} 
+          isProcessing={false} 
+        />
+      );
+      
+      // Open dropdown
+      const trigger = screen.getByRole('combobox');
+      await user.click(trigger);
+      
+      // Wait for dropdown to open
+      await waitFor(() => {
+        const onionOption = screen.getByText(/Nasik Onions/i);
+        const mangoOption = screen.getByText(/Alphonso Mangoes/i);
+        expect(onionOption).toBeInTheDocument();
+        expect(mangoOption).toBeInTheDocument();
+      });
+      
+      // Verify that icons are present (they should be SVG elements from Lucide React)
+      const svgElements = screen.getAllByRole('img', { hidden: true });
+      expect(svgElements.length).toBeGreaterThan(0);
+    });
+
+    it('should show scenario icon in header when scenario is selected', async () => {
+      const user = userEvent.setup();
+      const mockOnScenarioSelect = vi.fn().mockResolvedValue(undefined);
+      
+      render(
+        <VoiceInjector 
+          onScenarioSelect={mockOnScenarioSelect} 
+          isProcessing={false} 
+        />
+      );
+      
+      // Initially no scenario icon should be visible in header
+      const headerIcons = screen.getAllByRole('img', { hidden: true });
+      const initialIconCount = headerIcons.length;
+      
+      // Open dropdown and select option
+      const trigger = screen.getByRole('combobox');
+      await user.click(trigger);
+      
+      await waitFor(() => {
+        const option = screen.getByText(/Nasik Onions/i);
+        expect(option).toBeInTheDocument();
+      });
+      
+      const option = screen.getByText(/Nasik Onions/i);
+      await user.click(option);
+      
+      // After selection, there should be an additional icon in the header
+      await waitFor(() => {
+        const updatedHeaderIcons = screen.getAllByRole('img', { hidden: true });
+        expect(updatedHeaderIcons.length).toBeGreaterThan(initialIconCount);
+      });
+    });
+
     it('should handle scenario selection errors gracefully', async () => {
       const user = userEvent.setup();
       const mockOnScenarioSelect = vi.fn().mockRejectedValue(new Error('Test error'));
