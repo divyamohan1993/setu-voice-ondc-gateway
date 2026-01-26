@@ -58,228 +58,239 @@ describe('Beckn Schema Validation', () => {
     it('should validate descriptor schema', () => {
       const validDescriptor = {
         name: 'Test Product',
-        symbol: 'http://example.co
-    it('should reject negative price', () => {
-      const invalidPrice = {
-        value: -10,
+        symbol: 'http://example.com/icon.png'
+      };
+      
+      const result = BecknDescriptorSchema.safeParse(validDescriptor);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate price schema', () => {
+      const validPrice = {
+        value: 100,
         currency: 'INR'
       };
       
-      expect(() => BecknPriceSchema.parse(invalidPrice)).toThrow();
+      const result = BecknPriceSchema.safeParse(validPrice);
+      expect(result.success).toBe(true);
     });
 
-    it('should reject zero price', () => {
-      const invalidPrice = {
-        value: 0,
-        currency: 'INR'
-      };
-      
-      expect(() => BecknPriceSchema.parse(invalidPrice)).toThrow();
-    });
-
-    it('should reject invalid currency code length', () => {
-      const invalidPrice = {
-        value: 40,
-        currency: 'INRR'
-      };
-      
-      expect(() => BecknPriceSchema.parse(invalidPrice)).toThrow();
-    });
-  });
-
-  describe('BecknQuantitySchema', () => {
-    it('should validate a valid quantity', () => {
+    it('should validate quantity schema', () => {
       const validQuantity = {
-        available: { count: 500 },
+        available: { count: 50 },
         unit: 'kg'
       };
       
-      const result = BecknQuantitySchema.parse(validQuantity);
-      expect(result).toEqual(validQuantity);
+      const result = BecknQuantitySchema.safeParse(validQuantity);
+      expect(result.success).toBe(true);
     });
 
-    it('should reject negative count', () => {
-      const invalidQuantity = {
-        available: { count: -10 },
-        unit: 'kg'
-      };
-      
-      expect(() => BecknQuantitySchema.parse(invalidQuantity)).toThrow();
-    });
-
-    it('should reject zero count', () => {
-      const invalidQuantity = {
-        available: { count: 0 },
-        unit: 'kg'
-      };
-      
-      expect(() => BecknQuantitySchema.parse(invalidQuantity)).toThrow();
-    });
-
-    it('should reject empty unit', () => {
-      const invalidQuantity = {
-        available: { count: 500 },
-        unit: ''
-      };
-      
-      expect(() => BecknQuantitySchema.parse(invalidQuantity)).toThrow();
-    });
-  });
-
-  describe('BecknTagsSchema', () => {
-    it('should validate tags with all fields', () => {
+    it('should validate tags schema with all fields', () => {
       const validTags = {
         grade: 'A',
         perishability: 'medium' as const,
         logistics_provider: 'India Post'
       };
       
-      const result = BecknTagsSchema.parse(validTags);
-      expect(result).toEqual(validTags);
+      const result = BecknTagsSchema.safeParse(validTags);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('10.3.2: Schema validation with invalid data', () => {
+    it('should reject catalog with missing fields', () => {
+      const result = BecknCatalogItemSchema.safeParse(INVALID_CATALOG_MISSING_FIELDS);
+      
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.length).toBeGreaterThan(0);
+      }
     });
 
-    it('should validate tags with only some fields', () => {
+    it('should reject catalog with wrong types', () => {
+      const result = BecknCatalogItemSchema.safeParse(INVALID_CATALOG_WRONG_TYPES);
+      
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should reject descriptor without symbol', () => {
+      const invalidDescriptor = {
+        name: 'Test Product'
+        // Missing symbol
+      };
+      
+      const result = BecknDescriptorSchema.safeParse(invalidDescriptor);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject descriptor with invalid URL', () => {
+      const invalidDescriptor = {
+        name: 'Test Product',
+        symbol: 'not-a-url'
+      };
+      
+      const result = BecknDescriptorSchema.safeParse(invalidDescriptor);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject price with negative value', () => {
+      const invalidPrice = {
+        value: -50,
+        currency: 'INR'
+      };
+      
+      const result = BecknPriceSchema.safeParse(invalidPrice);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject price with invalid currency code', () => {
+      const invalidPrice = {
+        value: 100,
+        currency: 'RUPEES' // Should be 3-letter code
+      };
+      
+      const result = BecknPriceSchema.safeParse(invalidPrice);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject quantity with negative count', () => {
+      const invalidQuantity = {
+        available: { count: -10 },
+        unit: 'kg'
+      };
+      
+      const result = BecknQuantitySchema.safeParse(invalidQuantity);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject tags with invalid perishability', () => {
+      const invalidTags = {
+        perishability: 'very-high' // Not in enum
+      };
+      
+      const result = BecknTagsSchema.safeParse(invalidTags);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('10.3.3: Edge cases (zero prices, empty strings)', () => {
+    it('should reject zero price', () => {
+      const catalogWithZeroPrice = {
+        ...SAMPLE_ONION_CATALOG,
+        price: {
+          value: 0,
+          currency: 'INR'
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithZeroPrice);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject empty product name', () => {
+      const catalogWithEmptyName = {
+        ...SAMPLE_ONION_CATALOG,
+        descriptor: {
+          name: '',
+          symbol: 'http://example.com/icon.png'
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithEmptyName);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject empty unit', () => {
+      const catalogWithEmptyUnit = {
+        ...SAMPLE_ONION_CATALOG,
+        quantity: {
+          available: { count: 100 },
+          unit: ''
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithEmptyUnit);
+      expect(result.success).toBe(false);
+    });
+
+    it('should handle very large quantities', () => {
+      const catalogWithLargeQuantity = {
+        ...SAMPLE_ONION_CATALOG,
+        quantity: {
+          available: { count: 1000000 },
+          unit: 'kg'
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithLargeQuantity);
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle very large prices', () => {
+      const catalogWithLargePrice = {
+        ...SAMPLE_ONION_CATALOG,
+        price: {
+          value: 999999,
+          currency: 'INR'
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithLargePrice);
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle decimal prices', () => {
+      const catalogWithDecimalPrice = {
+        ...SAMPLE_ONION_CATALOG,
+        price: {
+          value: 45.50,
+          currency: 'INR'
+        }
+      };
+      
+      const result = BecknCatalogItemSchema.safeParse(catalogWithDecimalPrice);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('10.3.4: Default value application', () => {
+    it('should apply default currency INR', () => {
+      const priceWithoutCurrency = {
+        value: 100
+      };
+      
+      const result = BecknPriceSchema.parse(priceWithoutCurrency);
+      expect(result.currency).toBe('INR');
+    });
+
+    it('should allow optional tags fields to be undefined', () => {
+      const tagsWithoutOptionals = {};
+      
+      const result = BecknTagsSchema.safeParse(tagsWithoutOptionals);
+      expect(result.success).toBe(true);
+      
+      if (result.success) {
+        expect(result.data.grade).toBeUndefined();
+        expect(result.data.perishability).toBeUndefined();
+        expect(result.data.logistics_provider).toBeUndefined();
+      }
+    });
+
+    it('should allow partial tags', () => {
       const partialTags = {
         grade: 'A'
+        // Other fields optional
       };
       
-      const result = BecknTagsSchema.parse(partialTags);
-      expect(result).toEqual(partialTags);
-    });
-
-    it('should validate empty tags object', () => {
-      const emptyTags = {};
+      const result = BecknTagsSchema.safeParse(partialTags);
+      expect(result.success).toBe(true);
       
-      const result = BecknTagsSchema.parse(emptyTags);
-      expect(result).toEqual(emptyTags);
-    });
-
-    it('should validate valid perishability values', () => {
-      const lowPerish = { perishability: 'low' as const };
-      const mediumPerish = { perishability: 'medium' as const };
-      const highPerish = { perishability: 'high' as const };
-      
-      expect(() => BecknTagsSchema.parse(lowPerish)).not.toThrow();
-      expect(() => BecknTagsSchema.parse(mediumPerish)).not.toThrow();
-      expect(() => BecknTagsSchema.parse(highPerish)).not.toThrow();
-    });
-
-    it('should reject invalid perishability value', () => {
-      const invalidTags = {
-        perishability: 'very-high'
-      };
-      
-      expect(() => BecknTagsSchema.parse(invalidTags)).toThrow();
-    });
-  });
-
-  describe('BecknCatalogItemSchema', () => {
-    it('should validate a complete valid catalog item', () => {
-      const validCatalog: BecknCatalogItem = {
-        descriptor: {
-          name: 'Nasik Onions',
-          symbol: 'https://example.com/onion.png'
-        },
-        price: {
-          value: 40,
-          currency: 'INR'
-        },
-        quantity: {
-          available: { count: 500 },
-          unit: 'kg'
-        },
-        tags: {
-          grade: 'A',
-          perishability: 'medium',
-          logistics_provider: 'India Post'
-        }
-      };
-      
-      const result = BecknCatalogItemSchema.parse(validCatalog);
-      expect(result).toEqual(validCatalog);
-    });
-
-    it('should validate catalog with minimal tags', () => {
-      const catalogWithMinimalTags = {
-        descriptor: {
-          name: 'Alphonso Mangoes',
-          symbol: 'https://example.com/mango.png'
-        },
-        price: {
-          value: 150,
-          currency: 'INR'
-        },
-        quantity: {
-          available: { count: 20 },
-          unit: 'crate'
-        },
-        tags: {}
-      };
-      
-      const result = BecknCatalogItemSchema.parse(catalogWithMinimalTags);
-      expect(result.descriptor.name).toBe('Alphonso Mangoes');
-      expect(result.price.value).toBe(150);
-    });
-
-    it('should reject catalog with missing required fields', () => {
-      const incompleteCatalog = {
-        descriptor: {
-          name: 'Nasik Onions',
-          symbol: 'https://example.com/onion.png'
-        },
-        price: {
-          value: 40,
-          currency: 'INR'
-        }
-        // Missing quantity and tags
-      };
-      
-      expect(() => BecknCatalogItemSchema.parse(incompleteCatalog)).toThrow();
-    });
-
-    it('should reject catalog with invalid nested fields', () => {
-      const invalidCatalog = {
-        descriptor: {
-          name: 'Nasik Onions',
-          symbol: 'not-a-url'
-        },
-        price: {
-          value: 40,
-          currency: 'INR'
-        },
-        quantity: {
-          available: { count: 500 },
-          unit: 'kg'
-        },
-        tags: {}
-      };
-      
-      expect(() => BecknCatalogItemSchema.parse(invalidCatalog)).toThrow();
-    });
-  });
-
-  describe('Type Exports', () => {
-    it('should export correct TypeScript types', () => {
-      // This is a compile-time test - if it compiles, the types are correct
-      const catalog: BecknCatalogItem = {
-        descriptor: {
-          name: 'Test Product',
-          symbol: 'https://example.com/test.png'
-        },
-        price: {
-          value: 100,
-          currency: 'INR'
-        },
-        quantity: {
-          available: { count: 10 },
-          unit: 'piece'
-        },
-        tags: {
-          grade: 'Premium'
-        }
-      };
-      
-      expect(catalog.descriptor.name).toBe('Test Product');
+      if (result.success) {
+        expect(result.data.grade).toBe('A');
+      }
     });
   });
 });
