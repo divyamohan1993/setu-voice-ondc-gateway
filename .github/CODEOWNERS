@@ -1,0 +1,33 @@
+# CODEOWNERS - Define code owners for automatic review requests
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @divyamohan1993 @kumkum-thakur
+
+# Documentation
+*.md @divyamohan1993 @kumkum-thakur
+/docs/ @divyamohan1993 @kumkum-thakur
+
+# Core Application
+/app/ @divyamohan1993 @kumkum-thakur
+/lib/ @divyamohan1993 @kumkum-thakur
+/components/ @divyamohan1993 @kumkum-thakur
+
+# Database & Prisma
+/prisma/ @divyamohan1993 @kumkum-thakur
+
+# Infrastructure & Deployment
+Dockerfile @divyamohan1993 @kumkum-thakur
+docker-compose.yml @divyamohan1993 @kumkum-thakur
+/scripts/ @divyamohan1993 @kumkum-thakur
+
+# GitHub Configuration
+/.github/ @divyamohan1993
+
+# Testing
+/tests/ @divyamohan1993 @kumkum-thakur
+
+# Configuration Files
+*.config.ts @divyamohan1993 @kumkum-thakur
+*.config.mjs @divyamohan1993 @kumkum-thakur
+package.json @divyamohan1993 @kumkum-thakur

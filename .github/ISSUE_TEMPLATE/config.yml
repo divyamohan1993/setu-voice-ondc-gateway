@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/divyamohan1993/setu-voice-ondc-gateway/wiki
+    about: Check our documentation for guides and tutorials
+  - name: 💬 Discussions
+    url: https://github.com/divyamohan1993/setu-voice-ondc-gateway/discussions
+    about: Ask questions and share ideas with the community
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/divyamohan1993/setu-voice-ondc-gateway/security/policy
+    about: Report security vulnerabilities privately

@@ -5,16 +5,17 @@
 The Setu installation scripts are designed to work on **completely blank systems** and handle all dependencies automatically, including Docker installation.
 
 ### Windows
+Double-click **`START.bat`** in the root directory.
 
-```cmd
-install_setu.bat
+*Or run via PowerShell:*
+```powershell
+.\setup.ps1
 ```
 
 ### Linux / macOS
-
 ```bash
-chmod +x install_setu.sh
-./install_setu.sh
+chmod +x setup.sh
+./setup.sh
 ```
 
 ## What the Script Does

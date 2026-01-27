@@ -1,0 +1,807 @@
+<#
+.SYNOPSIS
+    Setu Voice-to-ONDC Gateway - Complete Setup Script
+    
+.DESCRIPTION
+    This idempotent script automatically configures and runs the Setu application.
+    It handles all dependencies, configurations, and provides verbose output.
+    Safe to run multiple times - will skip already-completed steps.
+
+.NOTES
+    Project: Setu Voice-to-ONDC Gateway
+    Repository: https://github.com/divyamohan1993/setu-voice-ondc-gateway
+    Contributors: divyamohan1993, kumkum-thakur
+    Hackathon: AI for Bharat - Republic Day 2026
+    
+.EXAMPLE
+    .\setup.ps1
+    .\setup.ps1 -Mode docker
+    .\setup.ps1 -Mode local
+    .\setup.ps1 -Verbose
+#>
+
+[CmdletBinding()]
+param(
+    [Parameter(HelpMessage = "Deployment mode: 'docker' (recommended) or 'local'")]
+    [ValidateSet("docker", "local", "auto")]
+    [string]$Mode = "auto",
+    
+    [Parameter(HelpMessage = "Skip dependency checks")]
+    [switch]$SkipDependencyCheck,
+    
+    [Parameter(HelpMessage = "Force reinstall even if already configured")]
+    [switch]$Force,
+    
+    [Parameter(HelpMessage = "Only verify installation without running")]
+    [switch]$VerifyOnly
+)
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "Continue"
+
+$Script:CONFIG = @{
+    AppName         = "Setu Voice-to-ONDC Gateway"
+    Version         = "1.0.0"
+    Repository      = "https://github.com/divyamohan1993/setu-voice-ondc-gateway"
+    AppPort         = 3000
+    DbPort          = 5432
+    NodeMinVersion  = "18.0.0"
+    DockerMinVersion = "20.0.0"
+}
+
+$Script:COLORS = @{
+    Success = "Green"
+    Error   = "Red"
+    Warning = "Yellow"
+    Info    = "Cyan"
+    Header  = "Magenta"
+    Step    = "White"
+}
+
+$Script:STEP_COUNT = 0
+$Script:ERRORS = @()
+$Script:WARNINGS = @()
+
+# ============================================================================
+# LOGGING FUNCTIONS
+# ============================================================================
+
+function Write-Banner {
+    $banner = @"
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ███████╗███████╗████████╗██╗   ██╗                                        ║
+║   ██╔════╝██╔════╝╚══██╔══╝██║   ██║                                        ║
+║   ███████╗█████╗     ██║   ██║   ██║   Voice-to-ONDC Gateway                ║
+║   ╚════██║██╔══╝     ██║   ██║   ██║   Bridging the Digital Divide          ║
+║   ███████║███████╗   ██║   ╚██████╔╝   for Indian Farmers                   ║
+║   ╚══════╝╚══════╝   ╚═╝    ╚═════╝                                         ║
+║                                                                              ║
+║   🇮🇳 AI for Bharat Hackathon - Republic Day 2026                           ║
+║   Contributors: @divyamohan1993 @kumkum-thakur                              ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+"@
+    Write-Host $banner -ForegroundColor $Script:COLORS.Header
+}
+
+function Write-Step {
+    param([string]$Message)
+    $Script:STEP_COUNT++
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host ""
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host "STEP $Script:STEP_COUNT: " -NoNewline -ForegroundColor $Script:COLORS.Info
+    Write-Host $Message -ForegroundColor $Script:COLORS.Step
+    Write-Host ("-" * 70) -ForegroundColor DarkGray
+}
+
+function Write-Success {
+    param([string]$Message)
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host "✓ SUCCESS: " -NoNewline -ForegroundColor $Script:COLORS.Success
+    Write-Host $Message -ForegroundColor $Script:COLORS.Success
+}
+
+function Write-Failure {
+    param([string]$Message, [string]$Details = "")
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host "✗ FAILED: " -NoNewline -ForegroundColor $Script:COLORS.Error
+    Write-Host $Message -ForegroundColor $Script:COLORS.Error
+    if ($Details) {
+        Write-Host "  Details: $Details" -ForegroundColor $Script:COLORS.Error
+    }
+    $Script:ERRORS += @{
+        Step    = $Script:STEP_COUNT
+        Message = $Message
+        Details = $Details
+        Time    = Get-Date
+    }
+}
+
+function Write-Warning {
+    param([string]$Message)
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host "⚠ WARNING: " -NoNewline -ForegroundColor $Script:COLORS.Warning
+    Write-Host $Message -ForegroundColor $Script:COLORS.Warning
+    $Script:WARNINGS += $Message
+}
+
+function Write-Info {
+    param([string]$Message)
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host "ℹ INFO: " -NoNewline -ForegroundColor $Script:COLORS.Info
+    Write-Host $Message
+}
+
+function Write-Verbose-Detail {
+    param([string]$Message)
+    if ($VerbosePreference -eq "Continue" -or $PSCmdlet.MyInvocation.BoundParameters["Verbose"]) {
+        $timestamp = Get-Date -Format "HH:mm:ss"
+        Write-Host "[$timestamp]   → $Message" -ForegroundColor DarkGray
+    }
+}
+
+function Write-Command {
+    param([string]$Command)
+    Write-Host "  > " -NoNewline -ForegroundColor DarkGray
+    Write-Host $Command -ForegroundColor DarkCyan
+}
+
+# ============================================================================
+# UTILITY FUNCTIONS
+# ============================================================================
+
+function Test-IsAdmin {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Test-CommandExists {
+    param([string]$Command)
+    $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
+}
+
+function Test-PortInUse {
+    param([int]$Port)
+    $connection = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
+    return $null -ne $connection
+}
+
+function Get-ProcessOnPort {
+    param([int]$Port)
+    $connection = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
+    if ($connection) {
+        $process = Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue
+        return $process
+    }
+    return $null
+}
+
+function Compare-Version {
+    param([string]$Version1, [string]$Version2)
+    $v1 = [Version]($Version1 -replace '[^\d.]', '')
+    $v2 = [Version]($Version2 -replace '[^\d.]', '')
+    return $v1.CompareTo($v2)
+}
+
+function Invoke-CommandWithOutput {
+    param(
+        [string]$Command,
+        [string]$Arguments = "",
+        [string]$WorkingDirectory = $PWD,
+        [switch]$PassThru
+    )
+    
+    Write-Command "$Command $Arguments"
+    
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = $Command
+    $pinfo.Arguments = $Arguments
+    $pinfo.RedirectStandardError = $true
+    $pinfo.RedirectStandardOutput = $true
+    $pinfo.UseShellExecute = $false
+    $pinfo.WorkingDirectory = $WorkingDirectory
+    $pinfo.CreateNoWindow = $true
+    
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $pinfo
+    
+    try {
+        $process.Start() | Out-Null
+        $stdout = $process.StandardOutput.ReadToEnd()
+        $stderr = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        
+        if ($PassThru) {
+            return @{
+                ExitCode = $process.ExitCode
+                StdOut   = $stdout
+                StdErr   = $stderr
+            }
+        }
+        
+        if ($process.ExitCode -ne 0) {
+            Write-Verbose-Detail "Exit Code: $($process.ExitCode)"
+            if ($stderr) {
+                Write-Verbose-Detail "StdErr: $stderr"
+            }
+        }
+        
+        return $process.ExitCode -eq 0
+    }
+    catch {
+        Write-Verbose-Detail "Exception: $_"
+        return $false
+    }
+}
+
+# ============================================================================
+# DEPENDENCY CHECKS
+# ============================================================================
+
+function Test-NodeJS {
+    Write-Info "Checking Node.js..."
+    
+    if (-not (Test-CommandExists "node")) {
+        Write-Failure "Node.js is not installed" "Please install Node.js 18+ from https://nodejs.org/"
+        return $false
+    }
+    
+    $nodeVersion = (node --version).TrimStart('v')
+    Write-Verbose-Detail "Found Node.js version: $nodeVersion"
+    
+    if ((Compare-Version $nodeVersion $Script:CONFIG.NodeMinVersion) -lt 0) {
+        Write-Failure "Node.js version too old" "Required: $($Script:CONFIG.NodeMinVersion)+, Found: $nodeVersion"
+        return $false
+    }
+    
+    Write-Success "Node.js $nodeVersion detected"
+    return $true
+}
+
+function Test-Npm {
+    Write-Info "Checking npm..."
+    
+    if (-not (Test-CommandExists "npm")) {
+        Write-Failure "npm is not installed" "npm should come with Node.js installation"
+        return $false
+    }
+    
+    $npmVersion = (npm --version)
+    Write-Verbose-Detail "Found npm version: $npmVersion"
+    Write-Success "npm $npmVersion detected"
+    return $true
+}
+
+function Test-Docker {
+    Write-Info "Checking Docker..."
+    
+    if (-not (Test-CommandExists "docker")) {
+        Write-Warning "Docker is not installed"
+        Write-Info "Docker is optional but recommended. Install from https://docker.com/"
+        return $false
+    }
+    
+    # Check if Docker daemon is running
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "info" -PassThru
+    if ($result.ExitCode -ne 0) {
+        Write-Warning "Docker is installed but daemon is not running"
+        Write-Info "Please start Docker Desktop and try again"
+        return $false
+    }
+    
+    $dockerVersion = (docker --version) -replace 'Docker version ', '' -replace ',.*', ''
+    Write-Verbose-Detail "Found Docker version: $dockerVersion"
+    Write-Success "Docker $dockerVersion detected and running"
+    return $true
+}
+
+function Test-DockerCompose {
+    Write-Info "Checking Docker Compose..."
+    
+    # Try docker compose (v2)
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose version" -PassThru
+    if ($result.ExitCode -eq 0) {
+        $version = $result.StdOut -replace '.*version\s*', '' -replace '\s.*', ''
+        Write-Success "Docker Compose $version detected"
+        return $true
+    }
+    
+    # Try docker-compose (v1)
+    if (Test-CommandExists "docker-compose") {
+        $version = (docker-compose --version) -replace '.*version\s*', '' -replace ',.*', ''
+        Write-Success "docker-compose $version detected"
+        return $true
+    }
+    
+    Write-Warning "Docker Compose is not available"
+    return $false
+}
+
+function Test-Git {
+    Write-Info "Checking Git..."
+    
+    if (-not (Test-CommandExists "git")) {
+        Write-Warning "Git is not installed - some features may not work"
+        return $false
+    }
+    
+    $gitVersion = (git --version) -replace 'git version ', ''
+    Write-Success "Git $gitVersion detected"
+    return $true
+}
+
+# ============================================================================
+# PORT MANAGEMENT
+# ============================================================================
+
+function Resolve-PortConflict {
+    param([int]$Port, [string]$ServiceName)
+    
+    if (-not (Test-PortInUse $Port)) {
+        Write-Verbose-Detail "Port $Port is available"
+        return $true
+    }
+    
+    $process = Get-ProcessOnPort $Port
+    if ($process) {
+        Write-Warning "Port $Port is in use by: $($process.ProcessName) (PID: $($process.Id))"
+        
+        $response = Read-Host "Would you like to terminate this process? (y/N)"
+        if ($response -eq 'y' -or $response -eq 'Y') {
+            try {
+                Stop-Process -Id $process.Id -Force
+                Start-Sleep -Seconds 2
+                if (-not (Test-PortInUse $Port)) {
+                    Write-Success "Port $Port is now available"
+                    return $true
+                }
+            }
+            catch {
+                Write-Failure "Could not terminate process" $_.Exception.Message
+            }
+        }
+        return $false
+    }
+    
+    Write-Warning "Port $Port is in use by an unknown process"
+    return $false
+}
+
+# ============================================================================
+# ENVIRONMENT SETUP
+# ============================================================================
+
+function Initialize-Environment {
+    Write-Step "Initializing Environment"
+    
+    $envFile = Join-Path $PSScriptRoot ".env"
+    $envExampleFile = Join-Path $PSScriptRoot ".env.example"
+    
+    if ((Test-Path $envFile) -and -not $Force) {
+        Write-Info ".env file already exists"
+        Write-Verbose-Detail "Use -Force to recreate"
+        return $true
+    }
+    
+    if (Test-Path $envExampleFile) {
+        Write-Info "Creating .env from .env.example..."
+        Copy-Item $envExampleFile $envFile -Force
+        Write-Success ".env file created"
+    }
+    else {
+        Write-Info "Creating default .env file..."
+        $envContent = @"
+# Database Configuration
+POSTGRES_USER=setu
+POSTGRES_PASSWORD=setu_password_$(Get-Random -Maximum 9999)
+POSTGRES_DB=setu_db
+DATABASE_URL=postgresql://setu:setu_password@localhost:5432/setu_db
+
+# AI Configuration (Optional - system works without this)
+OPENAI_API_KEY=
+
+# Application Configuration
+NODE_ENV=development
+NEXT_TELEMETRY_DISABLED=1
+"@
+        $envContent | Out-File -FilePath $envFile -Encoding utf8
+        Write-Success ".env file created with default values"
+    }
+    
+    return $true
+}
+
+function Install-Dependencies {
+    Write-Step "Installing Node.js Dependencies"
+    
+    $nodeModules = Join-Path $PSScriptRoot "node_modules"
+    $packageJson = Join-Path $PSScriptRoot "package.json"
+    $packageLock = Join-Path $PSScriptRoot "package-lock.json"
+    
+    if ((Test-Path $nodeModules) -and -not $Force) {
+        $moduleCount = (Get-ChildItem $nodeModules -Directory).Count
+        if ($moduleCount -gt 10) {
+            Write-Info "node_modules already exists with $moduleCount packages"
+            Write-Verbose-Detail "Use -Force to reinstall"
+            return $true
+        }
+    }
+    
+    if (-not (Test-Path $packageJson)) {
+        Write-Failure "package.json not found" "Are you in the correct directory?"
+        return $false
+    }
+    
+    Write-Info "Running npm install..."
+    $result = Invoke-CommandWithOutput -Command "npm" -Arguments "install" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Failure "npm install failed" $result.StdErr
+        Write-Verbose-Detail "StdOut: $($result.StdOut)"
+        return $false
+    }
+    
+    Write-Success "Dependencies installed successfully"
+    return $true
+}
+
+# ============================================================================
+# DATABASE SETUP
+# ============================================================================
+
+function Initialize-Database-Docker {
+    Write-Step "Initializing Database (Docker)"
+    
+    Write-Info "Starting database container..."
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d db" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Failure "Failed to start database container" $result.StdErr
+        return $false
+    }
+    
+    Write-Info "Waiting for database to be ready..."
+    $maxAttempts = 30
+    $attempt = 0
+    
+    while ($attempt -lt $maxAttempts) {
+        $attempt++
+        Write-Verbose-Detail "Attempt $attempt/$maxAttempts..."
+        
+        $healthCheck = Invoke-CommandWithOutput -Command "docker" -Arguments "compose exec -T db pg_isready -U setu -d setu_db" -WorkingDirectory $PSScriptRoot -PassThru
+        
+        if ($healthCheck.ExitCode -eq 0) {
+            Write-Success "Database is ready"
+            break
+        }
+        
+        Start-Sleep -Seconds 2
+    }
+    
+    if ($attempt -ge $maxAttempts) {
+        Write-Failure "Database failed to start within timeout"
+        return $false
+    }
+    
+    # Run Prisma migrations
+    Write-Info "Running database migrations..."
+    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Warning "Prisma db push had issues: $($result.StdErr)"
+    }
+    else {
+        Write-Success "Database schema synchronized"
+    }
+    
+    return $true
+}
+
+function Initialize-Database-Local {
+    Write-Step "Initializing Database (SQLite - Local Mode)"
+    
+    Write-Info "Using SQLite for local development..."
+    
+    # Update prisma schema if needed for SQLite
+    $prismaSchema = Join-Path $PSScriptRoot "prisma\schema.prisma"
+    
+    # Generate Prisma client
+    Write-Info "Generating Prisma client..."
+    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma generate" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Warning "Prisma generate had issues: $($result.StdErr)"
+    }
+    
+    # Push schema
+    Write-Info "Pushing database schema..."
+    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Warning "Prisma db push had issues: $($result.StdErr)"
+    }
+    
+    Write-Success "Local database initialized"
+    return $true
+}
+
+# ============================================================================
+# APPLICATION STARTUP
+# ============================================================================
+
+function Start-Application-Docker {
+    Write-Step "Starting Application (Docker Mode)"
+    
+    Write-Info "Building and starting containers..."
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d --build" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Failure "Failed to start Docker containers" $result.StdErr
+        return $false
+    }
+    
+    Write-Info "Waiting for application to be ready..."
+    $maxAttempts = 60
+    $attempt = 0
+    
+    while ($attempt -lt $maxAttempts) {
+        $attempt++
+        Write-Verbose-Detail "Attempt $attempt/$maxAttempts..."
+        
+        try {
+            $response = Invoke-WebRequest -Uri "http://localhost:$($Script:CONFIG.AppPort)" -Method Head -TimeoutSec 5 -ErrorAction SilentlyContinue
+            if ($response.StatusCode -eq 200) {
+                Write-Success "Application is running!"
+                return $true
+            }
+        }
+        catch {
+            Start-Sleep -Seconds 2
+        }
+    }
+    
+    Write-Warning "Application may still be starting..."
+    return $true
+}
+
+function Start-Application-Local {
+    Write-Step "Starting Application (Local Development Mode)"
+    
+    # Check port availability
+    if (Test-PortInUse $Script:CONFIG.AppPort) {
+        if (-not (Resolve-PortConflict $Script:CONFIG.AppPort "Application")) {
+            Write-Failure "Port $($Script:CONFIG.AppPort) is not available"
+            return $false
+        }
+    }
+    
+    Write-Info "Starting development server..."
+    Write-Info "The server will start in a new window. Press Ctrl+C to stop."
+    
+    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $PSScriptRoot -NoNewWindow
+    
+    Write-Info "Waiting for application to be ready..."
+    $maxAttempts = 30
+    $attempt = 0
+    
+    while ($attempt -lt $maxAttempts) {
+        $attempt++
+        Start-Sleep -Seconds 2
+        
+        try {
+            $response = Invoke-WebRequest -Uri "http://localhost:$($Script:CONFIG.AppPort)" -Method Head -TimeoutSec 5 -ErrorAction SilentlyContinue
+            if ($response.StatusCode -eq 200) {
+                Write-Success "Application is running!"
+                return $true
+            }
+        }
+        catch {
+            Write-Verbose-Detail "Waiting... (attempt $attempt)"
+        }
+    }
+    
+    Write-Warning "Application may still be starting. Check the console for details."
+    return $true
+}
+
+# ============================================================================
+# VERIFICATION
+# ============================================================================
+
+function Test-Installation {
+    Write-Step "Verifying Installation"
+    
+    $checks = @(
+        @{ Name = "node_modules exists"; Test = { Test-Path (Join-Path $PSScriptRoot "node_modules") } },
+        @{ Name = ".env file exists"; Test = { Test-Path (Join-Path $PSScriptRoot ".env") } },
+        @{ Name = "Prisma client generated"; Test = { Test-Path (Join-Path $PSScriptRoot "node_modules\.prisma") } }
+    )
+    
+    $passed = 0
+    $failed = 0
+    
+    foreach ($check in $checks) {
+        if (& $check.Test) {
+            Write-Success $check.Name
+            $passed++
+        }
+        else {
+            Write-Failure $check.Name
+            $failed++
+        }
+    }
+    
+    # Check if app is accessible
+    Write-Info "Checking application accessibility..."
+    try {
+        $response = Invoke-WebRequest -Uri "http://localhost:$($Script:CONFIG.AppPort)" -Method Head -TimeoutSec 10 -ErrorAction Stop
+        Write-Success "Application is accessible on port $($Script:CONFIG.AppPort)"
+        $passed++
+    }
+    catch {
+        Write-Warning "Application is not yet accessible (may still be starting)"
+    }
+    
+    Write-Info "Verification complete: $passed passed, $failed failed"
+    return $failed -eq 0
+}
+
+# ============================================================================
+# SUMMARY
+# ============================================================================
+
+function Write-Summary {
+    Write-Host ""
+    Write-Host "═" * 70 -ForegroundColor $Script:COLORS.Header
+    Write-Host ""
+    
+    if ($Script:ERRORS.Count -eq 0) {
+        Write-Host "  🎉 SETUP COMPLETED SUCCESSFULLY!" -ForegroundColor $Script:COLORS.Success
+        Write-Host ""
+        Write-Host "  Access the application:" -ForegroundColor White
+        Write-Host "  ├─ Main App:     " -NoNewline -ForegroundColor Gray
+        Write-Host "http://localhost:$($Script:CONFIG.AppPort)" -ForegroundColor Cyan
+        Write-Host "  ├─ Debug View:   " -NoNewline -ForegroundColor Gray
+        Write-Host "http://localhost:$($Script:CONFIG.AppPort)/debug" -ForegroundColor Cyan
+        Write-Host "  └─ Repository:   " -NoNewline -ForegroundColor Gray
+        Write-Host $Script:CONFIG.Repository -ForegroundColor Cyan
+    }
+    else {
+        Write-Host "  ⚠ SETUP COMPLETED WITH ERRORS" -ForegroundColor $Script:COLORS.Warning
+        Write-Host ""
+        Write-Host "  The following errors occurred:" -ForegroundColor White
+        foreach ($error in $Script:ERRORS) {
+            Write-Host "  Step $($error.Step): $($error.Message)" -ForegroundColor $Script:COLORS.Error
+            if ($error.Details) {
+                Write-Host "    → $($error.Details)" -ForegroundColor DarkGray
+            }
+        }
+    }
+    
+    if ($Script:WARNINGS.Count -gt 0) {
+        Write-Host ""
+        Write-Host "  Warnings:" -ForegroundColor $Script:COLORS.Warning
+        foreach ($warning in $Script:WARNINGS) {
+            Write-Host "  • $warning" -ForegroundColor $Script:COLORS.Warning
+        }
+    }
+    
+    Write-Host ""
+    Write-Host "═" * 70 -ForegroundColor $Script:COLORS.Header
+    Write-Host ""
+}
+
+# ============================================================================
+# MAIN EXECUTION
+# ============================================================================
+
+function Main {
+    $startTime = Get-Date
+    
+    # Display banner
+    Write-Banner
+    
+    Write-Host "Starting setup at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Gray
+    Write-Host "Mode: $Mode | Force: $Force | Verbose: $($VerbosePreference -eq 'Continue')" -ForegroundColor Gray
+    Write-Host ""
+    
+    # Step 1: Check dependencies
+    if (-not $SkipDependencyCheck) {
+        Write-Step "Checking Dependencies"
+        
+        $nodeOk = Test-NodeJS
+        $npmOk = Test-Npm
+        $dockerOk = Test-Docker
+        $dockerComposeOk = Test-DockerCompose
+        $gitOk = Test-Git
+        
+        if (-not $nodeOk -or -not $npmOk) {
+            Write-Failure "Required dependencies missing" "Node.js and npm are required"
+            Write-Summary
+            exit 1
+        }
+        
+        # Auto-detect mode
+        if ($Mode -eq "auto") {
+            if ($dockerOk -and $dockerComposeOk) {
+                $Mode = "docker"
+                Write-Info "Auto-selected Docker mode"
+            }
+            else {
+                $Mode = "local"
+                Write-Info "Auto-selected Local mode (Docker not available)"
+            }
+        }
+    }
+    
+    # Step 2: Initialize environment
+    if (-not (Initialize-Environment)) {
+        Write-Summary
+        exit 1
+    }
+    
+    # Step 3: Install dependencies
+    if (-not (Install-Dependencies)) {
+        Write-Summary
+        exit 1
+    }
+    
+    # Step 4: Setup database
+    if ($Mode -eq "docker") {
+        if (-not (Initialize-Database-Docker)) {
+            Write-Warning "Docker database setup failed, trying local mode"
+            $Mode = "local"
+        }
+    }
+    
+    if ($Mode -eq "local") {
+        if (-not (Initialize-Database-Local)) {
+            Write-Summary
+            exit 1
+        }
+    }
+    
+    # Step 5: Start application (unless verify only)
+    if (-not $VerifyOnly) {
+        if ($Mode -eq "docker") {
+            Start-Application-Docker | Out-Null
+        }
+        else {
+            Start-Application-Local | Out-Null
+        }
+    }
+    
+    # Step 6: Verify installation
+    Test-Installation | Out-Null
+    
+    # Calculate duration
+    $duration = (Get-Date) - $startTime
+    Write-Info "Total time: $($duration.Minutes)m $($duration.Seconds)s"
+    
+    # Display summary
+    Write-Summary
+    
+    # Open browser
+    if ($Script:ERRORS.Count -eq 0 -and -not $VerifyOnly) {
+        $openBrowser = Read-Host "Open application in browser? (Y/n)"
+        if ($openBrowser -ne 'n' -and $openBrowser -ne 'N') {
+            Start-Process "http://localhost:$($Script:CONFIG.AppPort)"
+        }
+    }
+}
+
+# Run main function
+Main
