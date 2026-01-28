@@ -12,8 +12,8 @@ The Setu application uses Prisma 7 with PostgreSQL, which requires Docker for th
 
 ## Prerequisites
 
-- Node.js 18+ (you have v24.11.1 ✓)
-- npm 7+ (you have 11.6.2 ✓)
+- Node.js 18+ (you have v24.11.1 [OK])
+- npm 7+ (you have 11.6.2 [OK])
 
 ## Quick Test Run
 
@@ -60,17 +60,17 @@ npm run build
 
 ## What Works Without Docker
 
-✅ **All Tests** - Unit tests, property-based tests, component tests
-✅ **Code Exploration** - Browse and understand the implementation
-✅ **Build Verification** - Ensure the application builds correctly
-✅ **Linting** - Check code quality with `npm run lint`
+[OK] **All Tests** - Unit tests, property-based tests, component tests
+[OK] **Code Exploration** - Browse and understand the implementation
+[OK] **Build Verification** - Ensure the application builds correctly
+[OK] **Linting** - Check code quality with `npm run lint`
 
 ## What Requires Docker
 
-❌ **Database Operations** - PostgreSQL requires Docker
-❌ **Full Application** - Running the dev server requires database
-❌ **Seed Data** - Database seeding requires PostgreSQL
-❌ **End-to-End Testing** - Full workflow testing requires database
+[X] **Database Operations** - PostgreSQL requires Docker
+[X] **Full Application** - Running the dev server requires database
+[X] **Seed Data** - Database seeding requires PostgreSQL
+[X] **End-to-End Testing** - Full workflow testing requires database
 
 ## Recommended Approach
 

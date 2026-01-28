@@ -6,8 +6,8 @@ This directory contains all React components for the Setu Voice-to-ONDC Gateway 
 
 ```
 components/
-├── ui/           # Shadcn/UI base components (auto-generated)
-└── README.md     # This file
+ ui/           # Shadcn/UI base components (auto-generated)
+ README.md     # This file
 ```
 
 ## Shadcn/UI Setup
@@ -60,9 +60,9 @@ The application uses CSS variables for theming, supporting both light and dark m
 
 The following path aliases are configured:
 
-- `@/components` → `./components`
-- `@/lib` → `./lib`
-- `@/ui` → `./components/ui`
-- `@/hooks` → `./hooks`
+- `@/components` -> `./components`
+- `@/lib` -> `./lib`
+- `@/ui` -> `./components/ui`
+- `@/hooks` -> `./hooks`
 
 These aliases are defined in both `tsconfig.json` and `components.json`.

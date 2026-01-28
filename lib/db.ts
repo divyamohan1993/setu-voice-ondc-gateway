@@ -52,10 +52,10 @@ export async function connectDatabase(): Promise<void> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       await prisma.$connect();
-      console.log('✅ Database connected successfully');
+      console.log('[OK] Database connected successfully');
       return;
     } catch (error) {
-      console.error(`❌ Database connection attempt ${attempt}/${maxRetries} failed:`, error);
+      console.error(`[X] Database connection attempt ${attempt}/${maxRetries} failed:`, error);
       
       if (attempt === maxRetries) {
         throw new Error(`Failed to connect to database after ${maxRetries} attempts`);
@@ -76,9 +76,9 @@ export async function connectDatabase(): Promise<void> {
 export async function disconnectDatabase(): Promise<void> {
   try {
     await prisma.$disconnect();
-    console.log('✅ Database disconnected successfully');
+    console.log('[OK] Database disconnected successfully');
   } catch (error) {
-    console.error('❌ Error disconnecting from database:', error);
+    console.error('[X] Error disconnecting from database:', error);
   }
 }
 

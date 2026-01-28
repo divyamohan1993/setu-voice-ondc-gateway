@@ -63,19 +63,19 @@ print_banner() {
     echo -e "${MAGENTA}"
     cat << 'EOF'
 
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║   ███████╗███████╗████████╗██╗   ██╗                                        ║
-║   ██╔════╝██╔════╝╚══██╔══╝██║   ██║                                        ║
-║   ███████╗█████╗     ██║   ██║   ██║   Voice-to-ONDC Gateway                ║
-║   ╚════██║██╔══╝     ██║   ██║   ██║   Bridging the Digital Divide          ║
-║   ███████║███████╗   ██║   ╚██████╔╝   for Indian Farmers                   ║
-║   ╚══════╝╚══════╝   ╚═╝    ╚═════╝                                         ║
-║                                                                              ║
-║   🇮🇳 AI for Bharat Hackathon - Republic Day 2026                           ║
-║   Contributors: @divyamohan1993 @kumkum-thakur                              ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+
+                                                                              
+                                              
+                                              
+                 Voice-to-ONDC Gateway                
+                 Bridging the Digital Divide          
+            for Indian Farmers                   
+                                                   
+                                                                              
+   [India] AI for Bharat Hackathon - Republic Day 2026                       
+   Contributors: @divyamohan1993 @kumkum-thakur                              
+                                                                              
+
 
 EOF
     echo -e "${NC}"
@@ -89,15 +89,15 @@ print_step() {
     ((STEP_COUNT++))
     echo ""
     echo -e "${GRAY}[$(timestamp)]${NC} ${CYAN}STEP $STEP_COUNT:${NC} ${WHITE}$1${NC}"
-    echo -e "${GRAY}$(printf '%.0s─' {1..70})${NC}"
+    echo -e "${GRAY}$(printf '%.0s' {1..70})${NC}"
 }
 
 print_success() {
-    echo -e "${GRAY}[$(timestamp)]${NC} ${GREEN}✓ SUCCESS:${NC} ${GREEN}$1${NC}"
+    echo -e "${GRAY}[$(timestamp)]${NC} ${GREEN}[OK] SUCCESS:${NC} ${GREEN}$1${NC}"
 }
 
 print_failure() {
-    echo -e "${GRAY}[$(timestamp)]${NC} ${RED}✗ FAILED:${NC} ${RED}$1${NC}"
+    echo -e "${GRAY}[$(timestamp)]${NC} ${RED}[X] FAILED:${NC} ${RED}$1${NC}"
     if [ -n "$2" ]; then
         echo -e "  ${RED}Details: $2${NC}"
     fi
@@ -105,17 +105,17 @@ print_failure() {
 }
 
 print_warning() {
-    echo -e "${GRAY}[$(timestamp)]${NC} ${YELLOW}⚠ WARNING:${NC} ${YELLOW}$1${NC}"
+    echo -e "${GRAY}[$(timestamp)]${NC} ${YELLOW}[!] WARNING:${NC} ${YELLOW}$1${NC}"
     WARNINGS+=("$1")
 }
 
 print_info() {
-    echo -e "${GRAY}[$(timestamp)]${NC} ${CYAN}ℹ INFO:${NC} $1"
+    echo -e "${GRAY}[$(timestamp)]${NC} ${CYAN}[i] INFO:${NC} $1"
 }
 
 print_verbose() {
     if [ "$VERBOSE" = true ]; then
-        echo -e "${GRAY}[$(timestamp)]   → $1${NC}"
+        echo -e "${GRAY}[$(timestamp)]   -> $1${NC}"
     fi
 }
 
@@ -526,22 +526,22 @@ verify_installation() {
 
 print_summary() {
     echo ""
-    echo -e "${MAGENTA}$(printf '%.0s═' {1..70})${NC}"
+    echo -e "${MAGENTA}$(printf '%.0s' {1..70})${NC}"
     echo ""
     
     if [ ${#ERRORS[@]} -eq 0 ]; then
-        echo -e "  ${GREEN}🎉 SETUP COMPLETED SUCCESSFULLY!${NC}"
+        echo -e "  ${GREEN}[SUCCESS] SETUP COMPLETED SUCCESSFULLY!${NC}"
         echo ""
         echo -e "  ${WHITE}Access the application:${NC}"
-        echo -e "  ${GRAY}├─${NC} Main App:     ${CYAN}http://localhost:$APP_PORT${NC}"
-        echo -e "  ${GRAY}├─${NC} Debug View:   ${CYAN}http://localhost:$APP_PORT/debug${NC}"
-        echo -e "  ${GRAY}└─${NC} Repository:   ${CYAN}$REPO_URL${NC}"
+        echo -e "  ${GRAY}${NC} Main App:     ${CYAN}http://localhost:$APP_PORT${NC}"
+        echo -e "  ${GRAY}${NC} Debug View:   ${CYAN}http://localhost:$APP_PORT/debug${NC}"
+        echo -e "  ${GRAY}${NC} Repository:   ${CYAN}$REPO_URL${NC}"
     else
-        echo -e "  ${YELLOW}⚠ SETUP COMPLETED WITH ERRORS${NC}"
+        echo -e "  ${YELLOW}[!] SETUP COMPLETED WITH ERRORS${NC}"
         echo ""
         echo -e "  ${WHITE}The following errors occurred:${NC}"
         for error in "${ERRORS[@]}"; do
-            echo -e "  ${RED}• $error${NC}"
+            echo -e "  ${RED}* $error${NC}"
         done
     fi
     
@@ -549,12 +549,12 @@ print_summary() {
         echo ""
         echo -e "  ${YELLOW}Warnings:${NC}"
         for warning in "${WARNINGS[@]}"; do
-            echo -e "  ${YELLOW}• $warning${NC}"
+            echo -e "  ${YELLOW}* $warning${NC}"
         done
     fi
     
     echo ""
-    echo -e "${MAGENTA}$(printf '%.0s═' {1..70})${NC}"
+    echo -e "${MAGENTA}$(printf '%.0s' {1..70})${NC}"
     echo ""
 }
 

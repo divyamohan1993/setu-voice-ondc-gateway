@@ -334,23 +334,23 @@ beckn-schema.ts
 
 ```
 lib/
-├── translation-agent.ts    # AI translation logic
-├── network-simulator.ts    # Network simulation
-├── beckn-schema.ts         # Zod schemas
-└── db.ts                   # Database utilities
+ translation-agent.ts    # AI translation logic
+ network-simulator.ts    # Network simulation
+ beckn-schema.ts         # Zod schemas
+ db.ts                   # Database utilities
 
 components/
-├── VoiceInjector.tsx       # Voice input component
-├── VisualVerifier.tsx      # Visual verification
-└── ui/                     # Reusable UI components
-    ├── button.tsx
-    └── card.tsx
+ VoiceInjector.tsx       # Voice input component
+ VisualVerifier.tsx      # Visual verification
+ ui/                     # Reusable UI components
+     button.tsx
+     card.tsx
 
 app/
-├── actions.ts              # Server actions
-├── page.tsx                # Main page
-└── debug/
-    └── page.tsx            # Debug page
+ actions.ts              # Server actions
+ page.tsx                # Main page
+ debug/
+     page.tsx            # Debug page
 ```
 
 #### Import Order
@@ -408,7 +408,7 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
 Add inline comments for complex logic:
 
 ```typescript
-// Calculate bid amount (catalog price ± 5-10%)
+// Calculate bid amount (catalog price +/- 5-10%)
 // This simulates realistic market negotiation
 const variationPercent = 0.95 + Math.random() * 0.10;
 const bidAmount = Math.round(catalogPrice * variationPercent * 100) / 100;
@@ -422,13 +422,13 @@ const bidAmount = Math.round(catalogPrice * variationPercent * 100) / 100;
 
 ```
 tests/
-├── unit/                    # Unit tests
-│   ├── translation-agent.test.ts
-│   └── beckn-schema.test.ts
-├── property/                # Property-based tests
-│   └── catalog.property.test.ts
-└── fixtures/                # Test data
-    └── sample-catalogs.ts
+ unit/                    # Unit tests
+    translation-agent.test.ts
+    beckn-schema.test.ts
+ property/                # Property-based tests
+    catalog.property.test.ts
+ fixtures/                # Test data
+     sample-catalogs.ts
 ```
 
 ### Unit Tests
@@ -724,4 +724,4 @@ If you have questions about contributing, please:
 2. Search existing issues and discussions
 3. Create a new discussion if your question isn't answered
 
-Thank you for contributing to Setu! 🙏
+Thank you for contributing to Setu!

@@ -81,7 +81,7 @@ const catalog: BecknCatalogItem = {
 
 ### Features
 - Large commodity icon (128x128px)
-- Price badge with ₹ symbol
+- Price badge with  symbol
 - Quantity visual indicators
 - Thumbprint broadcast button (120x120px)
 - Confetti animation on success
@@ -230,7 +230,7 @@ const bid: BuyerBid = {
 ### Features
 - Success animation
 - Buyer information display
-- Bid amount with ₹ symbol
+- Bid amount with  symbol
 - Timestamp
 - Celebration badge
 

@@ -94,7 +94,7 @@ describe('VisualVerifier Component', () => {
       );
 
       // Check price is displayed with rupee symbol
-      expect(screen.getByText(/₹40/)).toBeInTheDocument();
+      expect(screen.getByText(/40/)).toBeInTheDocument();
       expect(screen.getByText(/kg/)).toBeInTheDocument();
     });
 
@@ -351,7 +351,7 @@ describe('VisualVerifier Component', () => {
         />
       );
 
-      expect(screen.getByText(/₹0/)).toBeInTheDocument();
+      expect(screen.getByText(/0/)).toBeInTheDocument();
     });
 
     it('should handle catalog with large quantity', () => {

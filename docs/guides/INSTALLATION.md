@@ -23,39 +23,39 @@ chmod +x setup.sh
 The installation script is a **fully automated, zero-configuration deployment** that handles:
 
 ### 1. Dependency Management
-- ✅ **Checks for Docker** - If not installed, automatically installs it
+- [OK] **Checks for Docker** - If not installed, automatically installs it
   - **Windows**: Uses `winget` or downloads Docker Desktop installer
   - **macOS**: Uses Homebrew or downloads Docker Desktop DMG
   - **Linux**: Detects distribution (Ubuntu/Debian/Fedora/Arch) and installs Docker Engine
-- ✅ **Checks for Docker Compose** - Verifies it's available (included with Docker Desktop)
-- ✅ **Starts Docker daemon** - Automatically starts Docker if it's not running
+- [OK] **Checks for Docker Compose** - Verifies it's available (included with Docker Desktop)
+- [OK] **Starts Docker daemon** - Automatically starts Docker if it's not running
 
 ### 2. Port Management
-- ✅ **Checks port 3000** (Application) - Offers to free it if occupied
-- ✅ **Checks port 5432** (PostgreSQL) - Offers to free it if occupied
-- ✅ **Kills conflicting processes** - With user confirmation
+- [OK] **Checks port 3000** (Application) - Offers to free it if occupied
+- [OK] **Checks port 5432** (PostgreSQL) - Offers to free it if occupied
+- [OK] **Kills conflicting processes** - With user confirmation
 
 ### 3. Environment Configuration
-- ✅ **Creates .env file** - If not present, creates with default values
-- ✅ **Preserves existing .env** - Uses your existing configuration if present
-- ✅ **Sets secure defaults** - Database credentials, connection strings
+- [OK] **Creates .env file** - If not present, creates with default values
+- [OK] **Preserves existing .env** - Uses your existing configuration if present
+- [OK] **Sets secure defaults** - Database credentials, connection strings
 
 ### 4. Docker Operations
-- ✅ **Cleans up old containers** - Removes any existing Setu containers
-- ✅ **Builds Docker images** - Compiles the Next.js application
-- ✅ **Starts containers** - Launches PostgreSQL and application containers
-- ✅ **Configures networking** - Sets up internal Docker network
+- [OK] **Cleans up old containers** - Removes any existing Setu containers
+- [OK] **Builds Docker images** - Compiles the Next.js application
+- [OK] **Starts containers** - Launches PostgreSQL and application containers
+- [OK] **Configures networking** - Sets up internal Docker network
 
 ### 5. Database Initialization
-- ✅ **Waits for PostgreSQL** - Health checks until database is ready (60s timeout)
-- ✅ **Runs Prisma migrations** - Synchronizes database schema
-- ✅ **Seeds sample data** - Populates with 2 farmers, 2 catalogs, 3 network logs
-- ✅ **Verifies data** - Confirms seed data was inserted correctly
+- [OK] **Waits for PostgreSQL** - Health checks until database is ready (60s timeout)
+- [OK] **Runs Prisma migrations** - Synchronizes database schema
+- [OK] **Seeds sample data** - Populates with 2 farmers, 2 catalogs, 3 network logs
+- [OK] **Verifies data** - Confirms seed data was inserted correctly
 
 ### 6. Success Verification
-- ✅ **Displays deployment summary** - Shows URLs, ports, timing
-- ✅ **Provides next steps** - Clear instructions for using the application
-- ✅ **Shows management commands** - How to stop, restart, view logs
+- [OK] **Displays deployment summary** - Shows URLs, ports, timing
+- [OK] **Provides next steps** - Clear instructions for using the application
+- [OK] **Shows management commands** - How to stop, restart, view logs
 
 ## Installation Time
 
@@ -104,10 +104,10 @@ The installation script is a **fully automated, zero-configuration deployment** 
 - **Prisma ORM** (in Docker container)
 
 ### No System-Wide Changes
-- ✅ All application code runs in Docker containers
-- ✅ No global Node.js packages installed
-- ✅ No system-wide configuration changes
-- ✅ Easy to uninstall (just remove Docker containers)
+- [OK] All application code runs in Docker containers
+- [OK] No global Node.js packages installed
+- [OK] No system-wide configuration changes
+- [OK] Easy to uninstall (just remove Docker containers)
 
 ## Troubleshooting Automatic Installation
 
@@ -132,7 +132,7 @@ The installation script is a **fully automated, zero-configuration deployment** 
 
 #### Issue: "Docker.app" cannot be opened because it is from an unidentified developer
 **Solution**:
-1. Go to System Preferences → Security & Privacy
+1. Go to System Preferences -> Security & Privacy
 2. Click "Open Anyway" for Docker
 3. Run the script again
 
@@ -203,12 +203,12 @@ chmod +x verify_installation.sh
 ```
 
 The script checks:
-- ✅ Docker installed and running
-- ✅ Docker Compose available
-- ✅ Setu containers running
-- ✅ Application accessible on port 3000
-- ✅ Database accessible
-- ✅ Seed data present
+- [OK] Docker installed and running
+- [OK] Docker Compose available
+- [OK] Setu containers running
+- [OK] Application accessible on port 3000
+- [OK] Database accessible
+- [OK] Seed data present
 
 ### Manual Verification
 
@@ -348,7 +348,7 @@ docker compose down -v
 
 ### Remove Docker (Optional)
 
-**Windows**: Uninstall Docker Desktop from Settings → Apps
+**Windows**: Uninstall Docker Desktop from Settings -> Apps
 
 **macOS**: 
 ```bash
@@ -385,20 +385,20 @@ If you encounter issues:
 
 You'll know the installation succeeded when you see:
 
-✅ Docker installed and running  
-✅ Ports 3000 and 5432 available  
-✅ .env file created  
-✅ Docker containers built and started  
-✅ PostgreSQL healthy and ready  
-✅ Database schema synchronized  
-✅ Sample data seeded  
-✅ Application accessible at http://localhost:3000  
-✅ Success banner displayed  
+[OK] Docker installed and running  
+[OK] Ports 3000 and 5432 available  
+[OK] .env file created  
+[OK] Docker containers built and started  
+[OK] PostgreSQL healthy and ready  
+[OK] Database schema synchronized  
+[OK] Sample data seeded  
+[OK] Application accessible at http://localhost:3000  
+[OK] Success banner displayed  
 
 **Total time**: 2-10 minutes depending on your system and internet speed.
 
 ---
 
-**Built with ❤️ for Indian Farmers**
+**Built with love for Indian Farmers**
 
 *One command. Zero configuration. Complete deployment.*

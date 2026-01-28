@@ -390,12 +390,12 @@ cls
 echo.
 echo ============================================================================
 echo.
-echo    ███████╗███████╗████████╗██╗   ██╗    ██╗     ██╗██╗   ██╗███████╗
-echo    ██╔════╝██╔════╝╚══██╔══╝██║   ██║    ██║     ██║██║   ██║██╔════╝
-echo    ███████╗█████╗     ██║   ██║   ██║    ██║     ██║██║   ██║█████╗  
-echo    ╚════██║██╔══╝     ██║   ██║   ██║    ██║     ██║╚██╗ ██╔╝██╔══╝  
-echo    ███████║███████╗   ██║   ╚██████╔╝    ███████╗██║ ╚████╔╝ ███████╗
-echo    ╚══════╝╚══════╝   ╚═╝    ╚═════╝     ╚══════╝╚═╝  ╚═══╝  ╚══════╝
+echo                   
+echo                   
+echo                             
+echo                           
+echo                
+echo                    
 echo.
 echo              Voice-to-ONDC Gateway Successfully Deployed!
 echo.
@@ -427,6 +427,6 @@ echo 7. To restart: docker compose up -d
 echo.
 echo ============================================================================
 echo.
-echo Setu is ready to bridge farmers to ONDC! 🌾
+echo Setu is ready to bridge farmers to ONDC! 
 echo.
 pause

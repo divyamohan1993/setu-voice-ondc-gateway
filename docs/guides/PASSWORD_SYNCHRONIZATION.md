@@ -51,13 +51,13 @@ datasource db {
 
 ### On Subsequent Runs (.env exists)
 1. **Checks for missing keys**:
-   - If `POSTGRES_PASSWORD` is missing → generates new password and adds it
-   - If `DATABASE_URL` is missing → generates new password and adds it with matching credentials
+   - If `POSTGRES_PASSWORD` is missing -> generates new password and adds it
+   - If `DATABASE_URL` is missing -> generates new password and adds it with matching credentials
 
 2. **Validates password synchronization**:
    - Extracts password from `POSTGRES_PASSWORD`
    - Checks if `DATABASE_URL` contains the same password
-   - If mismatch detected → triggers regeneration
+   - If mismatch detected -> triggers regeneration
 
 3. **Regeneration on mismatch**:
    - Backs up existing `.env` to `.env.backup.<timestamp>`
@@ -104,10 +104,10 @@ This produces:
 - Only fixes detected issues
 
 ### 4. Verification at Multiple Stages
-- ✅ Checks password exists in `.env`
-- ✅ Validates password matches in DATABASE_URL
-- ✅ Tests actual database authentication
-- ✅ Verifies Prisma can connect
+- [OK] Checks password exists in `.env`
+- [OK] Validates password matches in DATABASE_URL
+- [OK] Tests actual database authentication
+- [OK] Verifies Prisma can connect
 
 ### 5. Clear Error Messages
 ```
@@ -196,16 +196,16 @@ setup.bat
 ## Summary
 
 The `setup.bat` script ensures **100% password synchronization** across:
-- ✅ Environment variables
-- ✅ Docker Compose configuration  
-- ✅ Prisma connection strings
-- ✅ Running database containers
+- [OK] Environment variables
+- [OK] Docker Compose configuration  
+- [OK] Prisma connection strings
+- [OK] Running database containers
 
 With features:
-- ✅ Automatic detection and correction
-- ✅ Backup before changes
-- ✅ Verification at multiple stages
-- ✅ Clear error messages
-- ✅ Idempotent operation
+- [OK] Automatic detection and correction
+- [OK] Backup before changes
+- [OK] Verification at multiple stages
+- [OK] Clear error messages
+- [OK] Idempotent operation
 
 **Result**: Business continuity is maintained - the application always has consistent credentials across all components.

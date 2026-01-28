@@ -100,12 +100,12 @@ docker compose up -d --build
 
 ## Next Steps
 
-1. ✅ Services running
-2. ✅ Database initialized
-3. ✅ Sample data seeded
-4. 🎯 Open http://localhost:3000
-5. 🎯 Test voice scenarios
-6. 🎯 View network logs at http://localhost:3000/debug
+1. [OK] Services running
+2. [OK] Database initialized
+3. [OK] Sample data seeded
+4.  Open http://localhost:3000
+5.  Test voice scenarios
+6.  View network logs at http://localhost:3000/debug
 
 ## Need Help?
 

@@ -44,12 +44,12 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "Continue"
 
 $Script:CONFIG = @{
-    AppName         = "Setu Voice-to-ONDC Gateway"
-    Version         = "1.0.0"
-    Repository      = "https://github.com/divyamohan1993/setu-voice-ondc-gateway"
-    AppPort         = 3000
-    DbPort          = 5432
-    NodeMinVersion  = "18.0.0"
+    AppName          = "Setu Voice-to-ONDC Gateway"
+    Version          = "1.0.0"
+    Repository       = "https://github.com/divyamohan1993/setu-voice-ondc-gateway"
+    AppPort          = 3000
+    DbPort           = 5432
+    NodeMinVersion   = "18.0.0"
     DockerMinVersion = "20.0.0"
 }
 
@@ -73,19 +73,19 @@ $Script:WARNINGS = @()
 function Write-Banner {
     $banner = @"
 
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║   ███████╗███████╗████████╗██╗   ██╗                                        ║
-║   ██╔════╝██╔════╝╚══██╔══╝██║   ██║                                        ║
-║   ███████╗█████╗     ██║   ██║   ██║   Voice-to-ONDC Gateway                ║
-║   ╚════██║██╔══╝     ██║   ██║   ██║   Bridging the Digital Divide          ║
-║   ███████║███████╗   ██║   ╚██████╔╝   for Indian Farmers                   ║
-║   ╚══════╝╚══════╝   ╚═╝    ╚═════╝                                         ║
-║                                                                              ║
-║   🇮🇳 AI for Bharat Hackathon - Republic Day 2026                           ║
-║   Contributors: @divyamohan1993 @kumkum-thakur                              ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+
+                                                                              
+                                              
+                                              
+                 Voice-to-ONDC Gateway                
+                 Bridging the Digital Divide          
+            for Indian Farmers                   
+                                                   
+                                                                              
+   [India] AI for Bharat Hackathon - Republic Day 2026                       
+   Contributors: @divyamohan1993 @kumkum-thakur                              
+                                                                              
+
 
 "@
     Write-Host $banner -ForegroundColor $Script:COLORS.Header
@@ -106,7 +106,7 @@ function Write-Success {
     param([string]$Message)
     $timestamp = Get-Date -Format "HH:mm:ss"
     Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
-    Write-Host "✓ SUCCESS: " -NoNewline -ForegroundColor $Script:COLORS.Success
+    Write-Host "[OK] SUCCESS: " -NoNewline -ForegroundColor $Script:COLORS.Success
     Write-Host $Message -ForegroundColor $Script:COLORS.Success
 }
 
@@ -114,7 +114,7 @@ function Write-Failure {
     param([string]$Message, [string]$Details = "")
     $timestamp = Get-Date -Format "HH:mm:ss"
     Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
-    Write-Host "✗ FAILED: " -NoNewline -ForegroundColor $Script:COLORS.Error
+    Write-Host "[X] FAILED: " -NoNewline -ForegroundColor $Script:COLORS.Error
     Write-Host $Message -ForegroundColor $Script:COLORS.Error
     if ($Details) {
         Write-Host "  Details: $Details" -ForegroundColor $Script:COLORS.Error
@@ -131,7 +131,7 @@ function Write-Warning {
     param([string]$Message)
     $timestamp = Get-Date -Format "HH:mm:ss"
     Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
-    Write-Host "⚠ WARNING: " -NoNewline -ForegroundColor $Script:COLORS.Warning
+    Write-Host "[!] WARNING: " -NoNewline -ForegroundColor $Script:COLORS.Warning
     Write-Host $Message -ForegroundColor $Script:COLORS.Warning
     $Script:WARNINGS += $Message
 }
@@ -140,7 +140,7 @@ function Write-Info {
     param([string]$Message)
     $timestamp = Get-Date -Format "HH:mm:ss"
     Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
-    Write-Host "ℹ INFO: " -NoNewline -ForegroundColor $Script:COLORS.Info
+    Write-Host "[i] INFO: " -NoNewline -ForegroundColor $Script:COLORS.Info
     Write-Host $Message
 }
 
@@ -148,7 +148,7 @@ function Write-Verbose-Detail {
     param([string]$Message)
     if ($VerbosePreference -eq "Continue" -or $PSCmdlet.MyInvocation.BoundParameters["Verbose"]) {
         $timestamp = Get-Date -Format "HH:mm:ss"
-        Write-Host "[$timestamp]   → $Message" -ForegroundColor DarkGray
+        Write-Host "[$timestamp]   -> $Message" -ForegroundColor DarkGray
     }
 }
 
@@ -161,6 +161,42 @@ function Write-Command {
 # ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
+
+function Install-WingetPackage {
+    param([string]$Id, [string]$Name)
+    Write-Info "Attempting to install $Name using winget..."
+    if (Test-CommandExists "winget") {
+        try {
+            # Check if already installed to avoid reinstalling if just not in PATH (edge case)
+            # But proceed with install
+            $args = "install --id $Id -e --source winget --accept-package-agreements --accept-source-agreements --disable-interactivity"
+            Write-Verbose-Detail "Running: winget $args"
+            
+            $process = Start-Process -FilePath "winget" -ArgumentList $args -Wait -PassThru
+            
+            if ($process.ExitCode -eq 0) {
+                Write-Success "$Name installed successfully."
+                # Refresh environment variables
+                foreach ($level in "Machine", "User") {
+                    [Environment]::GetEnvironmentVariables($level).GetEnumerator() | % {
+                        [Environment]::SetEnvironmentVariable($_.Name, $_.Value, "Process")
+                    }
+                }
+                return $true
+            }
+            else {
+                Write-Failure "Failed to install $Name via winget." "Exit code: $($process.ExitCode)"
+            }
+        }
+        catch {
+            Write-Failure "Error running winget." $_.Exception.Message
+        }
+    }
+    else {
+        Write-Warning "winget is not available. Cannot auto-install $Name."
+    }
+    return $false
+}
 
 function Test-IsAdmin {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -255,8 +291,20 @@ function Test-NodeJS {
     Write-Info "Checking Node.js..."
     
     if (-not (Test-CommandExists "node")) {
-        Write-Failure "Node.js is not installed" "Please install Node.js 18+ from https://nodejs.org/"
-        return $false
+        Write-Warning "Node.js is not installed"
+        if (Install-WingetPackage "OpenJS.NodeJS.LTS" "Node.js") {
+            if (Test-CommandExists "node") {
+                Write-Success "Node.js was installed and detected."
+            }
+            else {
+                Write-Warning "Node.js installed but not yet detected in current session. You may need to restart the script."
+                return $false # Stop here as we probably can't proceed without a reload
+            }
+        }
+        else {
+            Write-Failure "Node.js is not installed" "Please install Node.js 18+ from https://nodejs.org/"
+            return $false
+        }
     }
     
     $nodeVersion = (node --version).TrimStart('v')
@@ -274,12 +322,15 @@ function Test-NodeJS {
 function Test-Npm {
     Write-Info "Checking npm..."
     
-    if (-not (Test-CommandExists "npm")) {
+    # On Windows, prefer npm.cmd to avoid ExecutionPolicy issues with npm.ps1
+    $npmCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npm.cmd" } else { "npm" }
+
+    if (-not (Test-CommandExists $npmCmd)) {
         Write-Failure "npm is not installed" "npm should come with Node.js installation"
         return $false
     }
     
-    $npmVersion = (npm --version)
+    $npmVersion = (Invoke-Expression "$npmCmd --version")
     Write-Verbose-Detail "Found npm version: $npmVersion"
     Write-Success "npm $npmVersion detected"
     return $true
@@ -290,7 +341,16 @@ function Test-Docker {
     
     if (-not (Test-CommandExists "docker")) {
         Write-Warning "Docker is not installed"
-        Write-Info "Docker is optional but recommended. Install from https://docker.com/"
+        
+        # Auto-install Docker Desktop in automated mode
+        Write-Info "Attempting to auto-install Docker Desktop..."
+        if (Install-WingetPackage "Docker.DockerDesktop" "Docker Desktop") {
+            Write-Info "Docker Desktop installed. You MUST restart your computer/session to use it."
+            Write-Info "Please restart and run this script again."
+            exit 0
+        }
+
+        Write-Info "Docker is optional but recommended. Proceeding with local mode."
         return $false
     }
     
@@ -359,19 +419,18 @@ function Resolve-PortConflict {
     if ($process) {
         Write-Warning "Port $Port is in use by: $($process.ProcessName) (PID: $($process.Id))"
         
-        $response = Read-Host "Would you like to terminate this process? (y/N)"
-        if ($response -eq 'y' -or $response -eq 'Y') {
-            try {
-                Stop-Process -Id $process.Id -Force
-                Start-Sleep -Seconds 2
-                if (-not (Test-PortInUse $Port)) {
-                    Write-Success "Port $Port is now available"
-                    return $true
-                }
+        # Auto-terminate process in automated mode
+        Write-Info "Auto-terminating process to free port..."
+        try {
+            Stop-Process -Id $process.Id -Force
+            Start-Sleep -Seconds 2
+            if (-not (Test-PortInUse $Port)) {
+                Write-Success "Port $Port is now available"
+                return $true
             }
-            catch {
-                Write-Failure "Could not terminate process" $_.Exception.Message
-            }
+        }
+        catch {
+            Write-Failure "Could not terminate process" $_.Exception.Message
         }
         return $false
     }
@@ -446,7 +505,8 @@ function Install-Dependencies {
     }
     
     Write-Info "Running npm install..."
-    $result = Invoke-CommandWithOutput -Command "npm" -Arguments "install" -WorkingDirectory $PSScriptRoot -PassThru
+    $npmCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npm.cmd" } else { "npm" }
+    $result = Invoke-CommandWithOutput -Command $npmCmd -Arguments "install" -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Failure "npm install failed" $result.StdErr
@@ -498,7 +558,8 @@ function Initialize-Database-Docker {
     
     # Run Prisma migrations
     Write-Info "Running database migrations..."
-    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
+    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
@@ -520,7 +581,8 @@ function Initialize-Database-Local {
     
     # Generate Prisma client
     Write-Info "Generating Prisma client..."
-    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma generate" -WorkingDirectory $PSScriptRoot -PassThru
+    $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
+    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma generate" -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma generate had issues: $($result.StdErr)"
@@ -528,7 +590,7 @@ function Initialize-Database-Local {
     
     # Push schema
     Write-Info "Pushing database schema..."
-    $result = Invoke-CommandWithOutput -Command "npx" -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
@@ -591,7 +653,8 @@ function Start-Application-Local {
     Write-Info "Starting development server..."
     Write-Info "The server will start in a new window. Press Ctrl+C to stop."
     
-    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $PSScriptRoot -NoNewWindow
+    $npmCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npm.cmd" } else { "npm" }
+    Start-Process -FilePath $npmCmd -ArgumentList "run", "dev" -WorkingDirectory $PSScriptRoot -NoNewWindow
     
     Write-Info "Waiting for application to be ready..."
     $maxAttempts = 30
@@ -665,28 +728,28 @@ function Test-Installation {
 
 function Write-Summary {
     Write-Host ""
-    Write-Host "═" * 70 -ForegroundColor $Script:COLORS.Header
+    Write-Host "" * 70 -ForegroundColor $Script:COLORS.Header
     Write-Host ""
     
     if ($Script:ERRORS.Count -eq 0) {
-        Write-Host "  🎉 SETUP COMPLETED SUCCESSFULLY!" -ForegroundColor $Script:COLORS.Success
+        Write-Host "  [SUCCESS] SETUP COMPLETED SUCCESSFULLY!" -ForegroundColor $Script:COLORS.Success
         Write-Host ""
         Write-Host "  Access the application:" -ForegroundColor White
-        Write-Host "  ├─ Main App:     " -NoNewline -ForegroundColor Gray
+        Write-Host "   Main App:     " -NoNewline -ForegroundColor Gray
         Write-Host "http://localhost:$($Script:CONFIG.AppPort)" -ForegroundColor Cyan
-        Write-Host "  ├─ Debug View:   " -NoNewline -ForegroundColor Gray
+        Write-Host "   Debug View:   " -NoNewline -ForegroundColor Gray
         Write-Host "http://localhost:$($Script:CONFIG.AppPort)/debug" -ForegroundColor Cyan
-        Write-Host "  └─ Repository:   " -NoNewline -ForegroundColor Gray
+        Write-Host "   Repository:   " -NoNewline -ForegroundColor Gray
         Write-Host $Script:CONFIG.Repository -ForegroundColor Cyan
     }
     else {
-        Write-Host "  ⚠ SETUP COMPLETED WITH ERRORS" -ForegroundColor $Script:COLORS.Warning
+        Write-Host "  [!] SETUP COMPLETED WITH ERRORS" -ForegroundColor $Script:COLORS.Warning
         Write-Host ""
         Write-Host "  The following errors occurred:" -ForegroundColor White
         foreach ($error in $Script:ERRORS) {
             Write-Host "  Step $($error.Step): $($error.Message)" -ForegroundColor $Script:COLORS.Error
             if ($error.Details) {
-                Write-Host "    → $($error.Details)" -ForegroundColor DarkGray
+                Write-Host "    -> $($error.Details)" -ForegroundColor DarkGray
             }
         }
     }
@@ -695,12 +758,12 @@ function Write-Summary {
         Write-Host ""
         Write-Host "  Warnings:" -ForegroundColor $Script:COLORS.Warning
         foreach ($warning in $Script:WARNINGS) {
-            Write-Host "  • $warning" -ForegroundColor $Script:COLORS.Warning
+            Write-Host "  * $warning" -ForegroundColor $Script:COLORS.Warning
         }
     }
     
     Write-Host ""
-    Write-Host "═" * 70 -ForegroundColor $Script:COLORS.Header
+    Write-Host "" * 70 -ForegroundColor $Script:COLORS.Header
     Write-Host ""
 }
 
@@ -794,12 +857,10 @@ function Main {
     # Display summary
     Write-Summary
     
-    # Open browser
+    # Auto-open browser in automated mode
     if ($Script:ERRORS.Count -eq 0 -and -not $VerifyOnly) {
-        $openBrowser = Read-Host "Open application in browser? (Y/n)"
-        if ($openBrowser -ne 'n' -and $openBrowser -ne 'N') {
-            Start-Process "http://localhost:$($Script:CONFIG.AppPort)"
-        }
+        Write-Info "Auto-opening application in browser..."
+        Start-Process "http://localhost:$($Script:CONFIG.AppPort)"
     }
 }
 

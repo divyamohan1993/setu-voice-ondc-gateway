@@ -222,7 +222,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t mt-16">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>Powered by Next.js 15 • Beckn Protocol • Vercel AI SDK</p>
+          <p>Powered by Next.js 15 * Beckn Protocol * Vercel AI SDK</p>
         </div>
       </footer>
     </div>

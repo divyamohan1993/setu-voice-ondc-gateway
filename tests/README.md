@@ -8,15 +8,15 @@ This directory contains the test suite for the Setu application. We use **Vitest
 
 ```
 tests/
-├── setup.ts                    # Global test setup and configuration
-├── utils/                      # Testing utilities and helpers
-│   ├── test-utils.tsx         # Custom render function with providers
-│   ├── server-action-helpers.ts # Helpers for testing Server Actions
-│   └── prisma-mock.ts         # Mock Prisma client utilities
-├── fixtures/                   # Test data and mock objects
-│   ├── beckn-catalog.ts       # Sample Beckn catalog items
-│   └── database.ts            # Mock database entities
-└── README.md                   # This file
+ setup.ts                    # Global test setup and configuration
+ utils/                      # Testing utilities and helpers
+    test-utils.tsx         # Custom render function with providers
+    server-action-helpers.ts # Helpers for testing Server Actions
+    prisma-mock.ts         # Mock Prisma client utilities
+ fixtures/                   # Test data and mock objects
+    beckn-catalog.ts       # Sample Beckn catalog items
+    database.ts            # Mock database entities
+ README.md                   # This file
 ```
 
 ## Running Tests
@@ -43,8 +43,8 @@ Unit tests should be co-located with the source files using the `.test.ts` or `.
 
 ```
 lib/
-├── translation-agent.ts
-└── translation-agent.test.ts
+ translation-agent.ts
+ translation-agent.test.ts
 ```
 
 ### Component Tests

@@ -163,7 +163,7 @@ export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualV
               <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400 transition-all duration-75 hover:scale-105 active:scale-95"
                      aria-label={`Price: ${catalog.price.value} rupees per ${catalog.quantity.unit}`}
                      role="status">
-                ₹{catalog.price.value} / {catalog.quantity.unit}
+                {catalog.price.value} / {catalog.quantity.unit}
               </Badge>
             </motion.div>
 

@@ -35,4 +35,4 @@ const validProps = {
 // This should compile without errors
 export const TestComponent = () => <NetworkLogViewer {...validProps} />;
 
-console.log("✅ NetworkLogViewer component imports and types are correct!");
+console.log("[OK] NetworkLogViewer component imports and types are correct!");

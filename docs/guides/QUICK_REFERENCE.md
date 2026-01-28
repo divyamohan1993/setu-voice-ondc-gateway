@@ -1,6 +1,6 @@
 # Setu - Quick Reference Card
 
-## 🚀 Installation (One Command)
+##  Installation (One Command)
 
 ### Windows
 ```cmd
@@ -19,7 +19,7 @@ chmod +x install_setu.sh
 
 ---
 
-## 🔗 Access URLs
+##  Access URLs
 
 | Service | URL |
 |---------|-----|
@@ -34,7 +34,7 @@ chmod +x install_setu.sh
 
 ---
 
-## 🛠️ Common Commands
+##  Common Commands
 
 ### Container Management
 
@@ -117,7 +117,7 @@ docker compose exec app sh
 
 ---
 
-## 🧪 Testing & Verification
+##  Testing & Verification
 
 ### Quick Verification
 
@@ -146,7 +146,7 @@ docker compose exec db psql -U setu -d setu_db -t -c "SELECT COUNT(*) FROM farme
 
 ---
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Docker Not Running
 
@@ -226,7 +226,7 @@ netstat -an | findstr 3000  # Windows
 
 ---
 
-## 📝 Configuration
+##  Configuration
 
 ### Environment Variables (.env)
 
@@ -252,7 +252,7 @@ docker compose restart app
 
 ---
 
-## 📊 System Status
+##  System Status
 
 ### Check Everything
 
@@ -285,7 +285,7 @@ docker compose logs app | wc -l
 
 ---
 
-## 🗑️ Uninstallation
+##  Uninstallation
 
 ### Remove Application
 
@@ -302,7 +302,7 @@ docker volume rm setu_postgres_data
 
 ### Remove Docker (Optional)
 
-**Windows**: Settings → Apps → Uninstall Docker Desktop
+**Windows**: Settings -> Apps -> Uninstall Docker Desktop
 
 **macOS**:
 ```bash
@@ -327,7 +327,7 @@ sudo pacman -R docker docker-compose
 
 ---
 
-## 🎯 Quick Workflows
+##  Quick Workflows
 
 ### Fresh Start
 
@@ -377,7 +377,7 @@ docker compose exec app printenv
 
 ---
 
-## 📞 Getting Help
+##  Getting Help
 
 1. **Check logs**: `docker compose logs app`
 2. **Run verification**: `verify_installation.bat` or `./verify_installation.sh`
@@ -387,19 +387,19 @@ docker compose exec app printenv
 
 ---
 
-## ✅ Success Indicators
+## [OK] Success Indicators
 
 You'll know everything is working when:
 
-- ✅ `docker compose ps` shows both containers as "Up"
-- ✅ http://localhost:3000 loads the Setu interface
-- ✅ `verify_installation` script passes all tests
-- ✅ You can select voice scenarios and see visual cards
-- ✅ Broadcast button triggers buyer bid notifications
-- ✅ Debug interface shows network logs
+- [OK] `docker compose ps` shows both containers as "Up"
+- [OK] http://localhost:3000 loads the Setu interface
+- [OK] `verify_installation` script passes all tests
+- [OK] You can select voice scenarios and see visual cards
+- [OK] Broadcast button triggers buyer bid notifications
+- [OK] Debug interface shows network logs
 
 ---
 
-**Built with ❤️ for Indian Farmers**
+**Built with love for Indian Farmers**
 
 *Keep this reference handy for quick access to common commands and workflows.*

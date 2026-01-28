@@ -1,4 +1,4 @@
-# Setu - Voice-to-ONDC Gateway 🇮🇳
+# Setu - Voice-to-ONDC Gateway (India)
 
 <div align="center">
 
@@ -19,22 +19,22 @@
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
-- [🎯 Project Overview](#-project-overview)
-- [🚀 Quick Start](#-quick-start)
-- [🏗️ Architecture](#️-architecture)
-- [💻 Technology Stack](#-technology-stack)
-- [📦 Installation](#-installation)
-- [🎮 Usage Guide](#-usage-guide)
-- [🔌 API Documentation](#-api-documentation)
-- [🧪 Testing](#-testing)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [Project Overview](#project-overview)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Technology Stack](#technology-stack)
+- [Installation](#installation)
+- [Usage Guide](#usage-guide)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 🎯 Project Overview
+## Project Overview
 
 ### The Problem
 Millions of Indian farmers are excluded from digital commerce due to:
@@ -44,11 +44,11 @@ Millions of Indian farmers are excluded from digital commerce due to:
 
 ### The Solution
 Setu transforms the farmer experience by providing:
-- 🎤 **Voice-First Interface**: Farmers speak in their native language (Hindi/Hinglish).
-- 🤖 **AI-Powered Translation**: Converts voice to structured Beckn Protocol JSON.
-- 👁️ **Visual Verification**: Icon-based interface requiring zero reading ability.
-- 📡 **ONDC Integration**: Generates compliant catalogs for the Open Network.
-- 🌐 **Network Simulation**: Demonstrates buyer interactions and responses.
+- **Voice-First Interface**: Farmers speak in their native language (Hindi/Hinglish).
+- **AI-Powered Translation**: Converts voice to structured Beckn Protocol JSON.
+- **Visual Verification**: Icon-based interface requiring zero reading ability.
+- **ONDC Integration**: Generates compliant catalogs for the Open Network.
+- **Network Simulation**: Demonstrates buyer interactions and responses.
 
 ### Key Features
 - **Zero-Text Interface**: Visual icons and symbols replace all text.
@@ -59,9 +59,9 @@ Setu transforms the farmer experience by providing:
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### ⚡ One-Click Setup (Recommended)
+### One-Click Setup (Recommended)
 
 We provide a single entry point to auto-configure your environment, install dependencies, and start the app.
 
@@ -80,15 +80,15 @@ chmod +x setup.sh
 ```
 
 **What this script does:**
-- ✅ Checks/Installs Node.js & dependencies.
-- ✅ Configures Docker or Local SQLite mode automatically.
-- ✅ Sets up `.env` with secure defaults.
-- ✅ Runs database migrations and seeds data.
-- ✅ Launches the application.
+- [OK] Checks/Installs Node.js & dependencies.
+- [OK] Configures Docker or Local SQLite mode automatically.
+- [OK] Sets up `.env` with secure defaults.
+- [OK] Runs database migrations and seeds data.
+- [OK] Launches the application.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TB
@@ -124,7 +124,7 @@ graph TB
 
 ---
 
-## 💻 Technology Stack
+## Technology Stack
 
 | Category | Technologies |
 |----------|--------------|
@@ -137,7 +137,7 @@ graph TB
 
 ---
 
-## 📦 Installation
+## Installation
 
 For detailed installation instructions, including manual setup and troubleshooting, please refer to the documentation:
 
@@ -156,7 +156,7 @@ NODE_ENV="development"
 
 ---
 
-## 🎮 Usage Guide
+## Usage Guide
 
 1.  **Select Voice Scenario**: Choose a pre-recorded Hindi command (e.g., "500kg onions from Nasik").
 2.  **AI Transformation**: Watch as the system converts speech to a structured ONDC catalog.
@@ -168,7 +168,7 @@ Access the **Debug Interface** at `/debug` to view raw Beckn Protocol JSON logs.
 
 ---
 
-## 🔌 API Documentation
+## API Documentation
 
 Our Server Actions provide the core logic:
 
@@ -180,7 +180,7 @@ See [API Documentation](docs/api.md) for full details.
 
 ---
 
-## 🧪 Testing
+## Testing
 
 We use **Vitest** for unit and integration testing.
 
@@ -191,7 +191,7 @@ npm run test:coverage # Generate coverage report
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow our guidelines:
 
@@ -205,11 +205,11 @@ We welcome contributions! Please follow our guidelines:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 <div align="center">
-  <sub>Built with ❤️ for AI for Bharat Hackathon 2026</sub>
+  <sub>Built with love for AI for Bharat Hackathon 2026</sub>
 </div>
 

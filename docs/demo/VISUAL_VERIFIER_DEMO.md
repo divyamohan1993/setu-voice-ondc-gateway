@@ -7,51 +7,51 @@ The Visual Verifier component displays catalog data as an accessible visual card
 ## Visual Layout
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│              [Commodity Icon - 128x128px]               │
-│                    (Animated Entry)                     │
-│                                                         │
-│                   Nasik Onions                          │
-│              (Large Bold Gradient Text)                 │
-│                                                         │
-│              ┌─────────────────────┐                    │
-│              │   ₹40 / kg          │                    │
-│              │  (Green Badge)      │                    │
-│              └─────────────────────┘                    │
-│                                                         │
-│              📦  500 kg                                 │
-│           (Package Icon + Bold Text)                    │
-│                                                         │
-│              ┌─────────────────────┐                    │
-│              │   Grade: A          │                    │
-│              └─────────────────────┘                    │
-│                                                         │
-│              [Logistics Logo - 64x64px]                 │
-│                  India Post                             │
-│                                                         │
-│              ┌─────────────────────┐                    │
-│              │                     │                    │
-│              │    👆 Fingerprint   │  120x120px         │
-│              │     Broadcast       │  Circular          │
-│              │                     │  Button            │
-│              └─────────────────────┘                    │
-│                                                         │
-│         [Success Message with Confetti]                 │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+
+                                                         
+              [Commodity Icon - 128x128px]               
+                    (Animated Entry)                     
+                                                         
+                   Nasik Onions                          
+              (Large Bold Gradient Text)                 
+                                                         
+                                  
+                 40 / kg                              
+                (Green Badge)                          
+                                  
+                                                         
+                500 kg                                 
+           (Package Icon + Bold Text)                    
+                                                         
+                                  
+                 Grade: A                              
+                                  
+                                                         
+              [Logistics Logo - 64x64px]                 
+                  India Post                             
+                                                         
+                                  
+                                                       
+                   Fingerprint     120x120px         
+                   Broadcast         Circular          
+                                     Button            
+                                  
+                                                         
+         [Success Message with Confetti]                 
+                                                         
+
 ```
 
 ## Animation Sequence
 
 ### 1. Card Entrance (0.0s - 0.6s)
-- Card slides up from below (y: 30px → 0)
-- Fades in (opacity: 0 → 1)
+- Card slides up from below (y: 30px -> 0)
+- Fades in (opacity: 0 -> 1)
 - Smooth easeOut transition
 
 ### 2. Commodity Icon (0.2s)
 - Scales from 0 to 1
-- Rotates from -180° to 0°
+- Rotates from -180 degrees to 0 degrees
 - Spring animation with bounce effect
 - **Size**: 128x128 pixels
 
@@ -64,7 +64,7 @@ The Visual Verifier component displays catalog data as an accessible visual card
 - Scales in with spring effect
 - Green background for positive association
 - **Font Size**: 32-36px
-- **Format**: ₹40 / kg
+- **Format**: 40 / kg
 
 ### 5. Quantity Indicator (0.5s)
 - Slides in from left
@@ -95,12 +95,12 @@ The Visual Verifier component displays catalog data as an accessible visual card
 
 ### Idle State
 ```
-┌─────────────┐
-│             │
-│      👆     │  Fingerprint icon (56px)
-│  Broadcast  │  Label below
-│             │
-└─────────────┘
+
+             
+             Fingerprint icon (56px)
+  Broadcast    Label below
+             
+
 ```
 - **Hover**: Scales to 1.05x, fingerprint pulses
 - **Press**: Scales to 0.95x
@@ -108,24 +108,24 @@ The Visual Verifier component displays catalog data as an accessible visual card
 
 ### Loading State
 ```
-┌─────────────┐
-│             │
-│      ⟳      │  Spinning loader (56px)
-│             │
-│             │
-└─────────────┘
+
+             
+              Spinning loader (56px)
+             
+             
+
 ```
 - Smooth rotation animation
 - Button disabled
 
 ### Success State
 ```
-┌─────────────┐
-│             │
-│      ✓      │  Checkmark (56px)
-│             │  Green color
-│             │
-└─────────────┘
+
+             
+      [OK]        Checkmark (56px)
+               Green color
+             
+
 ```
 - Scales in with rotation
 - Spring animation
@@ -136,11 +136,11 @@ The Visual Verifier component displays catalog data as an accessible visual card
 When broadcast succeeds, 20 colorful particles explode from the button:
 
 ```
-        🔴
-    🔵      🟡
-  🟢    👆    🟠
-    🔴      🟣
-        🟡
+        
+          
+          
+          
+        
 ```
 
 - **Colors**: Red, Teal, Blue, Coral, Mint, Yellow
@@ -151,10 +151,10 @@ When broadcast succeeds, 20 colorful particles explode from the button:
 ## Success Message
 
 ```
-┌─────────────────────────────────────┐
-│  ✨ Catalog Broadcasted! ✨         │
-│     📈 Sent to buyer network        │
-└─────────────────────────────────────┘
+
+   Catalog Broadcasted!          
+      Sent to buyer network        
+
 ```
 
 - Green background with border
@@ -178,28 +178,28 @@ When broadcast succeeds, 20 colorful particles explode from the button:
 
 ## Accessibility Features
 
-### ✅ Visual-First Design
+### [OK] Visual-First Design
 - Icons are primary communication method
 - Text is secondary and minimal
 - No reading required to understand content
 
-### ✅ Large Touch Targets
+### [OK] Large Touch Targets
 - Broadcast button: 120x120px (exceeds 44x44px minimum)
 - All interactive elements meet WCAG standards
 
-### ✅ High Contrast
+### [OK] High Contrast
 - 4.5:1 minimum contrast ratio
 - Bold borders and shadows
 - Clear visual hierarchy
 
-### ✅ Large Fonts
+### [OK] Large Fonts
 - Product name: 40-48px
 - Price: 32-36px
 - Quantity: 24-32px
 - Grade: 20-24px
 - All exceed 24px minimum
 
-### ✅ Visual Feedback
+### [OK] Visual Feedback
 - Hover states on button
 - Loading spinner during processing
 - Success animation with confetti
@@ -213,7 +213,7 @@ When broadcast succeeds, 20 colorful particles explode from the button:
 - Touch-optimized spacing
 - Full-width card
 
-### Desktop (≥ 768px)
+### Desktop (>= 768px)
 - Centered card (max-width: 672px)
 - Larger font sizes (upper end of range)
 - Enhanced shadows and effects
@@ -236,63 +236,63 @@ When broadcast succeeds, 20 colorful particles explode from the button:
 
 ## User Flow
 
-1. **Farmer selects voice scenario** → Translation happens
-2. **Visual Verifier appears** → Card animates in with all elements
-3. **Farmer reviews visual card** → Sees commodity, price, quantity
-4. **Farmer hovers over button** → Button scales up, fingerprint pulses
-5. **Farmer taps broadcast button** → Button scales down, shows spinner
-6. **Broadcast completes** → Confetti explodes, checkmark appears
-7. **Success message shows** → Green banner with celebration
-8. **Auto-dismiss after 3s** → Ready for next catalog
+1. **Farmer selects voice scenario** -> Translation happens
+2. **Visual Verifier appears** -> Card animates in with all elements
+3. **Farmer reviews visual card** -> Sees commodity, price, quantity
+4. **Farmer hovers over button** -> Button scales up, fingerprint pulses
+5. **Farmer taps broadcast button** -> Button scales down, shows spinner
+6. **Broadcast completes** -> Confetti explodes, checkmark appears
+7. **Success message shows** -> Green banner with celebration
+8. **Auto-dismiss after 3s** -> Ready for next catalog
 
 ## Testing Scenarios
 
-### ✅ Normal Flow
+### [OK] Normal Flow
 - Display onion catalog with all fields
 - Broadcast successfully
 - Show confetti and success message
 
-### ✅ Minimal Data
+### [OK] Minimal Data
 - Display catalog without grade
 - Display catalog without logistics provider
 - Still looks complete and professional
 
-### ✅ Edge Cases
-- Zero price (₹0 / kg)
+### [OK] Edge Cases
+- Zero price (0 / kg)
 - Large quantity (999,999 kg)
 - Unknown commodity (uses fallback icon)
 - Long product name (wraps properly)
 
-### ✅ Error Handling
-- Broadcast fails → Component doesn't crash
-- Missing icon → Uses fallback
-- Network error → Graceful degradation
+### [OK] Error Handling
+- Broadcast fails -> Component doesn't crash
+- Missing icon -> Uses fallback
+- Network error -> Graceful degradation
 
 ## Performance Optimizations
 
-### ✅ Image Optimization
+### [OK] Image Optimization
 - Next.js Image component for automatic optimization
 - Lazy loading for off-screen images
 - Proper width/height to prevent layout shift
 - Priority loading for commodity icon
 
-### ✅ Animation Performance
+### [OK] Animation Performance
 - GPU-accelerated transforms (scale, rotate, translate)
 - No layout-triggering animations
 - Smooth 60fps animations
 - Efficient confetti particles (CSS transforms only)
 
-### ✅ Code Splitting
+### [OK] Code Splitting
 - Component lazy loads when needed
 - Framer Motion tree-shaken
 - Minimal bundle size impact
 
 ## Browser Compatibility
 
-- ✅ Chrome/Edge (latest)
-- ✅ Firefox (latest)
-- ✅ Safari (latest)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+- [OK] Chrome/Edge (latest)
+- [OK] Firefox (latest)
+- [OK] Safari (latest)
+- [OK] Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## Conclusion
 

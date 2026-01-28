@@ -10,37 +10,37 @@ env:
 
 jobs:
   deploy-preview:
-    name: 🚀 Deploy Preview
+    name:  Deploy Preview
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout repository
+      - name:  Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js
+      - name:  Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: 📥 Install Vercel CLI
+      - name:  Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: 🔗 Pull Vercel Environment
+      - name:  Pull Vercel Environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
         continue-on-error: true
 
-      - name: 🔨 Build Project
+      - name:  Build Project
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
         continue-on-error: true
 
-      - name: 🚀 Deploy to Vercel (Preview)
+      - name:  Deploy to Vercel (Preview)
         id: deploy
         run: |
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview_url=$url" >> $GITHUB_OUTPUT
         continue-on-error: true
 
-      - name: 💬 Comment on PR
+      - name:  Comment on PR
         uses: actions/github-script@v7
         if: steps.deploy.outputs.preview_url
         with:
@@ -49,5 +49,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 **Preview Deployment Ready!**\n\n🔗 Preview URL: ${{ steps.deploy.outputs.preview_url }}\n\n_Built from commit ${context.sha.substring(0, 7)}_`
+              body: ` **Preview Deployment Ready!**\n\n Preview URL: ${{ steps.deploy.outputs.preview_url }}\n\n_Built from commit ${context.sha.substring(0, 7)}_`
             })

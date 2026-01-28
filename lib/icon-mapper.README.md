@@ -8,13 +8,13 @@ The Icon Mapper provides a centralized, type-safe way to retrieve visual assets 
 
 ## Features
 
-- ✅ **Multi-language Support**: Handles English and Hindi/Hinglish commodity names
-- ✅ **Case-Insensitive**: Works with any case combination
-- ✅ **Whitespace Tolerant**: Automatically trims input
-- ✅ **Variant Support**: Recognizes multiple names for the same commodity
-- ✅ **Safe Defaults**: Returns fallback icons for unknown values
-- ✅ **Type-Safe**: Full TypeScript support with proper types
-- ✅ **Well-Tested**: Comprehensive unit test coverage
+- [OK] **Multi-language Support**: Handles English and Hindi/Hinglish commodity names
+- [OK] **Case-Insensitive**: Works with any case combination
+- [OK] **Whitespace Tolerant**: Automatically trims input
+- [OK] **Variant Support**: Recognizes multiple names for the same commodity
+- [OK] **Safe Defaults**: Returns fallback icons for unknown values
+- [OK] **Type-Safe**: Full TypeScript support with proper types
+- [OK] **Well-Tested**: Comprehensive unit test coverage
 
 ## Installation
 
@@ -241,14 +241,14 @@ npm test lib/__tests__/icon-mapper.test.ts
 ```
 
 **Test Coverage:**
-- ✅ All commodity variants
-- ✅ All logistics provider variants
-- ✅ All buyer variants
-- ✅ Case-insensitive matching
-- ✅ Whitespace handling
-- ✅ Default fallback behavior
-- ✅ Commodity extraction
-- ✅ End-to-end icon retrieval
+- [OK] All commodity variants
+- [OK] All logistics provider variants
+- [OK] All buyer variants
+- [OK] Case-insensitive matching
+- [OK] Whitespace handling
+- [OK] Default fallback behavior
+- [OK] Commodity extraction
+- [OK] End-to-end icon retrieval
 
 ## Adding New Commodities
 

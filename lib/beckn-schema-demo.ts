@@ -62,32 +62,32 @@ export const mangoCatalogDemo: BecknCatalogItem = {
  * Demo 3: Validate all demo catalogs
  */
 export function validateDemoCatalogs(): void {
-  console.log('🧪 Validating Demo Catalogs\n');
+  console.log(' Validating Demo Catalogs\n');
 
   // Validate onion catalog
   try {
     const validOnion = BecknCatalogItemSchema.parse(onionCatalogDemo);
-    console.log('✅ Onion Catalog Valid');
+    console.log('[OK] Onion Catalog Valid');
     console.log(`   Product: ${validOnion.descriptor.name}`);
-    console.log(`   Price: ₹${validOnion.price.value} per ${validOnion.quantity.unit}`);
+    console.log(`   Price: ${validOnion.price.value} per ${validOnion.quantity.unit}`);
     console.log(`   Quantity: ${validOnion.quantity.available.count} ${validOnion.quantity.unit}`);
     console.log(`   Grade: ${validOnion.tags.grade}`);
     console.log(`   Logistics: ${validOnion.tags.logistics_provider}\n`);
   } catch (error) {
-    console.error('❌ Onion Catalog Invalid:', error);
+    console.error('[X] Onion Catalog Invalid:', error);
   }
 
   // Validate mango catalog
   try {
     const validMango = BecknCatalogItemSchema.parse(mangoCatalogDemo);
-    console.log('✅ Mango Catalog Valid');
+    console.log('[OK] Mango Catalog Valid');
     console.log(`   Product: ${validMango.descriptor.name}`);
-    console.log(`   Price: ₹${validMango.price.value} per ${validMango.quantity.unit}`);
+    console.log(`   Price: ${validMango.price.value} per ${validMango.quantity.unit}`);
     console.log(`   Quantity: ${validMango.quantity.available.count} ${validMango.quantity.unit}`);
     console.log(`   Grade: ${validMango.tags.grade}`);
     console.log(`   Logistics: ${validMango.tags.logistics_provider}\n`);
   } catch (error) {
-    console.error('❌ Mango Catalog Invalid:', error);
+    console.error('[X] Mango Catalog Invalid:', error);
   }
 }
 
@@ -95,7 +95,7 @@ export function validateDemoCatalogs(): void {
  * Demo 4: Show validation errors for invalid data
  */
 export function demonstrateValidationErrors(): void {
-  console.log('🧪 Demonstrating Validation Errors\n');
+  console.log(' Demonstrating Validation Errors\n');
 
   // Invalid: Negative price
   const invalidPrice = {
@@ -116,7 +116,7 @@ export function demonstrateValidationErrors(): void {
 
   const result1 = BecknCatalogItemSchema.safeParse(invalidPrice);
   if (!result1.success) {
-    console.log('❌ Invalid Price Example:');
+    console.log('[X] Invalid Price Example:');
     result1.error.errors.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
@@ -142,7 +142,7 @@ export function demonstrateValidationErrors(): void {
 
   const result2 = BecknCatalogItemSchema.safeParse(invalidUrl);
   if (!result2.success) {
-    console.log('❌ Invalid URL Example:');
+    console.log('[X] Invalid URL Example:');
     result2.error.errors.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
@@ -170,7 +170,7 @@ export function demonstrateValidationErrors(): void {
 
   const result3 = BecknCatalogItemSchema.safeParse(invalidPerishability);
   if (!result3.success) {
-    console.log('❌ Invalid Perishability Example:');
+    console.log('[X] Invalid Perishability Example:');
     result3.error.errors.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
@@ -182,11 +182,11 @@ export function demonstrateValidationErrors(): void {
  * Demo 5: Show type safety in action
  */
 export function demonstrateTypeSafety(): void {
-  console.log('🧪 Demonstrating Type Safety\n');
+  console.log(' Demonstrating Type Safety\n');
 
   // TypeScript will catch these errors at compile time:
   
-  // ❌ This would fail TypeScript compilation:
+  // [X] This would fail TypeScript compilation:
   // const invalid: BecknCatalogItem = {
   //   descriptor: {
   //     name: 'Test',
@@ -197,7 +197,7 @@ export function demonstrateTypeSafety(): void {
   //   tags: {}
   // };
 
-  // ✅ This passes TypeScript compilation:
+  // [OK] This passes TypeScript compilation:
   const valid: BecknCatalogItem = {
     descriptor: {
       name: 'Test Product',
@@ -214,7 +214,7 @@ export function demonstrateTypeSafety(): void {
     tags: {}
   };
 
-  console.log('✅ Type-safe catalog created');
+  console.log('[OK] Type-safe catalog created');
   console.log(`   Product: ${valid.descriptor.name}`);
   console.log(`   Type checking: Passed at compile time\n`);
 }
@@ -223,17 +223,17 @@ export function demonstrateTypeSafety(): void {
  * Run all demos
  */
 export function runAllDemos(): void {
-  console.log('═══════════════════════════════════════════════════════');
+  console.log('');
   console.log('  Beckn Protocol Schema Demo - Setu Voice-to-ONDC');
-  console.log('═══════════════════════════════════════════════════════\n');
+  console.log('\n');
 
   validateDemoCatalogs();
   demonstrateValidationErrors();
   demonstrateTypeSafety();
 
-  console.log('═══════════════════════════════════════════════════════');
+  console.log('');
   console.log('  Demo Complete!');
-  console.log('═══════════════════════════════════════════════════════');
+  console.log('');
 }
 
 // Run demos if executed directly

@@ -170,7 +170,7 @@ export default function DebugPage() {
                         <div>
                           <p className="text-gray-600 font-semibold">Price</p>
                           <p className="text-gray-900">
-                            ₹{becknData.price?.value || 0} per {becknData.quantity?.unit || "unit"}
+                            {becknData.price?.value || 0} per {becknData.quantity?.unit || "unit"}
                           </p>
                         </div>
                         <div>
@@ -218,7 +218,7 @@ export default function DebugPage() {
       {/* Footer */}
       <footer className="border-t mt-16 bg-white">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
-          <p>Debug Console • Setu Voice-to-ONDC Gateway</p>
+          <p>Debug Console * Setu Voice-to-ONDC Gateway</p>
         </div>
       </footer>
     </div>

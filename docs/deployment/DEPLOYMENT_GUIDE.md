@@ -66,44 +66,44 @@ That's it! The script will handle everything automatically.
 A comprehensive Bash script that automates the entire deployment process on Unix-like systems.
 
 **Features:**
-- ✅ Colored output for better readability
-- ✅ Comprehensive error handling with automatic cleanup
-- ✅ Interactive port conflict resolution
-- ✅ Health checks for all services
-- ✅ Automatic database initialization and seeding
-- ✅ Beautiful ASCII art success banner
-- ✅ Detailed deployment summary
+- [OK] Colored output for better readability
+- [OK] Comprehensive error handling with automatic cleanup
+- [OK] Interactive port conflict resolution
+- [OK] Health checks for all services
+- [OK] Automatic database initialization and seeding
+- [OK] Beautiful ASCII art success banner
+- [OK] Detailed deployment summary
 
 ### Windows Script: `install_setu.bat`
 
 A Windows batch script that provides the same functionality for Windows users.
 
 **Features:**
-- ✅ Windows-compatible commands
-- ✅ Interactive prompts for user decisions
-- ✅ Port conflict detection and resolution
-- ✅ Automatic environment setup
-- ✅ Success banner with deployment information
+- [OK] Windows-compatible commands
+- [OK] Interactive prompts for user decisions
+- [OK] Port conflict detection and resolution
+- [OK] Automatic environment setup
+- [OK] Success banner with deployment information
 
 ## What the Script Does
 
 The deployment script performs the following steps automatically:
 
-### 1. Dependency Checks ✓
+### 1. Dependency Checks [OK]
 
 - Verifies Docker is installed
 - Verifies Docker Compose is available
 - Checks if Docker daemon is running
 - Displays installation instructions if dependencies are missing
 
-### 2. Port Management ✓
+### 2. Port Management [OK]
 
 - Checks if port 3000 (Application) is available
 - Checks if port 5432 (PostgreSQL) is available
 - Offers to kill processes using required ports
 - Provides clear error messages if ports cannot be freed
 
-### 3. Environment Setup ✓
+### 3. Environment Setup [OK]
 
 - Checks for existing `.env` file
 - Creates `.env` with default values if missing
@@ -122,7 +122,7 @@ NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 ```
 
-### 4. Docker Operations ✓
+### 4. Docker Operations [OK]
 
 - Cleans up any existing containers (`docker compose down -v`)
 - Builds Docker images from scratch
@@ -130,14 +130,14 @@ NEXT_TELEMETRY_DISABLED=1
 - Configures networking between services
 - Sets up persistent volumes for database
 
-### 5. Database Health Check ✓
+### 5. Database Health Check [OK]
 
 - Waits for PostgreSQL to be ready (max 60 seconds)
 - Uses `pg_isready` for reliable health checking
 - Displays progress indicator while waiting
 - Fails gracefully with clear error message if timeout occurs
 
-### 6. Database Initialization ✓
+### 6. Database Initialization [OK]
 
 - Runs Prisma migrations (`npx prisma db push`)
 - Synchronizes database schema with Prisma models
@@ -145,7 +145,7 @@ NEXT_TELEMETRY_DISABLED=1
 - Verifies seed data was inserted successfully
 - Creates sample farmers, catalogs, and network logs
 
-### 7. Success Output ✓
+### 7. Success Output [OK]
 
 - Displays beautiful ASCII art banner
 - Shows deployment summary with:
@@ -156,7 +156,7 @@ NEXT_TELEMETRY_DISABLED=1
 - Provides clear next steps for users
 - Includes troubleshooting tips
 
-### 8. Error Handling ✓
+### 8. Error Handling [OK]
 
 - Traps all errors with `set -e` (Bash) or error checking (Batch)
 - Provides context-specific error messages

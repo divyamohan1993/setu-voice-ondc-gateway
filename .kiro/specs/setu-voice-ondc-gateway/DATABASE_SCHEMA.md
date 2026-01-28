@@ -3,40 +3,40 @@
 ## Entity Relationship Diagram
 
 ```
-┌─────────────────────────────────────┐
-│           Farmer                    │
-├─────────────────────────────────────┤
-│ id              String (PK)         │
-│ name            String              │
-│ locationLatLong String?             │
-│ languagePref    String (default:hi) │
-│ upiId           String?             │
-│ createdAt       DateTime            │
-│ updatedAt       DateTime            │
-└─────────────────┬───────────────────┘
-                  │
-                  │ 1:N (Cascade Delete)
-                  │
-                  ▼
-┌─────────────────────────────────────┐
-│           Catalog                   │
-├─────────────────────────────────────┤
-│ id          String (PK)             │
-│ farmerId    String (FK) [indexed]   │
-│ becknJson   Json                    │
-│ status      CatalogStatus [indexed] │
-│ createdAt   DateTime                │
-│ updatedAt   DateTime                │
-└─────────────────────────────────────┘
 
-┌─────────────────────────────────────┐
-│         NetworkLog                  │
-├─────────────────────────────────────┤
-│ id        String (PK)               │
-│ type      NetworkLogType [indexed]  │
-│ payload   Json                      │
-│ timestamp DateTime [indexed]        │
-└─────────────────────────────────────┘
+           Farmer                    
+
+ id              String (PK)         
+ name            String              
+ locationLatLong String?             
+ languagePref    String (default:hi) 
+ upiId           String?             
+ createdAt       DateTime            
+ updatedAt       DateTime            
+
+                  
+                   1:N (Cascade Delete)
+                  
+                  
+
+           Catalog                   
+
+ id          String (PK)             
+ farmerId    String (FK) [indexed]   
+ becknJson   Json                    
+ status      CatalogStatus [indexed] 
+ createdAt   DateTime                
+ updatedAt   DateTime                
+
+
+
+         NetworkLog                  
+
+ id        String (PK)               
+ type      NetworkLogType [indexed]  
+ payload   Json                      
+ timestamp DateTime [indexed]        
+
 ```
 
 ## Enums
@@ -194,7 +194,7 @@ Varies by event type:
 ## Data Integrity
 
 ### Referential Integrity
-- **Farmer → Catalog:** Foreign key constraint with CASCADE DELETE
+- **Farmer -> Catalog:** Foreign key constraint with CASCADE DELETE
   - Ensures no orphaned catalogs when a farmer is deleted
   - Maintains data consistency
 

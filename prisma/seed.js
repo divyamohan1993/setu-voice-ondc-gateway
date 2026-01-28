@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log(' Starting database seed...');
 
   // Create sample farmers
   const farmer1 = await prisma.farmer.upsert({
@@ -12,7 +12,7 @@ async function main() {
     update: {},
     create: {
       id: 'farmer-1',
-      name: 'राजेश पाटिल',
+      name: ' ',
       locationLatLong: '19.0760,72.8777', // Mumbai coordinates
       languagePref: 'hi',
       upiId: 'rajesh.patil@paytm',
@@ -24,14 +24,14 @@ async function main() {
     update: {},
     create: {
       id: 'farmer-2',
-      name: 'सुनीता देशमुख',
+      name: ' ',
       locationLatLong: '18.5204,73.8567', // Pune coordinates
       languagePref: 'mr',
       upiId: 'sunita.deshmukh@upi',
     },
   });
 
-  console.log('✅ Created farmers:', farmer1.name, farmer2.name);
+  console.log('[OK] Created farmers:', farmer1.name, farmer2.name);
 
   // Create sample catalogs
   const catalog1 = await prisma.catalog.upsert({
@@ -96,7 +96,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Created catalogs:', catalog1.id, catalog2.id);
+  console.log('[OK] Created catalogs:', catalog1.id, catalog2.id);
 
   // Create sample network logs
   const log1 = await prisma.networkLog.create({
@@ -137,14 +137,14 @@ async function main() {
     },
   });
 
-  console.log('✅ Created network logs:', log1.id, log2.id, log3.id);
+  console.log('[OK] Created network logs:', log1.id, log2.id, log3.id);
 
-  console.log('🎉 Database seed completed successfully!');
+  console.log(' Database seed completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seed:', e);
+    console.error('[X] Error during seed:', e);
     process.exit(1);
   })
   .finally(async () => {

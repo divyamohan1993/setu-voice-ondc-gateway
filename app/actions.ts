@@ -59,12 +59,12 @@ export async function translateVoiceAction(voiceText: string): Promise<Translate
       };
     }
     
-    console.log("🎤 Translating voice input:", voiceText);
+    console.log(" Translating voice input:", voiceText);
     
     // Call translation agent with fallback
     const catalog = await translateVoiceToJsonWithFallback(voiceText);
     
-    console.log("✓ Translation successful");
+    console.log("[OK] Translation successful");
     
     return {
       success: true,
@@ -72,7 +72,7 @@ export async function translateVoiceAction(voiceText: string): Promise<Translate
     };
     
   } catch (error) {
-    console.error("✗ Translation action failed:", error);
+    console.error("[X] Translation action failed:", error);
     
     return {
       success: false,
@@ -130,7 +130,7 @@ export async function saveCatalogAction(
       };
     }
     
-    console.log(`💾 Saving catalog for farmer ${farmerId}`);
+    console.log(` Saving catalog for farmer ${farmerId}`);
     
     // Create catalog in database
     const result = await prisma.catalog.create({
@@ -141,7 +141,7 @@ export async function saveCatalogAction(
       }
     });
     
-    console.log(`✓ Catalog saved with ID: ${result.id}`);
+    console.log(`[OK] Catalog saved with ID: ${result.id}`);
     
     return {
       success: true,
@@ -149,7 +149,7 @@ export async function saveCatalogAction(
     };
     
   } catch (error) {
-    console.error("✗ Save catalog action failed:", error);
+    console.error("[X] Save catalog action failed:", error);
     
     // Handle database-specific errors
     const errorMessage = handleDatabaseError(error);
@@ -189,7 +189,7 @@ export async function getCatalogAction(catalogId: string): Promise<GetCatalogRes
       };
     }
     
-    console.log(`🔍 Fetching catalog ${catalogId}`);
+    console.log(` Fetching catalog ${catalogId}`);
     
     const catalog = await prisma.catalog.findUnique({
       where: { id: catalogId }
@@ -202,7 +202,7 @@ export async function getCatalogAction(catalogId: string): Promise<GetCatalogRes
       };
     }
     
-    console.log(`✓ Catalog fetched: ${catalog.id}`);
+    console.log(`[OK] Catalog fetched: ${catalog.id}`);
     
     return {
       success: true,
@@ -210,7 +210,7 @@ export async function getCatalogAction(catalogId: string): Promise<GetCatalogRes
     };
     
   } catch (error) {
-    console.error("✗ Get catalog action failed:", error);
+    console.error("[X] Get catalog action failed:", error);
     
     return {
       success: false,
@@ -249,14 +249,14 @@ export async function getCatalogsByFarmerAction(
       };
     }
     
-    console.log(`🔍 Fetching catalogs for farmer ${farmerId}`);
+    console.log(` Fetching catalogs for farmer ${farmerId}`);
     
     const catalogs = await prisma.catalog.findMany({
       where: { farmerId },
       orderBy: { createdAt: "desc" }
     });
     
-    console.log(`✓ Found ${catalogs.length} catalogs for farmer ${farmerId}`);
+    console.log(`[OK] Found ${catalogs.length} catalogs for farmer ${farmerId}`);
     
     return {
       success: true,
@@ -264,7 +264,7 @@ export async function getCatalogsByFarmerAction(
     };
     
   } catch (error) {
-    console.error("✗ Get catalogs by farmer action failed:", error);
+    console.error("[X] Get catalogs by farmer action failed:", error);
     
     return {
       success: false,
@@ -313,7 +313,7 @@ export async function broadcastCatalogAction(
       };
     }
     
-    console.log(`📡 Broadcasting catalog ${catalogId}`);
+    console.log(` Broadcasting catalog ${catalogId}`);
     
     // Fetch the catalog
     const catalog = await prisma.catalog.findUnique({
@@ -333,7 +333,7 @@ export async function broadcastCatalogAction(
       data: { status: "BROADCASTED" }
     });
     
-    console.log("✓ Catalog status updated to BROADCASTED");
+    console.log("[OK] Catalog status updated to BROADCASTED");
     
     // Log OUTGOING_CATALOG event to NetworkLog
     await prisma.networkLog.create({
@@ -349,12 +349,12 @@ export async function broadcastCatalogAction(
       }
     });
     
-    console.log("✓ OUTGOING_CATALOG event logged");
+    console.log("[OK] OUTGOING_CATALOG event logged");
     
     // Trigger network simulator
     const bid = await simulateBroadcast(catalogId);
     
-    console.log("✓ Broadcast completed successfully");
+    console.log("[OK] Broadcast completed successfully");
     
     return {
       success: true,
@@ -362,7 +362,7 @@ export async function broadcastCatalogAction(
     };
     
   } catch (error) {
-    console.error("✗ Broadcast catalog action failed:", error);
+    console.error("[X] Broadcast catalog action failed:", error);
     
     return {
       success: false,
@@ -404,7 +404,7 @@ export async function getNetworkLogsAction(
   pageSize: number = 10
 ): Promise<GetNetworkLogsResult> {
   try {
-    console.log(`🔍 Fetching network logs (filter: ${filter || "ALL"}, page: ${page})`);
+    console.log(` Fetching network logs (filter: ${filter || "ALL"}, page: ${page})`);
     
     // Validate page number
     if (page < 1) {
@@ -437,7 +437,7 @@ export async function getNetworkLogsAction(
     // Calculate total pages
     const totalPages = Math.ceil(totalCount / pageSize);
     
-    console.log(`✓ Found ${logs.length} logs (total: ${totalCount}, pages: ${totalPages})`);
+    console.log(`[OK] Found ${logs.length} logs (total: ${totalCount}, pages: ${totalPages})`);
     
     return {
       success: true,
@@ -447,7 +447,7 @@ export async function getNetworkLogsAction(
     };
     
   } catch (error) {
-    console.error("✗ Get network logs action failed:", error);
+    console.error("[X] Get network logs action failed:", error);
     
     return {
       success: false,

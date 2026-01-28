@@ -18,62 +18,62 @@
 ## Mandatory Rules
 
 ### 1. Command Separators
-- ❌ **NEVER use ampersand (`&`)** - it does NOT work in PowerShell
-- ✅ **ALWAYS use semicolon (`;`)** for command separation
+- [X] **NEVER use ampersand (`&`)** - it does NOT work in PowerShell
+- [OK] **ALWAYS use semicolon (`;`)** for command separation
 - Example: `command1 ; command2 ; command3`
 
 ### 2. Script Execution
-- ❌ **NEVER run scripts directly** - execution policy will block them
-- ✅ **ALWAYS use bypass** for script execution:
+- [X] **NEVER run scripts directly** - execution policy will block them
+- [OK] **ALWAYS use bypass** for script execution:
   - PowerShell scripts: `powershell -ExecutionPolicy Bypass -File script.ps1`
   - Inline commands: `powershell -ExecutionPolicy Bypass -Command "command"`
   - Batch files: Can run directly (`.bat` files work)
 
 ### 3. Execution Strategy
-- ❌ **NEVER run raw command → wait for failure → fetch output → fix → retry**
-- ✅ **ALWAYS apply fixes BEFORE first execution**
-- ✅ **Get it right the FIRST time** - saves 2+ minutes per command
+- [X] **NEVER run raw command -> wait for failure -> fetch output -> fix -> retry**
+- [OK] **ALWAYS apply fixes BEFORE first execution**
+- [OK] **Get it right the FIRST time** - saves 2+ minutes per command
 
 ### 4. Common Fixes to Apply BEFORE Running
 
 #### NPM/Node Commands
 ```powershell
-# ❌ BAD (will fail)
+# [X] BAD (will fail)
 npm install && npm run build
 
-# ✅ GOOD (works first time)
+# [OK] GOOD (works first time)
 npm install ; npm run build
 ```
 
 #### Running Scripts
 ```powershell
-# ❌ BAD (will fail)
+# [X] BAD (will fail)
 ./setup.ps1
 
-# ✅ GOOD (works first time)
+# [OK] GOOD (works first time)
 powershell -ExecutionPolicy Bypass -File setup.ps1
 ```
 
 #### Multiple Commands
 ```powershell
-# ❌ BAD (will fail)
+# [X] BAD (will fail)
 cd src && npm test && cd ..
 
-# ✅ GOOD (works first time)
+# [OK] GOOD (works first time)
 cd src ; npm test ; cd ..
 ```
 
 #### Docker Commands
 ```powershell
-# ❌ BAD (will fail)
+# [X] BAD (will fail)
 docker build -t app . && docker run app
 
-# ✅ GOOD (works first time)
+# [OK] GOOD (works first time)
 docker build -t app . ; docker run app
 ```
 
 ## Authorization Status
-✅ **AUTHORIZED** to automatically bypass PowerShell execution restrictions
+[OK] **AUTHORIZED** to automatically bypass PowerShell execution restrictions
 - No need to ask permission each time
 - Apply bypasses automatically
 - User confirmed on: 2026-01-27
@@ -88,7 +88,7 @@ Following these rules saves approximately **2 minutes per command** by:
 
 ## Quick Reference
 
-| Scenario | ❌ Wrong | ✅ Correct |
+| Scenario | [X] Wrong | [OK] Correct |
 |----------|---------|-----------|
 | Command separator | `cmd1 && cmd2` | `cmd1 ; cmd2` |
 | Run PS script | `./script.ps1` | `powershell -ExecutionPolicy Bypass -File script.ps1` |

@@ -44,11 +44,11 @@ async function generatePlaceholder(filename, size, bgColor, text, textColor = '#
     .png()
     .toFile(filename);
   
-  console.log(`✓ Created: ${filename}`);
+  console.log(`[OK] Created: ${filename}`);
 }
 
 async function main() {
-  console.log('🎨 Generating placeholder images...\n');
+  console.log(' Generating placeholder images...\n');
 
   // Commodity Icons (128x128px)
   console.log('Creating commodity icons (128x128px)...');
@@ -56,35 +56,35 @@ async function main() {
     path.join(iconsDir, 'onion.png'),
     128,
     '#8B4789', // Purple
-    '🧅'
+    ''
   );
   
   await generatePlaceholder(
     path.join(iconsDir, 'mango.png'),
     128,
     '#FFB347', // Orange
-    '🥭'
+    ''
   );
   
   await generatePlaceholder(
     path.join(iconsDir, 'tomato.png'),
     128,
     '#FF6347', // Tomato red
-    '🍅'
+    ''
   );
   
   await generatePlaceholder(
     path.join(iconsDir, 'potato.png'),
     128,
     '#8B7355', // Brown
-    '🥔'
+    ''
   );
   
   await generatePlaceholder(
     path.join(iconsDir, 'wheat.png'),
     128,
     '#F5DEB3', // Wheat color
-    '🌾',
+    '',
     '#8B4513' // Brown text
   );
 
@@ -141,10 +141,10 @@ async function main() {
     'FK'
   );
 
-  console.log('\n✅ All placeholder images generated successfully!');
+  console.log('\n[OK] All placeholder images generated successfully!');
 }
 
 main().catch(err => {
-  console.error('❌ Error generating images:', err);
+  console.error('[X] Error generating images:', err);
   process.exit(1);
 });

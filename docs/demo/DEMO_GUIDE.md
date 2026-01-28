@@ -102,7 +102,7 @@ docker compose logs --tail=10 app
 
 **Actions:**
 1. Point out the large onion icon (128x128px)
-2. Highlight the price badge: ₹40 per kg
+2. Highlight the price badge: 40 per kg
 3. Show the quantity indicator: 500 kg
 4. Point to the India Post logistics logo
 5. Emphasize the large thumbprint broadcast button (120x120px)
@@ -129,12 +129,12 @@ docker compose logs --tail=10 app
 4. Show the buyer bid notification when it appears
 5. Highlight:
    - Buyer name (e.g., "BigBasket")
-   - Bid amount (e.g., ₹38.50)
+   - Bid amount (e.g., 38.50)
    - Buyer logo
    - Timestamp
 
 **Narration:**
-> "Within seconds, the farmer receives a bid from a major buyer. The bid amount is ₹38.50 per kg - slightly below the asking price, which is typical in market negotiations. The farmer can now decide whether to accept this bid or wait for other offers."
+> "Within seconds, the farmer receives a bid from a major buyer. The bid amount is 38.50 per kg - slightly below the asking price, which is typical in market negotiations. The farmer can now decide whether to accept this bid or wait for other offers."
 
 ---
 
@@ -181,12 +181,12 @@ docker compose logs --tail=10 app
 > "Setu demonstrates how technology can be truly inclusive. By removing language and literacy barriers, we're enabling millions of Indian farmers to participate in digital commerce. The system is built with modern technologies - Next.js 15, TypeScript, Prisma, and Vercel AI SDK - but the interface is designed for users who may have never used a computer before."
 
 **Key Points to Emphasize:**
-- ✅ Zero-text interface
-- ✅ Visual-first design
-- ✅ AI-powered translation
-- ✅ Beckn Protocol compliance
-- ✅ One-click deployment
-- ✅ Production-ready
+- [OK] Zero-text interface
+- [OK] Visual-first design
+- [OK] AI-powered translation
+- [OK] Beckn Protocol compliance
+- [OK] One-click deployment
+- [OK] Production-ready
 
 ---
 

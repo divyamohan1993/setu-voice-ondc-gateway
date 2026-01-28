@@ -47,26 +47,26 @@ SCRIPT_START_TIME=$(date +%s)
 
 # Print colored messages
 print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}✗ $1${NC}"
+    echo -e "${RED}[X] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
+    echo -e "${YELLOW}[!] $1${NC}"
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ $1${NC}"
+    echo -e "${BLUE}[i] $1${NC}"
 }
 
 print_header() {
     echo -e "${CYAN}"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
     echo "  $1"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
     echo -e "${NC}"
 }
 
@@ -577,30 +577,30 @@ display_success_banner() {
     echo ""
     echo -e "${GREEN}"
     cat << 'EOF'
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║   ███████╗███████╗████████╗██╗   ██╗    ██╗     ██╗██╗   ██╗███████╗║
-║   ██╔════╝██╔════╝╚══██╔══╝██║   ██║    ██║     ██║██║   ██║██╔════╝║
-║   ███████╗█████╗     ██║   ██║   ██║    ██║     ██║██║   ██║█████╗  ║
-║   ╚════██║██╔══╝     ██║   ██║   ██║    ██║     ██║╚██╗ ██╔╝██╔══╝  ║
-║   ███████║███████╗   ██║   ╚██████╔╝    ███████╗██║ ╚████╔╝ ███████╗║
-║   ╚══════╝╚══════╝   ╚═╝    ╚═════╝     ╚══════╝╚═╝  ╚═══╝  ╚══════╝║
-║                                                                       ║
-║              Voice-to-ONDC Gateway Successfully Deployed!            ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+
+                                                                       
+                  
+                  
+                            
+                          
+               
+                   
+                                                                       
+              Voice-to-ONDC Gateway Successfully Deployed!            
+                                                                       
+
 EOF
     echo -e "${NC}"
     
     echo ""
     print_header "Deployment Summary"
     
-    echo -e "${GREEN}✓ Application URL:${NC}      ${CYAN}http://localhost:$APP_PORT${NC}"
-    echo -e "${GREEN}✓ Database:${NC}             ${CYAN}PostgreSQL on localhost:$DB_PORT${NC}"
-    echo -e "${GREEN}✓ Database Name:${NC}        ${CYAN}setu_db${NC}"
-    echo -e "${GREEN}✓ Database User:${NC}        ${CYAN}setu${NC}"
-    echo -e "${GREEN}✓ Deployment Time:${NC}      ${CYAN}${duration} seconds${NC}"
-    echo -e "${GREEN}✓ Timestamp:${NC}            ${CYAN}$(date '+%Y-%m-%d %H:%M:%S')${NC}"
+    echo -e "${GREEN}[OK] Application URL:${NC}      ${CYAN}http://localhost:$APP_PORT${NC}"
+    echo -e "${GREEN}[OK] Database:${NC}             ${CYAN}PostgreSQL on localhost:$DB_PORT${NC}"
+    echo -e "${GREEN}[OK] Database Name:${NC}        ${CYAN}setu_db${NC}"
+    echo -e "${GREEN}[OK] Database User:${NC}        ${CYAN}setu${NC}"
+    echo -e "${GREEN}[OK] Deployment Time:${NC}      ${CYAN}${duration} seconds${NC}"
+    echo -e "${GREEN}[OK] Timestamp:${NC}            ${CYAN}$(date '+%Y-%m-%d %H:%M:%S')${NC}"
     
     echo ""
     print_header "Next Steps"
@@ -618,7 +618,7 @@ EOF
     echo "7. To restart: ${CYAN}docker compose up -d${NC}"
     
     echo ""
-    print_success "Setu is ready to bridge farmers to ONDC! 🌾"
+    print_success "Setu is ready to bridge farmers to ONDC! "
     echo ""
 }
 

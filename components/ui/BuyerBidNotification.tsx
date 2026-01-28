@@ -64,7 +64,7 @@ export function BuyerBidNotification({ bid, onDismiss }: BuyerBidNotificationPro
           <div>
             <p className="text-xs text-gray-600 font-semibold">Bid Amount</p>
             <p className="text-2xl font-bold text-green-700">
-              ₹{bid.bidAmount.toFixed(2)}
+              {bid.bidAmount.toFixed(2)}
             </p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export function BuyerBidNotification({ bid, onDismiss }: BuyerBidNotificationPro
       {/* Success Badge */}
       <div className="flex justify-center">
         <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 text-sm font-bold">
-          🎉 Broadcast Successful
+           Broadcast Successful
         </Badge>
       </div>
     </motion.div>

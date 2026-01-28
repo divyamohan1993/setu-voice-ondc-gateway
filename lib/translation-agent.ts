@@ -230,10 +230,10 @@ export function validateCatalog(data: unknown): BecknCatalogItem {
       validated.tags.logistics_provider = "India Post";
     }
     
-    console.log("✓ Catalog validation successful");
+    console.log("[OK] Catalog validation successful");
     return validated;
   } catch (error) {
-    console.error("✗ Catalog validation failed:", error);
+    console.error("[X] Catalog validation failed:", error);
     throw new Error(`Invalid catalog structure: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
@@ -249,7 +249,7 @@ export function validateCatalog(data: unknown): BecknCatalogItem {
  * @throws Error if translation fails
  */
 export async function translateVoiceToJson(voiceText: string): Promise<BecknCatalogItem> {
-  console.log("🔄 Starting AI translation for:", voiceText);
+  console.log(" Starting AI translation for:", voiceText);
   
   const prompt = buildPrompt(voiceText);
   
@@ -259,7 +259,7 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
     prompt: prompt,
   });
   
-  console.log("✓ AI translation completed");
+  console.log("[OK] AI translation completed");
   
   // Validate the result
   const validated = validateCatalog(result.object);
@@ -285,32 +285,32 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
 export async function translateVoiceToJsonWithFallback(voiceText: string): Promise<BecknCatalogItem> {
   // Check for API key
   if (!process.env.OPENAI_API_KEY) {
-    console.warn("⚠️  OpenAI API key missing, using fallback catalog");
+    console.warn("[!]  OpenAI API key missing, using fallback catalog");
     return FALLBACK_CATALOG;
   }
   
   // Retry logic with exponential backoff
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      console.log(`🔄 Translation attempt ${attempt}/3`);
+      console.log(` Translation attempt ${attempt}/3`);
       
       const result = await translateVoiceToJson(voiceText);
       
-      console.log("✓ Translation successful on attempt", attempt);
+      console.log("[OK] Translation successful on attempt", attempt);
       return result;
       
     } catch (error) {
-      console.error(`✗ Translation attempt ${attempt} failed:`, error);
+      console.error(`[X] Translation attempt ${attempt} failed:`, error);
       
       // If this was the last attempt, use fallback
       if (attempt === 3) {
-        console.warn("⚠️  All translation attempts failed, using fallback catalog");
+        console.warn("[!]  All translation attempts failed, using fallback catalog");
         return FALLBACK_CATALOG;
       }
       
       // Exponential backoff: wait 1s, 2s, 4s
       const backoffMs = 1000 * Math.pow(2, attempt - 1);
-      console.log(`⏳ Waiting ${backoffMs}ms before retry...`);
+      console.log(` Waiting ${backoffMs}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, backoffMs));
     }
   }

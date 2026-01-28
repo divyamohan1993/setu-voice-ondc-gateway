@@ -29,26 +29,26 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}✗ $1${NC}"
+    echo -e "${RED}[X] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
+    echo -e "${YELLOW}[!] $1${NC}"
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ $1${NC}"
+    echo -e "${BLUE}[i] $1${NC}"
 }
 
 print_header() {
     echo -e "${CYAN}"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
     echo "  $1"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
     echo -e "${NC}"
 }
 
@@ -206,28 +206,28 @@ clear
 echo ""
 echo -e "${GREEN}"
 cat << 'EOF'
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║   ███████╗███████╗████████╗██╗   ██╗    ██╗     ██╗██╗   ██╗███████╗║
-║   ██╔════╝██╔════╝╚══██╔══╝██║   ██║    ██║     ██║██║   ██║██╔════╝║
-║   ███████╗█████╗     ██║   ██║   ██║    ██║     ██║██║   ██║█████╗  ║
-║   ╚════██║██╔══╝     ██║   ██║   ██║    ██║     ██║╚██╗ ██╔╝██╔══╝  ║
-║   ███████║███████╗   ██║   ╚██████╔╝    ███████╗██║ ╚████╔╝ ███████╗║
-║   ╚══════╝╚══════╝   ╚═╝    ╚═════╝     ╚══════╝╚═╝  ╚═══╝  ╚══════╝║
-║                                                                       ║
-║              Local Development Setup Complete!                       ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+
+                                                                       
+                  
+                  
+                            
+                          
+               
+                   
+                                                                       
+              Local Development Setup Complete!                       
+                                                                       
+
 EOF
 echo -e "${NC}"
 
 echo ""
 print_header "Setup Summary"
 
-echo -e "${GREEN}✓ Database:${NC}             ${CYAN}SQLite (prisma/dev.db)${NC}"
-echo -e "${GREEN}✓ Environment:${NC}          ${CYAN}.env.local${NC}"
-echo -e "${GREEN}✓ Node Version:${NC}         ${CYAN}$(node --version)${NC}"
-echo -e "${GREEN}✓ npm Version:${NC}          ${CYAN}$(npm --version)${NC}"
+echo -e "${GREEN}[OK] Database:${NC}             ${CYAN}SQLite (prisma/dev.db)${NC}"
+echo -e "${GREEN}[OK] Environment:${NC}          ${CYAN}.env.local${NC}"
+echo -e "${GREEN}[OK] Node Version:${NC}         ${CYAN}$(node --version)${NC}"
+echo -e "${GREEN}[OK] npm Version:${NC}          ${CYAN}$(npm --version)${NC}"
 
 echo ""
 print_header "Next Steps"
@@ -258,5 +258,5 @@ echo "  View database:        ${CYAN}npx prisma studio${NC}"
 echo "  Reset database:       ${CYAN}rm prisma/dev.db && npx prisma db push${NC}"
 
 echo ""
-print_success "Setu is ready for local development! 🌾"
+print_success "Setu is ready for local development! "
 echo ""

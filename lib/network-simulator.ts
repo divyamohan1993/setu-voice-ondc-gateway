@@ -58,7 +58,7 @@ const BUYER_POOL: Buyer[] = [
  * 1. Waits 8 seconds to simulate network latency
  * 2. Fetches the catalog details from the database
  * 3. Randomly selects a buyer from the pool
- * 4. Calculates a bid amount (catalog price ± 5-10%)
+ * 4. Calculates a bid amount (catalog price +/- 5-10%)
  * 5. Logs the bid to the NetworkLog table
  * 6. Returns the bid data for UI notification
  * 
@@ -69,7 +69,7 @@ const BUYER_POOL: Buyer[] = [
  * @example
  * ```typescript
  * const bid = await simulateBroadcast("clx123abc");
- * console.log(`${bid.buyerName} bid ₹${bid.bidAmount}`);
+ * console.log(`${bid.buyerName} bid ${bid.bidAmount}`);
  * ```
  */
 export async function simulateBroadcast(catalogId: string): Promise<BuyerBid> {
@@ -99,7 +99,7 @@ export async function simulateBroadcast(catalogId: string): Promise<BuyerBid> {
   // Randomly select a buyer from the pool
   const selectedBuyer = BUYER_POOL[Math.floor(Math.random() * BUYER_POOL.length)];
   
-  // Task 5.1.6: Implement bid amount calculation (catalog price ± 5-10%)
+  // Task 5.1.6: Implement bid amount calculation (catalog price +/- 5-10%)
   // Generate a bid amount that's 95-105% of the catalog price
   // This simulates realistic market negotiation
   const variationPercent = 0.95 + Math.random() * 0.10; // Random value between 0.95 and 1.05

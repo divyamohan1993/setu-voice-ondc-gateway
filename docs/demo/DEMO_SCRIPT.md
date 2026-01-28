@@ -30,7 +30,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 3. Select "Nasik Onions - Premium Quality"
 
 **Scenario Text**: 
-"मेरे पास नासिक के प्याज हैं, बहुत अच्छी क्वालिटी के। 50 किलो है, 25 रुपये किलो। India Post से भेज सकते हैं।"
+"     ,     50  , 25   India Post    "
 
 **Translation**: 
 "I have onions from Nasik, very good quality. 50 kilos available, 25 rupees per kilo. Can send via India Post."
@@ -46,7 +46,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 
 **Key Points to Highlight**:
 - Supports multiple languages (Hindi, Hinglish, English)
-- Handles commodity name mapping (प्याज → onions)
+- Handles commodity name mapping ( -> onions)
 - Extracts pricing, quantity, and logistics information
 - Creates standardized JSON structure
 
@@ -56,7 +56,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 
 **Actions**:
 - Point out the large onion icon (128x128px)
-- Show the prominent price badge (₹25/kg)
+- Show the prominent price badge (25/kg)
 - Highlight the quantity indicator (50 kg)
 - Show the logistics provider logo (India Post)
 - Demonstrate the large thumbprint broadcast button
@@ -79,7 +79,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 
 **Network Simulation Results**:
 - Show "BigBasket" as the interested buyer
-- Display bid amount (₹23-27 per kg range)
+- Display bid amount (23-27 per kg range)
 - Show buyer logo and contact information
 
 ### 6. Network Activity Monitoring (1 minute)
@@ -113,19 +113,19 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 ## Demo Scenarios
 
 ### Scenario 1: Onion Farmer (Primary Demo)
-- **Voice Input**: "मेरे पास नासिक के प्याज हैं, बहुत अच्छी क्वालिटी के। 50 किलो है, 25 रुपये किलो। India Post से भेज सकते हैं।"
-- **Expected Output**: Onion catalog with ₹25/kg, 50kg quantity, India Post logistics
-- **Buyer Response**: BigBasket bid at ₹23-27/kg
+- **Voice Input**: "     ,     50  , 25   India Post    "
+- **Expected Output**: Onion catalog with 25/kg, 50kg quantity, India Post logistics
+- **Buyer Response**: BigBasket bid at 23-27/kg
 
 ### Scenario 2: Mango Farmer (Alternative Demo)
 - **Voice Input**: "Alphonso mango ready for sale. Grade A quality, 100 kg available. Price 80 rupees per kg. Delhivery delivery."
-- **Expected Output**: Mango catalog with ₹80/kg, 100kg quantity, Delhivery logistics
-- **Buyer Response**: Reliance Fresh bid at ₹75-85/kg
+- **Expected Output**: Mango catalog with 80/kg, 100kg quantity, Delhivery logistics
+- **Buyer Response**: Reliance Fresh bid at 75-85/kg
 
 ### Scenario 3: Wheat Farmer (Bulk Commodity)
-- **Voice Input**: "गेहूं बेचना है। 500 किलो है। 22 रुपये किलो। Blue Dart से भेज सकते हैं।"
-- **Expected Output**: Wheat catalog with ₹22/kg, 500kg quantity, Blue Dart logistics
-- **Buyer Response**: Paytm Mall bid at ₹20-24/kg
+- **Voice Input**: "   500   22   Blue Dart    "
+- **Expected Output**: Wheat catalog with 22/kg, 500kg quantity, Blue Dart logistics
+- **Buyer Response**: Paytm Mall bid at 20-24/kg
 
 ## Technical Demonstration Points
 

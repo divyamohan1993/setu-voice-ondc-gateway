@@ -236,22 +236,22 @@ interface VisualVerifierProps {
 
 **UI Structure:**
 ```
-┌─────────────────────────────────────┐
-│  [Large Commodity Icon - 128x128]   │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │  ₹40 per kg                 │   │  <- Price Badge
-│  └─────────────────────────────┘   │
-│                                     │
-│  [Logistics Logo - 64x64]          │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │                             │   │
-│  │    [Thumbprint Icon]        │   │  <- Broadcast Button
-│  │    120x120px                │   │     (Large, High Contrast)
-│  │                             │   │
-│  └─────────────────────────────┘   │
-└─────────────────────────────────────┘
+
+  [Large Commodity Icon - 128x128]   
+                                     
+     
+    40 per kg                      <- Price Badge
+     
+                                     
+  [Logistics Logo - 64x64]          
+                                     
+     
+                                  
+      [Thumbprint Icon]             <- Broadcast Button
+      120x120px                        (Large, High Contrast)
+                                  
+     
+
 ```
 
 **Visual Elements:**
@@ -297,7 +297,7 @@ interface BuyerBid {
 1. Wait 8 seconds after broadcast (simulating network latency)
 2. Generate a mock buyer bid with realistic data
 3. Select buyer name from pool: ["Reliance Fresh", "BigBasket", "Paytm Mall", "Flipkart Grocery"]
-4. Calculate bid amount (catalog price ± 5-10%)
+4. Calculate bid amount (catalog price +/- 5-10%)
 5. Log event to NetworkLog table
 6. Return bid data for UI notification
 
@@ -709,22 +709,22 @@ Property tests should focus on:
 
 ```
 tests/
-├── unit/
-│   ├── components/
-│   │   ├── VoiceInjector.test.tsx
-│   │   ├── VisualVerifier.test.tsx
-│   │   └── NetworkLogViewer.test.tsx
-│   ├── lib/
-│   │   ├── translation-agent.test.ts
-│   │   └── network-simulator.test.ts
-│   └── actions/
-│       └── actions.test.ts
-├── property/
-│   ├── beckn-schema.property.test.ts
-│   ├── translation.property.test.ts
-│   └── catalog-operations.property.test.ts
-└── e2e/
-    └── full-flow.spec.ts
+ unit/
+    components/
+       VoiceInjector.test.tsx
+       VisualVerifier.test.tsx
+       NetworkLogViewer.test.tsx
+    lib/
+       translation-agent.test.ts
+       network-simulator.test.ts
+    actions/
+        actions.test.ts
+ property/
+    beckn-schema.property.test.ts
+    translation.property.test.ts
+    catalog-operations.property.test.ts
+ e2e/
+     full-flow.spec.ts
 ```
 
 ### Test Tagging Convention

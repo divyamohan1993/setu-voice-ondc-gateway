@@ -30,7 +30,7 @@ import type { BroadcastLoaderProps } from "./components/ui/BroadcastLoader";
 import { BuyerBidNotification } from "./components/ui/BuyerBidNotification";
 import type { BuyerBidNotificationProps } from "./components/ui/BuyerBidNotification";
 
-console.log("✓ All Phase 6 components imported successfully!");
+console.log("[OK] All Phase 6 components imported successfully!");
 
 // Verify component types
 const voiceInjectorTest: VoiceInjectorProps = {
@@ -67,10 +67,10 @@ const broadcastLoaderTest: BroadcastLoaderProps = {
   message: "Broadcasting..."
 };
 
-console.log("✓ All component prop types validated!");
+console.log("[OK] All component prop types validated!");
 console.log("\n=== Phase 6 Implementation Complete ===");
-console.log("✓ 6.1 Voice Injector Component");
-console.log("✓ 6.2 Visual Verifier Component");
-console.log("✓ 6.3 Network Log Viewer Component");
-console.log("✓ 6.4 Utility Components (4 components)");
+console.log("[OK] 6.1 Voice Injector Component");
+console.log("[OK] 6.2 Visual Verifier Component");
+console.log("[OK] 6.3 Network Log Viewer Component");
+console.log("[OK] 6.4 Utility Components (4 components)");
 console.log("\nTotal: 7 components created and validated");

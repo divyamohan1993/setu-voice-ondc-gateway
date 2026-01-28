@@ -13,40 +13,40 @@ The database uses **PostgreSQL 16** with **Prisma ORM** for type-safe database a
 ## Entity Relationship Diagram
 
 ```
-┌─────────────────────────────────────┐
-│            Farmer                   │
-│─────────────────────────────────────│
-│ id: String (PK)                     │
-│ name: String                        │
-│ locationLatLong: String?            │
-│ languagePref: String                │
-│ upiId: String?                      │
-│ createdAt: DateTime                 │
-│ updatedAt: DateTime                 │
-└─────────────────────────────────────┘
-              │
-              │ 1:N
-              │
-              ▼
-┌─────────────────────────────────────┐
-│            Catalog                  │
-│─────────────────────────────────────│
-│ id: String (PK)                     │
-│ farmerId: String (FK)               │
-│ becknJson: Json                     │
-│ status: CatalogStatus               │
-│ createdAt: DateTime                 │
-│ updatedAt: DateTime                 │
-└─────────────────────────────────────┘
 
-┌─────────────────────────────────────┐
-│          NetworkLog                 │
-│─────────────────────────────────────│
-│ id: String (PK)                     │
-│ type: NetworkLogType                │
-│ payload: Json                       │
-│ timestamp: DateTime                 │
-└─────────────────────────────────────┘
+            Farmer                   
+
+ id: String (PK)                     
+ name: String                        
+ locationLatLong: String?            
+ languagePref: String                
+ upiId: String?                      
+ createdAt: DateTime                 
+ updatedAt: DateTime                 
+
+              
+               1:N
+              
+              
+
+            Catalog                  
+
+ id: String (PK)                     
+ farmerId: String (FK)               
+ becknJson: Json                     
+ status: CatalogStatus               
+ createdAt: DateTime                 
+ updatedAt: DateTime                 
+
+
+
+          NetworkLog                 
+
+ id: String (PK)                     
+ type: NetworkLogType                
+ payload: Json                       
+ timestamp: DateTime                 
+
 ```
 
 ## Models
@@ -169,8 +169,8 @@ enum CatalogStatus {
 
 | Status | Description | Transitions |
 |--------|-------------|-------------|
-| `DRAFT` | Initial state after catalog creation | → `BROADCASTED` |
-| `BROADCASTED` | Catalog published to ONDC network | → `SOLD` |
+| `DRAFT` | Initial state after catalog creation | -> `BROADCASTED` |
+| `BROADCASTED` | Catalog published to ONDC network | -> `SOLD` |
 | `SOLD` | Product has been sold | Terminal state |
 
 #### Beckn JSON Structure

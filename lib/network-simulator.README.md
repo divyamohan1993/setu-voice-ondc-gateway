@@ -15,18 +15,18 @@ The Network Simulator module simulates buyer network responses to broadcasted ca
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    simulateBroadcast()                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. Wait 8 seconds (simulate network latency)              │
-│  2. Fetch catalog from database                            │
-│  3. Select random buyer from pool                          │
-│  4. Calculate bid amount (price ± 5-10%)                   │
-│  5. Log INCOMING_BID to NetworkLog                         │
-│  6. Return BuyerBid object                                 │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+
+                    simulateBroadcast()                      
+
+                                                             
+  1. Wait 8 seconds (simulate network latency)              
+  2. Fetch catalog from database                            
+  3. Select random buyer from pool                          
+  4. Calculate bid amount (price +/- 5-10%)                   
+  5. Log INCOMING_BID to NetworkLog                         
+  6. Return BuyerBid object                                 
+                                                             
+
 ```
 
 ## API Reference
@@ -49,8 +49,8 @@ Simulates a broadcast to the buyer network and generates a mock bid response.
 import { simulateBroadcast } from './lib/network-simulator';
 
 const bid = await simulateBroadcast('clx123abc');
-console.log(`${bid.buyerName} bid ₹${bid.bidAmount}`);
-// Output: "BigBasket bid ₹98.50"
+console.log(`${bid.buyerName} bid ${bid.bidAmount}`);
+// Output: "BigBasket bid 98.50"
 ```
 
 ### `getBuyerPool(): Buyer[]`
@@ -134,7 +134,7 @@ The simulator includes the following realistic buyer platforms:
 The bid amount is calculated using the following formula:
 
 ```
-bidAmount = catalogPrice × (0.95 + random(0, 0.10))
+bidAmount = catalogPrice x (0.95 + random(0, 0.10))
 ```
 
 This ensures:
@@ -143,8 +143,8 @@ This ensures:
 - Realistic market negotiation simulation
 
 **Example:**
-- Catalog Price: ₹100
-- Possible Bids: ₹95.00 to ₹105.00
+- Catalog Price: 100
+- Possible Bids: 95.00 to 105.00
 
 ## Database Schema
 

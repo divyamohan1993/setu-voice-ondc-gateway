@@ -124,7 +124,7 @@
 - [x] 5.1.3 Add 8-second delay using setTimeout
 - [x] 5.1.4 Define buyer pool with names and logos
 - [x] 5.1.5 Implement random buyer selection
-- [x] 5.1.6 Implement bid amount calculation (catalog price ± 5-10%)
+- [x] 5.1.6 Implement bid amount calculation (catalog price +/- 5-10%)
 
 ### 5.2 Logging and Persistence
 - [x] 5.2.1 Fetch catalog details from database

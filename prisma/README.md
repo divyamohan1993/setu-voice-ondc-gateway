@@ -83,7 +83,7 @@ node prisma/seed.js
 
 The seed script creates:
 
-- **2 Farmers**: राजेश पाटिल (Mumbai) and सुनीता देशमुख (Pune)
+- **2 Farmers**:   (Mumbai) and   (Pune)
 - **2 Catalogs**: 
   - Nasik Onions (500 kg, Grade A, BROADCASTED)
   - Alphonso Mangoes (20 crates, Premium, DRAFT)

@@ -8,12 +8,12 @@
 import { simulateBroadcast, getBuyerPool, validateCatalogForBroadcast } from '../network-simulator';
 
 async function testNetworkSimulator() {
-  console.log('🧪 Testing Network Simulator\n');
+  console.log(' Testing Network Simulator\n');
   
   // Test 1: Get Buyer Pool
   console.log('Test 1: Get Buyer Pool');
   const buyers = getBuyerPool();
-  console.log(`✅ Found ${buyers.length} buyers:`);
+  console.log(`[OK] Found ${buyers.length} buyers:`);
   buyers.forEach(buyer => {
     console.log(`   - ${buyer.name} (${buyer.logo})`);
   });
@@ -36,20 +36,20 @@ async function testNetworkSimulator() {
     }
   };
   
-  console.log(`✅ Valid catalog: ${validateCatalogForBroadcast(validCatalog)}`);
-  console.log(`✅ Invalid catalog: ${validateCatalogForBroadcast(invalidCatalog)}`);
+  console.log(`[OK] Valid catalog: ${validateCatalogForBroadcast(validCatalog)}`);
+  console.log(`[OK] Invalid catalog: ${validateCatalogForBroadcast(invalidCatalog)}`);
   console.log();
   
   // Test 3: Simulate Broadcast (requires database)
   console.log('Test 3: Simulate Broadcast');
-  console.log('⚠️  This test requires a database connection and a valid catalog ID');
+  console.log('[!]  This test requires a database connection and a valid catalog ID');
   console.log('   To test this, you need to:');
   console.log('   1. Ensure the database is running');
   console.log('   2. Create a catalog in the database');
   console.log('   3. Call simulateBroadcast with the catalog ID');
   console.log();
   
-  console.log('✅ All manual tests completed!');
+  console.log('[OK] All manual tests completed!');
 }
 
 // Run the tests

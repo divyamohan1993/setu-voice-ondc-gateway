@@ -885,7 +885,7 @@ describe('Translation Agent', () => {
       
       // Verify that error was logged
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('✗ Catalog validation failed:'),
+        expect.stringContaining('[X] Catalog validation failed:'),
         expect.anything()
       );
       
@@ -900,7 +900,7 @@ describe('Translation Agent', () => {
       
       // Verify that success was logged
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('✓ Catalog validation successful')
+        expect.stringContaining('[OK] Catalog validation successful')
       );
       
       consoleSpy.mockRestore();
@@ -1087,7 +1087,7 @@ describe('Translation Agent', () => {
       
       // Total backoff time should be approximately 1000ms + 2000ms = 3000ms
       // (no backoff after 3rd attempt since it's the last one)
-      // Allow some tolerance for execution time (±500ms)
+      // Allow some tolerance for execution time (+/-500ms)
       expect(totalTime).toBeGreaterThanOrEqual(2500);
       expect(totalTime).toBeLessThan(4000);
     });
@@ -1133,7 +1133,7 @@ describe('Translation Agent', () => {
       process.env.OPENAI_API_KEY = originalKey;
       
       // Should wait approximately 1 second (1000ms) before second attempt
-      // Allow tolerance for execution time (±300ms)
+      // Allow tolerance for execution time (+/-300ms)
       expect(totalTime).toBeGreaterThanOrEqual(900);
       expect(totalTime).toBeLessThan(1500);
     });
@@ -1180,7 +1180,7 @@ describe('Translation Agent', () => {
       process.env.OPENAI_API_KEY = originalKey;
       
       // Should wait 1s + 2s = 3s total before third attempt
-      // Allow tolerance for execution time (±500ms)
+      // Allow tolerance for execution time (+/-500ms)
       expect(totalTime).toBeGreaterThanOrEqual(2500);
       expect(totalTime).toBeLessThan(3800);
     });

@@ -87,7 +87,7 @@ describe('BuyerBidNotification', () => {
 
   it('renders bid amount with currency', () => {
     render(<BuyerBidNotification bid={mockBid} />);
-    expect(screen.getByText('₹42.50')).toBeTruthy();
+    expect(screen.getByText('42.50')).toBeTruthy();
   });
 
   it('renders success message', () => {

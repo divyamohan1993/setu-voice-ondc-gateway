@@ -8,42 +8,42 @@
 
 ## Overall Results
 
-✅ **8 test files passed** (57%)
-❌ **6 test files failed** (43%)
+[OK] **8 test files passed** (57%)
+[X] **6 test files failed** (43%)
 
-✅ **177 tests passed** (84%)
-❌ **35 tests failed** (16%)
+[OK] **177 tests passed** (84%)
+[X] **35 tests failed** (16%)
 
 **Total Duration**: 84.94 seconds
 
-## Passed Test Suites ✅
+## Passed Test Suites [OK]
 
 ### 1. lib/__tests__/beckn-schema.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 30/30 passed
 - **Duration**: 40ms
 - **Coverage**: Beckn Protocol schema validation, serialization, and compliance
 
 ### 2. tests/property-based.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 12/12 passed
 - **Duration**: 129ms
 - **Coverage**: Property-based testing for catalog validation and translation
 
 ### 3. components/ui/__tests__/utility-components.test.tsx
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 14/14 passed
 - **Duration**: 546ms
 - **Coverage**: UI utility components (LoadingSpinner, ErrorNotification, etc.)
 
 ### 4. components/NetworkLogViewer.test.tsx
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 13/13 passed
 - **Duration**: 2247ms
 - **Coverage**: Network log viewer component functionality
 
 ### 5. lib/translation-agent.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 62/62 passed
 - **Duration**: 26474ms
 - **Coverage**: 
@@ -56,7 +56,7 @@
   - Quality grade extraction
 
 ### 6. lib/__tests__/network-simulator.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 19/19 passed
 - **Duration**: 64107ms
 - **Coverage**:
@@ -67,58 +67,58 @@
   - Network log creation
 
 ### 7. lib/beckn-schema.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 24/24 passed
 - **Duration**: 40ms
 - **Coverage**: Additional Beckn schema validation tests
 
 ### 8. tests/example.test.ts
-- **Status**: ✅ PASSED
+- **Status**: [OK] PASSED
 - **Tests**: 3/3 passed
 - **Duration**: 15ms
 - **Coverage**: Example test suite
 
-## Failed Test Suites ❌
+## Failed Test Suites [X]
 
 ### 1. app/actions.test.ts
-- **Status**: ❌ FAILED
+- **Status**: [X] FAILED
 - **Reason**: Syntax error - incomplete file (missing closing brace)
 - **Error**: `Expected "}" but found end of file`
 - **Fix Required**: Complete the test file syntax
 
 ### 2. app/__tests__/actions.test.ts
-- **Status**: ❌ FAILED
+- **Status**: [X] FAILED
 - **Reason**: Prisma 7 configuration issue
 - **Error**: `Using engine type "client" requires either "adapter" or "accelerateUrl"`
 - **Fix Required**: Configure Prisma 7 adapter for testing or mock PrismaClient
 
 ### 3. lib/__tests__/db.test.ts
-- **Status**: ❌ FAILED
+- **Status**: [X] FAILED
 - **Reason**: Prisma 7 configuration issue
 - **Error**: Same as above - requires adapter configuration
 - **Fix Required**: Mock database client for tests
 
 ### 4. lib/__tests__/icon-mapper.test.ts
-- **Status**: ❌ FAILED
+- **Status**: [X] FAILED
 - **Reason**: Import error
 - **Error**: `Failed to resolve import "@jest/globals"`
 - **Fix Required**: Change import from `@jest/globals` to `vitest`
 
 ### 5. components/VisualVerifier.test.tsx
-- **Status**: ❌ FAILED (23 tests)
+- **Status**: [X] FAILED (23 tests)
 - **Reason**: Component import issue
 - **Error**: `Element type is invalid: expected a string or class/function but got: undefined`
 - **Fix Required**: Fix component exports/imports
 
 ### 6. components/VoiceInjector.test.tsx
-- **Status**: ❌ FAILED (12 tests)
+- **Status**: [X] FAILED (12 tests)
 - **Reason**: Component import issue
 - **Error**: Same as VisualVerifier - invalid element type
 - **Fix Required**: Fix component exports/imports
 
 ## Key Findings
 
-### ✅ What Works
+### [OK] What Works
 
 1. **Core Translation Logic** - All 62 translation tests pass
    - Voice-to-JSON conversion
@@ -154,7 +154,7 @@
    - Filtering
    - Expansion/collapse
 
-### ❌ What Needs Fixing
+### [X] What Needs Fixing
 
 1. **Prisma 7 Configuration** (3 test files)
    - Requires adapter or accelerateUrl for PrismaClient
@@ -176,7 +176,7 @@
 
 ## Test Coverage by Feature
 
-### ✅ Fully Tested (100% passing)
+### [OK] Fully Tested (100% passing)
 - Translation Agent (62 tests)
 - Beckn Schema Validation (54 tests)
 - Network Simulator (19 tests)
@@ -184,7 +184,7 @@
 - Network Log Viewer (13 tests)
 - UI Utility Components (14 tests)
 
-### ⚠️ Partially Tested (needs fixes)
+### [!] Partially Tested (needs fixes)
 - Server Actions (database mocking needed)
 - Visual Components (import issues)
 - Icon Mapper (import statement fix)
@@ -240,10 +240,10 @@
 
 - 84% of tests pass (177/212)
 - All critical features are tested and passing:
-  - Translation logic ✅
-  - Beckn Protocol validation ✅
-  - Network simulation ✅
-  - Property-based testing ✅
+  - Translation logic [OK]
+  - Beckn Protocol validation [OK]
+  - Network simulation [OK]
+  - Property-based testing [OK]
 
 The failing tests are due to:
 - Configuration issues (Prisma 7)

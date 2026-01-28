@@ -26,21 +26,21 @@ ERRORS=0
 WARNINGS=0
 
 print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}✗ $1${NC}"
+    echo -e "${RED}[X] $1${NC}"
     ((ERRORS++))
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
+    echo -e "${YELLOW}[!] $1${NC}"
     ((WARNINGS++))
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ $1${NC}"
+    echo -e "${BLUE}[i] $1${NC}"
 }
 
 echo "=================================="
@@ -198,7 +198,7 @@ fi
 
 # Check for ASCII art banner
 print_info "Checking for ASCII art banner..."
-if grep -q "SETU" "$SCRIPT_PATH" && grep -q "╔═" "$SCRIPT_PATH"; then
+if grep -q "SETU" "$SCRIPT_PATH" && grep -q "" "$SCRIPT_PATH"; then
     print_success "ASCII art banner found"
 else
     print_warning "ASCII art banner not found"

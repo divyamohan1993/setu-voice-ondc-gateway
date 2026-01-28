@@ -216,10 +216,10 @@ describe('Property-Based Tests', () => {
   /**
    * Task 10.6.6: Test bid amounts are within valid range
    * 
-   * Property: Bid amounts should always be within ±5-10% of catalog price.
+   * Property: Bid amounts should always be within +/-5-10% of catalog price.
    */
   describe('10.6.6: Bid amount validation', () => {
-    it('should generate bids within ±5-10% of catalog price', () => {
+    it('should generate bids within +/-5-10% of catalog price', () => {
       fc.assert(
         fc.property(
           fc.float({ min: 1, max: 100000, noNaN: true }),
@@ -231,7 +231,7 @@ describe('Property-Based Tests', () => {
               ? catalogPrice * (1 + variation)
               : catalogPrice * (1 - variation);
             
-            // Bid should be within ±10% of catalog price
+            // Bid should be within +/-10% of catalog price
             const minBid = catalogPrice * 0.90;
             const maxBid = catalogPrice * 1.10;
             

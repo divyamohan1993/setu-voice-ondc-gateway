@@ -30,7 +30,7 @@ npx prisma db seed
 ```
 
 This creates the database schema and populates it with sample data:
-- 2 farmers (राजेश पाटिल, सुनीता देशमुख)
+- 2 farmers ( ,  )
 - 2 sample catalogs (Onions, Mangoes)
 - 3 network log entries
 
@@ -87,37 +87,37 @@ The application will be available at: http://localhost:3000
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         Frontend                            │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ VoiceInjector│  │VisualVerifier│  │NetworkLogView│     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Server Actions                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Translate   │  │ Save Catalog │  │  Broadcast   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Backend Services                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │Translation   │  │   Prisma     │  │   Network    │     │
-│  │   Agent      │  │     ORM      │  │  Simulator   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    PostgreSQL Database                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │   Farmers    │  │   Catalogs   │  │ NetworkLogs  │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
+
+                         Frontend                            
+           
+   VoiceInjector  VisualVerifier  NetworkLogView     
+           
+
+                            
+                            
+
+                    Server Actions                           
+           
+    Translate      Save Catalog     Broadcast        
+           
+
+                            
+                            
+
+                      Backend Services                       
+           
+  Translation        Prisma          Network         
+     Agent             ORM          Simulator        
+           
+
+                            
+                            
+
+                    PostgreSQL Database                      
+           
+     Farmers         Catalogs      NetworkLogs       
+           
+
 ```
 
 ## Key Features

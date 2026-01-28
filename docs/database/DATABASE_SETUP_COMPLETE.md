@@ -6,7 +6,7 @@ Successfully completed all database setup tasks for the Setu Voice-to-ONDC Gatew
 
 ## Completed Tasks
 
-### ✅ Task 1.5.1: Create Prisma Schema with Farmer, Catalog, and NetworkLog Models
+### [OK] Task 1.5.1: Create Prisma Schema with Farmer, Catalog, and NetworkLog Models
 
 **File Created**: `prisma/schema.prisma`
 
@@ -32,7 +32,7 @@ Successfully completed all database setup tasks for the Setu Voice-to-ONDC Gatew
 - `CatalogStatus`: DRAFT, BROADCASTED, SOLD
 - `NetworkLogType`: OUTGOING_CATALOG, INCOMING_BID
 
-### ✅ Task 1.5.2: Configure PostgreSQL Connection in .env
+### [OK] Task 1.5.2: Configure PostgreSQL Connection in .env
 
 **Files Created/Updated**:
 - `.env` - Created with PostgreSQL connection configuration
@@ -46,7 +46,7 @@ POSTGRES_PASSWORD=setu_password
 POSTGRES_DB=setu_db
 ```
 
-### ✅ Task 1.5.3: Generate Prisma Client
+### [OK] Task 1.5.3: Generate Prisma Client
 
 **Files Created**:
 - `prisma.config.ts` - Prisma 7 configuration file
@@ -64,23 +64,23 @@ POSTGRES_DB=setu_db
 - Migrations path configuration
 - Seed script configuration
 
-### ✅ Task 1.5.4: Create Database Seed Script with Sample Data
+### [OK] Task 1.5.4: Create Database Seed Script with Sample Data
 
 **File Created**: `prisma/seed.js`
 
 **Sample Data Included**:
 
 1. **2 Farmers**:
-   - राजेश पाटिल (Rajesh Patil) - Mumbai, Hindi preference
-   - सुनीता देशमुख (Sunita Deshmukh) - Pune, Marathi preference
+   -   (Rajesh Patil) - Mumbai, Hindi preference
+   -   (Sunita Deshmukh) - Pune, Marathi preference
 
 2. **2 Catalogs**:
-   - **Nasik Onions**: 500 kg, Grade A, ₹40/kg, BROADCASTED status
-   - **Alphonso Mangoes**: 20 crates, Premium grade, ₹150/crate, DRAFT status
+   - **Nasik Onions**: 500 kg, Grade A, 40/kg, BROADCASTED status
+   - **Alphonso Mangoes**: 20 crates, Premium grade, 150/crate, DRAFT status
 
 3. **3 Network Logs**:
    - 1 OUTGOING_CATALOG event (Nasik Onions broadcast)
-   - 2 INCOMING_BID events (Reliance Fresh: ₹38.5/kg, BigBasket: ₹42/kg)
+   - 2 INCOMING_BID events (Reliance Fresh: 38.5/kg, BigBasket: 42/kg)
 
 **Seed Script Features**:
 - Idempotent (safe to run multiple times using upsert)
@@ -113,38 +113,38 @@ This project uses **Prisma 7**, which introduced breaking changes:
 ## Database Schema Overview
 
 ```
-┌─────────────────┐
-│     Farmer      │
-├─────────────────┤
-│ id (PK)         │
-│ name            │
-│ locationLatLong │
-│ languagePref    │
-│ upiId           │
-│ createdAt       │
-│ updatedAt       │
-└────────┬────────┘
-         │ 1:N
-         │
-┌────────▼────────┐
-│    Catalog      │
-├─────────────────┤
-│ id (PK)         │
-│ farmerId (FK)   │
-│ becknJson       │
-│ status          │
-│ createdAt       │
-│ updatedAt       │
-└─────────────────┘
 
-┌─────────────────┐
-│   NetworkLog    │
-├─────────────────┤
-│ id (PK)         │
-│ type            │
-│ payload         │
-│ timestamp       │
-└─────────────────┘
+     Farmer      
+
+ id (PK)         
+ name            
+ locationLatLong 
+ languagePref    
+ upiId           
+ createdAt       
+ updatedAt       
+
+          1:N
+         
+
+    Catalog      
+
+ id (PK)         
+ farmerId (FK)   
+ becknJson       
+ status          
+ createdAt       
+ updatedAt       
+
+
+
+   NetworkLog    
+
+ id (PK)         
+ type            
+ payload         
+ timestamp       
+
 ```
 
 ## Next Steps
@@ -205,15 +205,15 @@ node node_modules/prisma/build/index.js studio
 ## Files Created/Modified
 
 ### New Files
-- ✅ `prisma/schema.prisma` - Database schema definition
-- ✅ `prisma/seed.js` - Database seed script
-- ✅ `prisma/README.md` - Database documentation
-- ✅ `prisma.config.ts` - Prisma 7 configuration
-- ✅ `lib/db.ts` - Prisma client singleton
-- ✅ `.env` - Environment variables
+- [OK] `prisma/schema.prisma` - Database schema definition
+- [OK] `prisma/seed.js` - Database seed script
+- [OK] `prisma/README.md` - Database documentation
+- [OK] `prisma.config.ts` - Prisma 7 configuration
+- [OK] `lib/db.ts` - Prisma client singleton
+- [OK] `.env` - Environment variables
 
 ### Modified Files
-- ✅ `package.json` - Added Prisma scripts and dotenv dependency
+- [OK] `package.json` - Added Prisma scripts and dotenv dependency
 
 ## Testing the Setup
 
@@ -234,13 +234,13 @@ node node_modules/prisma/build/index.js studio
 
 ## Success Criteria Met
 
-✅ All three models (Farmer, Catalog, NetworkLog) defined with proper relationships  
-✅ PostgreSQL connection configured in .env  
-✅ Prisma Client generated successfully  
-✅ Seed script created with realistic sample data  
-✅ Comprehensive documentation provided  
-✅ Prisma 7 compatibility ensured  
-✅ Development utilities configured  
+[OK] All three models (Farmer, Catalog, NetworkLog) defined with proper relationships  
+[OK] PostgreSQL connection configured in .env  
+[OK] Prisma Client generated successfully  
+[OK] Seed script created with realistic sample data  
+[OK] Comprehensive documentation provided  
+[OK] Prisma 7 compatibility ensured  
+[OK] Development utilities configured  
 
 ## References
 
@@ -252,7 +252,7 @@ node node_modules/prisma/build/index.js studio
 
 ---
 
-**Status**: ✅ All tasks (1.5.1 - 1.5.4) completed successfully  
+**Status**: [OK] All tasks (1.5.1 - 1.5.4) completed successfully  
 **Date**: January 2025  
 **Prisma Version**: 7.3.0  
 **Database**: PostgreSQL 16
