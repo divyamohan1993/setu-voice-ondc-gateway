@@ -9,6 +9,8 @@
  */
 
 import { prisma } from './db';
+import type { Catalog, Prisma } from './generated-client/client';
+import type { BecknCatalogItem } from './beckn-schema';
 
 /**
  * Buyer information including name and logo
@@ -76,37 +78,37 @@ export async function simulateBroadcast(catalogId: string): Promise<BuyerBid> {
   // Task 5.1.3: Add 8-second delay using setTimeout
   // Simulates realistic network latency for ONDC broadcast and response
   await new Promise(resolve => setTimeout(resolve, 8000));
-  
+
   // Task 5.2.1: Fetch catalog details from database
   const catalog = await prisma.catalog.findUnique({
     where: { id: catalogId }
   });
-  
+
   if (!catalog) {
     throw new Error(`Catalog with ID ${catalogId} not found`);
   }
-  
+
   // Extract price from the Beckn JSON structure
-  const becknData = catalog.becknJson as any;
+  const becknData = catalog.becknJson as unknown as BecknCatalogItem;
   const catalogPrice = becknData.price?.value || 0;
-  
+
   if (catalogPrice <= 0) {
     throw new Error('Invalid catalog price');
   }
-  
+
   // Task 5.1.4: Define buyer pool with names and logos
   // Task 5.1.5: Implement random buyer selection
   // Randomly select a buyer from the pool
   const selectedBuyer = BUYER_POOL[Math.floor(Math.random() * BUYER_POOL.length)];
-  
+
   // Task 5.1.6: Implement bid amount calculation (catalog price +/- 5-10%)
   // Generate a bid amount that's 95-105% of the catalog price
   // This simulates realistic market negotiation
   const variationPercent = 0.95 + Math.random() * 0.10; // Random value between 0.95 and 1.05
   const bidAmount = Math.round(catalogPrice * variationPercent * 100) / 100; // Round to 2 decimal places
-  
+
   const timestamp = new Date();
-  
+
   // Task 5.2.2: Create NetworkLog entry for INCOMING_BID
   // Task 5.2.3: Store bid payload with buyer name, amount, and timestamp
   await prisma.networkLog.create({
@@ -121,7 +123,7 @@ export async function simulateBroadcast(catalogId: string): Promise<BuyerBid> {
       timestamp
     }
   });
-  
+
   // Task 5.2.4: Return BuyerBid object for UI notification
   return {
     buyerName: selectedBuyer.name,
@@ -146,22 +148,22 @@ export function getBuyerPool(): Buyer[] {
  * @param catalog - The catalog object to validate
  * @returns boolean - True if catalog is valid for broadcasting
  */
-export function validateCatalogForBroadcast(catalog: any): boolean {
+export function validateCatalogForBroadcast(catalog: Catalog): boolean {
   if (!catalog || !catalog.becknJson) {
     return false;
   }
-  
-  const becknData = catalog.becknJson as any;
-  
+
+  const becknData = catalog.becknJson as unknown as BecknCatalogItem;
+
   // Check for required price field
   if (!becknData.price || typeof becknData.price.value !== 'number' || becknData.price.value <= 0) {
     return false;
   }
-  
+
   // Check for required descriptor
   if (!becknData.descriptor || !becknData.descriptor.name) {
     return false;
   }
-  
+
   return true;
 }

@@ -11,7 +11,8 @@ import {
   type BecknDescriptor,
   type BecknPrice,
   type BecknQuantity,
-  type BecknTags
+  type BecknTags,
+  BecknPriceSchema
 } from './beckn-schema';
 
 /**
@@ -52,7 +53,8 @@ export function createMangoCatalog(): BecknCatalogItem {
       symbol: 'https://example.com/icons/mango.png'
     },
     price: {
-      value: 150
+      value: 150,
+      currency: 'INR'
       // currency will default to 'INR'
     },
     quantity: {
@@ -159,7 +161,6 @@ export function createTomatoCatalogWithBuilder(): BecknCatalogItem {
  */
 export function validatePrice(data: unknown): BecknPrice | null {
   try {
-    const { BecknPriceSchema } = require('./beckn-schema');
     return BecknPriceSchema.parse(data);
   } catch (error) {
     console.error('Price validation failed:', error);
@@ -188,7 +189,7 @@ export function safeParseCatalog(data: unknown): {
   errors?: string[];
 } {
   const result = BecknCatalogItemSchema.safeParse(data);
-  
+
   if (result.success) {
     return {
       success: true,
@@ -197,7 +198,7 @@ export function safeParseCatalog(data: unknown): {
   } else {
     return {
       success: false,
-      errors: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+      errors: result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`)
     };
   }
 }

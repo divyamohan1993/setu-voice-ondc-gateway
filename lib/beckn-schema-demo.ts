@@ -44,8 +44,8 @@ export const mangoCatalogDemo: BecknCatalogItem = {
     symbol: 'https://setu.ondc.in/icons/mango.png'
   },
   price: {
-    value: 150
-    // currency defaults to INR
+    value: 150,
+    currency: 'INR'
   },
   quantity: {
     available: { count: 20 },
@@ -117,7 +117,7 @@ export function demonstrateValidationErrors(): void {
   const result1 = BecknCatalogItemSchema.safeParse(invalidPrice);
   if (!result1.success) {
     console.log('[X] Invalid Price Example:');
-    result1.error.errors.forEach(err => {
+    result1.error.issues.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
     console.log();
@@ -143,7 +143,7 @@ export function demonstrateValidationErrors(): void {
   const result2 = BecknCatalogItemSchema.safeParse(invalidUrl);
   if (!result2.success) {
     console.log('[X] Invalid URL Example:');
-    result2.error.errors.forEach(err => {
+    result2.error.issues.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
     console.log();
@@ -171,7 +171,7 @@ export function demonstrateValidationErrors(): void {
   const result3 = BecknCatalogItemSchema.safeParse(invalidPerishability);
   if (!result3.success) {
     console.log('[X] Invalid Perishability Example:');
-    result3.error.errors.forEach(err => {
+    result3.error.issues.forEach(err => {
       console.log(`   ${err.path.join('.')}: ${err.message}`);
     });
     console.log();
@@ -185,7 +185,7 @@ export function demonstrateTypeSafety(): void {
   console.log(' Demonstrating Type Safety\n');
 
   // TypeScript will catch these errors at compile time:
-  
+
   // [X] This would fail TypeScript compilation:
   // const invalid: BecknCatalogItem = {
   //   descriptor: {

@@ -5,7 +5,7 @@ import { Mic, Tractor, Apple, Loader2, Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface VoiceInjectorProps {
+export interface VoiceInjectorProps {
     onScenarioSelect: (scenario: string) => void;
     isProcessing: boolean;
 }

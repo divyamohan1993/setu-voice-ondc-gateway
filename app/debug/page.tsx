@@ -17,7 +17,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Home, Database, FileJson, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Catalog } from "@prisma/client";
+import type { Catalog } from "@/lib/generated-client/client";
+import type { BecknCatalogItem } from "@/lib/beckn-schema";
 
 // Code splitting: Lazy load NetworkLogViewer (heavy component with JSON rendering)
 const NetworkLogViewer = dynamic(
@@ -49,7 +50,7 @@ export default function DebugPage() {
       try {
         setIsLoading(true);
         const result = await getCatalogsByFarmerAction(FARMER_ID);
-        
+
         if (result.success && result.catalogs) {
           setCatalogs(result.catalogs);
         }
@@ -75,7 +76,7 @@ export default function DebugPage() {
               <p className="text-sm text-gray-400">Network logs and system data</p>
             </div>
           </div>
-          
+
           <Link href="/">
             <Button variant="outline" size="sm" className="gap-2">
               <Home className="h-4 w-4" />
@@ -98,7 +99,7 @@ export default function DebugPage() {
               <User className="w-6 h-6 text-blue-600" />
               <h2 className="text-xl font-bold text-gray-900">Farmer Profile</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-gray-600 font-semibold">Farmer ID</p>
@@ -127,7 +128,7 @@ export default function DebugPage() {
               <FileJson className="w-6 h-6 text-green-600" />
               <h2 className="text-xl font-bold text-gray-900">Catalog Listings</h2>
             </div>
-            
+
             {isLoading ? (
               <div className="py-8">
                 <LoadingSpinner size="lg" text="Loading catalogs..." />
@@ -140,12 +141,12 @@ export default function DebugPage() {
             ) : (
               <div className="space-y-4">
                 {catalogs.map((catalog) => {
-                  const becknData = catalog.becknJson as any;
-                  const statusColor = 
+                  const becknData = catalog.becknJson as unknown as BecknCatalogItem;
+                  const statusColor =
                     catalog.status === "BROADCASTED" ? "bg-green-500" :
-                    catalog.status === "SOLD" ? "bg-blue-500" :
-                    "bg-gray-500";
-                  
+                      catalog.status === "SOLD" ? "bg-blue-500" :
+                        "bg-gray-500";
+
                   return (
                     <div
                       key={catalog.id}
@@ -160,12 +161,12 @@ export default function DebugPage() {
                             ID: {catalog.id}
                           </p>
                         </div>
-                        
+
                         <Badge className={`${statusColor} text-white`}>
                           {catalog.status}
                         </Badge>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <p className="text-gray-600 font-semibold">Price</p>
@@ -206,7 +207,7 @@ export default function DebugPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <NetworkLogViewer 
+          <NetworkLogViewer
             farmerId={FARMER_ID}
             limit={10}
             autoRefresh={true}

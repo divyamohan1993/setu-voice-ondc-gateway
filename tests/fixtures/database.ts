@@ -1,4 +1,4 @@
-import { Farmer, Catalog, NetworkLog, CatalogStatus, NetworkLogType } from '@prisma/client';
+import { Farmer, Catalog, NetworkLog, CatalogStatus, NetworkLogType } from '@/lib/generated-client/client';
 import { SAMPLE_ONION_CATALOG, SAMPLE_MANGO_CATALOG } from './beckn-catalog';
 
 /**

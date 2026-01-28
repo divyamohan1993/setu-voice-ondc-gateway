@@ -663,6 +663,17 @@ function Initialize-Database-Local {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
     }
     
+    # Run Seed
+    Write-Info "Seeding database..."
+    $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
+    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "tsx prisma/seed.ts" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    if ($result.ExitCode -ne 0) {
+        Write-Warning "Database seeding had issues: $($result.StdErr)"
+    } else {
+        Write-Success "Database seeded successfully"
+    }
+
     Write-Success "Local database initialized"
     return $true
 }

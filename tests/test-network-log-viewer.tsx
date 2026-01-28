@@ -3,7 +3,7 @@
  * This file demonstrates that the component can be imported and used correctly
  */
 
-import { NetworkLogViewer } from "./components/NetworkLogViewer";
+import { NetworkLogViewer } from "@/components/NetworkLogViewer";
 
 // Example usage scenarios
 export function ExampleUsage() {

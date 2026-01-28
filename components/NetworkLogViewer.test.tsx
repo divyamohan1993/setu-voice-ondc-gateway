@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { NetworkLogViewer } from "./NetworkLogViewer";
 import * as actions from "@/app/actions";
-import type { NetworkLog } from "@prisma/client";
+import type { NetworkLog } from "@/lib/generated-client/client";
 
 // Mock the actions module
 vi.mock("@/app/actions", () => ({

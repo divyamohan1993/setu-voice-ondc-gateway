@@ -13,12 +13,12 @@
     "test:coverage": "vitest run --coverage",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:seed": "node prisma/seed.js"
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@ai-sdk/openai": "latest",
+    "@ai-sdk/google": "^3.0.15",
     "@prisma/adapter-better-sqlite3": "latest",
-    "@prisma/client": "latest",
+    "@prisma/client": "^7.3.0",
     "@radix-ui/react-dialog": "latest",
     "@radix-ui/react-select": "latest",
     "@radix-ui/react-slot": "latest",

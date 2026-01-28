@@ -17,7 +17,7 @@ import { translateVoiceToJsonWithFallback } from "@/lib/translation-agent";
 import { prisma, handleDatabaseError } from "@/lib/db";
 import { simulateBroadcast, type BuyerBid } from "@/lib/network-simulator";
 import type { BecknCatalogItem } from "@/lib/beckn-schema";
-import type { Catalog, NetworkLog, NetworkLogType } from "@prisma/client";
+import type { Catalog, NetworkLog, NetworkLogType, Prisma } from "@/lib/generated-client/client";
 
 // ============================================================================
 // Phase 4.1: Translation Action
@@ -51,29 +51,29 @@ export async function translateVoiceAction(voiceText: string): Promise<Translate
         error: "Voice text cannot be empty"
       };
     }
-    
+
     if (voiceText.trim().length < 10) {
       return {
         success: false,
         error: "Voice text is too short. Please provide more details."
       };
     }
-    
+
     console.log(" Translating voice input:", voiceText);
-    
+
     // Call translation agent with fallback
     const catalog = await translateVoiceToJsonWithFallback(voiceText);
-    
+
     console.log("[OK] Translation successful");
-    
+
     return {
       success: true,
       catalog
     };
-    
+
   } catch (error) {
     console.error("[X] Translation action failed:", error);
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Translation failed"
@@ -117,43 +117,43 @@ export async function saveCatalogAction(
         error: "Farmer ID is required"
       };
     }
-    
+
     // Verify farmer exists
     const farmer = await prisma.farmer.findUnique({
       where: { id: farmerId }
     });
-    
+
     if (!farmer) {
       return {
         success: false,
         error: "Farmer not found"
       };
     }
-    
+
     console.log(` Saving catalog for farmer ${farmerId}`);
-    
+
     // Create catalog in database
     const result = await prisma.catalog.create({
       data: {
         farmerId,
-        becknJson: catalog as any, // Prisma Json type
+        becknJson: catalog as Prisma.InputJsonValue, // Prisma Json type
         status: "DRAFT"
       }
     });
-    
+
     console.log(`[OK] Catalog saved with ID: ${result.id}`);
-    
+
     return {
       success: true,
       catalogId: result.id
     };
-    
+
   } catch (error) {
     console.error("[X] Save catalog action failed:", error);
-    
+
     // Handle database-specific errors
     const errorMessage = handleDatabaseError(error);
-    
+
     return {
       success: false,
       error: errorMessage
@@ -188,30 +188,30 @@ export async function getCatalogAction(catalogId: string): Promise<GetCatalogRes
         error: "Catalog ID is required"
       };
     }
-    
+
     console.log(` Fetching catalog ${catalogId}`);
-    
+
     const catalog = await prisma.catalog.findUnique({
       where: { id: catalogId }
     });
-    
+
     if (!catalog) {
       return {
         success: false,
         error: "Catalog not found"
       };
     }
-    
+
     console.log(`[OK] Catalog fetched: ${catalog.id}`);
-    
+
     return {
       success: true,
       catalog
     };
-    
+
   } catch (error) {
     console.error("[X] Get catalog action failed:", error);
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch catalog"
@@ -248,24 +248,24 @@ export async function getCatalogsByFarmerAction(
         error: "Farmer ID is required"
       };
     }
-    
+
     console.log(` Fetching catalogs for farmer ${farmerId}`);
-    
+
     const catalogs = await prisma.catalog.findMany({
       where: { farmerId },
       orderBy: { createdAt: "desc" }
     });
-    
+
     console.log(`[OK] Found ${catalogs.length} catalogs for farmer ${farmerId}`);
-    
+
     return {
       success: true,
       catalogs
     };
-    
+
   } catch (error) {
     console.error("[X] Get catalogs by farmer action failed:", error);
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch catalogs"
@@ -312,29 +312,29 @@ export async function broadcastCatalogAction(
         error: "Catalog ID is required"
       };
     }
-    
+
     console.log(` Broadcasting catalog ${catalogId}`);
-    
+
     // Fetch the catalog
     const catalog = await prisma.catalog.findUnique({
       where: { id: catalogId }
     });
-    
+
     if (!catalog) {
       return {
         success: false,
         error: "Catalog not found"
       };
     }
-    
+
     // Update catalog status to BROADCASTED
     await prisma.catalog.update({
       where: { id: catalogId },
       data: { status: "BROADCASTED" }
     });
-    
+
     console.log("[OK] Catalog status updated to BROADCASTED");
-    
+
     // Log OUTGOING_CATALOG event to NetworkLog
     await prisma.networkLog.create({
       data: {
@@ -348,22 +348,22 @@ export async function broadcastCatalogAction(
         timestamp: new Date()
       }
     });
-    
+
     console.log("[OK] OUTGOING_CATALOG event logged");
-    
+
     // Trigger network simulator
     const bid = await simulateBroadcast(catalogId);
-    
+
     console.log("[OK] Broadcast completed successfully");
-    
+
     return {
       success: true,
       bid
     };
-    
+
   } catch (error) {
     console.error("[X] Broadcast catalog action failed:", error);
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Broadcast failed"
@@ -405,24 +405,24 @@ export async function getNetworkLogsAction(
 ): Promise<GetNetworkLogsResult> {
   try {
     console.log(` Fetching network logs (filter: ${filter || "ALL"}, page: ${page})`);
-    
+
     // Validate page number
     if (page < 1) {
       page = 1;
     }
-    
+
     // Build where clause based on filter
     const where: { type?: NetworkLogType } = {};
-    
+
     if (filter && filter !== "ALL") {
       if (filter === "OUTGOING_CATALOG" || filter === "INCOMING_BID") {
         where.type = filter as NetworkLogType;
       }
     }
-    
+
     // Calculate skip for pagination
     const skip = (page - 1) * pageSize;
-    
+
     // Fetch logs with pagination and sorting
     const [logs, totalCount] = await Promise.all([
       prisma.networkLog.findMany({
@@ -433,22 +433,22 @@ export async function getNetworkLogsAction(
       }),
       prisma.networkLog.count({ where })
     ]);
-    
+
     // Calculate total pages
     const totalPages = Math.ceil(totalCount / pageSize);
-    
+
     console.log(`[OK] Found ${logs.length} logs (total: ${totalCount}, pages: ${totalPages})`);
-    
+
     return {
       success: true,
       logs,
       totalPages,
       currentPage: page
     };
-    
+
   } catch (error) {
     console.error("[X] Get network logs action failed:", error);
-    
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch network logs"

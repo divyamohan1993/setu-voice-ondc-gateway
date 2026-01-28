@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/lib/generated-client/client';
 
 /**
  * Mock Prisma client for testing database operations

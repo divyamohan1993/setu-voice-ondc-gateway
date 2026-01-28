@@ -70,8 +70,8 @@ export function logError(
   const consoleMethod = severity === ErrorSeverity.CRITICAL || severity === ErrorSeverity.HIGH
     ? console.error
     : severity === ErrorSeverity.MEDIUM
-    ? console.warn
-    : console.log;
+      ? console.warn
+      : console.log;
 
   consoleMethod('[ERROR]', {
     severity,
@@ -156,7 +156,7 @@ export function logCriticalError(
 function sendToMonitoringService(errorLog: ErrorLog): void {
   // TODO: Integrate with monitoring service
   // Example: Sentry.captureException(errorLog.error, { extra: errorLog.context });
-  
+
   // For now, just log to console in production
   if (process.env.NODE_ENV === 'production') {
     console.error('[MONITORING]', JSON.stringify(errorLog, null, 2));
@@ -185,13 +185,13 @@ export async function withRetry<T>(
       return await fn();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       logError(
         attempt === maxAttempts ? ErrorSeverity.HIGH : ErrorSeverity.MEDIUM,
         category,
         `Operation failed (attempt ${attempt}/${maxAttempts})`,
         lastError,
-        { ...context, attempt }
+        { ...context, metadata: { ...context?.metadata, attempt } }
       );
 
       if (attempt < maxAttempts) {
@@ -269,7 +269,7 @@ export async function measurePerformance<T>(
   context?: ErrorContext
 ): Promise<T> {
   const startTime = Date.now();
-  
+
   try {
     const result = await fn();
     const duration = Date.now() - startTime;

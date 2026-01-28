@@ -6,35 +6,35 @@
  */
 
 // Phase 6.1: Voice Injector Component
-import { VoiceInjector } from "./components/VoiceInjector";
-import type { VoiceInjectorProps, VoiceScenario } from "./components/VoiceInjector";
+import { VoiceInjector } from "@/components/VoiceInjector";
+import type { VoiceInjectorProps } from "@/components/VoiceInjector";
 
 // Phase 6.2: Visual Verifier Component
-import { VisualVerifier } from "./components/VisualVerifier";
-import type { VisualVerifierProps } from "./components/VisualVerifier";
+import { VisualVerifier } from "@/components/VisualVerifier";
+import type { VisualVerifierProps } from "@/components/VisualVerifier";
 
 // Phase 6.3: Network Log Viewer Component
-import { NetworkLogViewer } from "./components/NetworkLogViewer";
-import type { NetworkLogViewerProps } from "./components/NetworkLogViewer";
+import { NetworkLogViewer } from "@/components/NetworkLogViewer";
+import type { NetworkLogViewerProps } from "@/components/NetworkLogViewer";
 
 // Phase 6.4: Utility Components
-import { LoadingSpinner } from "./components/ui/LoadingSpinner";
-import type { LoadingSpinnerProps } from "./components/ui/LoadingSpinner";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import type { LoadingSpinnerProps } from "@/components/ui/LoadingSpinner";
 
-import { ErrorNotification } from "./components/ui/ErrorNotification";
-import type { ErrorNotificationProps } from "./components/ui/ErrorNotification";
+import { ErrorNotification } from "@/components/ui/ErrorNotification";
+import type { ErrorNotificationProps } from "@/components/ui/ErrorNotification";
 
-import { BroadcastLoader } from "./components/ui/BroadcastLoader";
-import type { BroadcastLoaderProps } from "./components/ui/BroadcastLoader";
+import { BroadcastLoader } from "@/components/ui/BroadcastLoader";
+import type { BroadcastLoaderProps } from "@/components/ui/BroadcastLoader";
 
-import { BuyerBidNotification } from "./components/ui/BuyerBidNotification";
-import type { BuyerBidNotificationProps } from "./components/ui/BuyerBidNotification";
+import { BuyerBidNotification } from "@/components/ui/BuyerBidNotification";
+import type { BuyerBidNotificationProps } from "@/components/ui/BuyerBidNotification";
 
 console.log("[OK] All Phase 6 components imported successfully!");
 
 // Verify component types
 const voiceInjectorTest: VoiceInjectorProps = {
-  onScenarioSelect: async (text: string) => {},
+  onScenarioSelect: async (text: string) => { },
   isProcessing: false
 };
 
@@ -45,7 +45,7 @@ const visualVerifierTest: VisualVerifierProps = {
     quantity: { available: { count: 10 }, unit: "kg" },
     tags: {}
   },
-  onBroadcast: async () => {},
+  onBroadcast: async () => { },
   isBroadcasting: false
 };
 

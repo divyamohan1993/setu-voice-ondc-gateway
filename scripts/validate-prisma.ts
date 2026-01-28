@@ -5,7 +5,7 @@
  * and can be imported without errors.
  */
 
-import { PrismaClient, CatalogStatus, NetworkLogType } from '@prisma/client';
+import { PrismaClient, CatalogStatus, NetworkLogType } from '../lib/generated-client/client';
 import { prisma, checkDatabaseHealth, connectDatabase, disconnectDatabase, handleDatabaseError } from '../lib/db';
 
 async function validatePrismaSetup() {

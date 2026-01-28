@@ -10,28 +10,28 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Filter, 
-  ChevronLeft, 
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  ChevronLeft,
   ChevronRight,
   Loader2,
   AlertCircle,
   Send,
   Inbox
 } from "lucide-react";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getNetworkLogsAction } from "@/app/actions";
-import type { NetworkLog } from "@prisma/client";
+import type { NetworkLog, Prisma } from "@/lib/generated-client/client";
 
 /**
  * NetworkLogViewerProps
@@ -46,9 +46,9 @@ export interface NetworkLogViewerProps {
 /**
  * Format JSON with syntax highlighting
  */
-function JsonDisplay({ data }: { data: any }) {
+function JsonDisplay({ data }: { data: Prisma.InputJsonValue | unknown }) {
   const jsonString = JSON.stringify(data, null, 2);
-  
+
   return (
     <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono">
       <code>{jsonString}</code>
@@ -59,24 +59,23 @@ function JsonDisplay({ data }: { data: any }) {
 /**
  * Log Entry Component
  */
-function LogEntry({ log, isExpanded, onToggle }: { 
-  log: NetworkLog; 
-  isExpanded: boolean; 
+function LogEntry({ log, isExpanded, onToggle }: {
+  log: NetworkLog;
+  isExpanded: boolean;
   onToggle: () => void;
 }) {
   const isOutgoing = log.type === "OUTGOING_CATALOG";
   const timestamp = new Date(log.timestamp).toLocaleString();
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`border-2 rounded-xl overflow-hidden ${
-        isOutgoing 
-          ? "border-green-200 bg-green-50" 
+      className={`border-2 rounded-xl overflow-hidden ${isOutgoing
+          ? "border-green-200 bg-green-50"
           : "border-blue-200 bg-blue-50"
-      }`}
+        }`}
     >
       {/* Header */}
       <button
@@ -84,9 +83,8 @@ function LogEntry({ log, isExpanded, onToggle }: {
         className="w-full p-4 flex items-center justify-between hover:bg-white/50 transition-all duration-75 hover:scale-[1.01] active:scale-[0.99]"
       >
         <div className="flex items-center gap-4">
-          <div className={`p-2 rounded-lg ${
-            isOutgoing ? "bg-green-500" : "bg-blue-500"
-          }`}>
+          <div className={`p-2 rounded-lg ${isOutgoing ? "bg-green-500" : "bg-blue-500"
+            }`}>
             {isOutgoing ? (
               <Send className="w-5 h-5 text-white" />
             ) : (
@@ -96,11 +94,10 @@ function LogEntry({ log, isExpanded, onToggle }: {
 
           <div className="text-left">
             <div className="flex items-center gap-2">
-              <Badge className={`${
-                isOutgoing 
-                  ? "bg-green-600 hover:bg-green-700" 
+              <Badge className={`${isOutgoing
+                  ? "bg-green-600 hover:bg-green-700"
                   : "bg-blue-600 hover:bg-blue-700"
-              } text-white`}>
+                } text-white`}>
                 {log.type}
               </Badge>
               <span className="text-sm text-gray-600">{timestamp}</span>
@@ -108,7 +105,7 @@ function LogEntry({ log, isExpanded, onToggle }: {
             <p className="text-xs text-gray-500 mt-1">ID: {log.id}</p>
           </div>
         </div>
-        
+
         {isExpanded ? (
           <ChevronUp className="w-6 h-6 text-gray-600" />
         ) : (
@@ -142,8 +139,8 @@ function LogEntry({ log, isExpanded, onToggle }: {
 /**
  * NetworkLogViewer Component
  */
-export function NetworkLogViewer({ 
-  farmerId, 
+export function NetworkLogViewer({
+  farmerId,
   limit = 10,
   autoRefresh = false,
   refreshInterval = 5000
@@ -163,9 +160,9 @@ export function NetworkLogViewer({
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const result = await getNetworkLogsAction(filter, currentPage, limit);
-      
+
       if (result.success && result.logs) {
         setLogs(result.logs);
         setTotalPages(result.totalPages || 1);
@@ -187,7 +184,7 @@ export function NetworkLogViewer({
   // Auto-refresh if enabled
   useEffect(() => {
     if (!autoRefresh) return;
-    
+
     const interval = setInterval(fetchLogs, refreshInterval);
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, filter, currentPage]);
@@ -235,7 +232,7 @@ export function NetworkLogViewer({
               View raw JSON traffic for debugging
             </p>
           </div>
-          
+
           {/* Filter Dropdown */}
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-gray-600" />
@@ -308,11 +305,11 @@ export function NetworkLogViewer({
                   <ChevronLeft className="w-4 h-4" />
                   Previous
                 </Button>
-                
+
                 <div className="text-sm text-gray-600">
                   Page {currentPage} of {totalPages}
                 </div>
-                
+
                 <Button
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}

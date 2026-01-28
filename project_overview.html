@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setu Project Overview</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #2563eb;
+        }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .flow-step {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .note {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Setu: Voice-to-ONDC Gateway - Project Overview</h1>
+
+    <p>This document explains how the application works, how data flows through the system, and the technology choices involved.</p>
+
+    <h2>1. How Data Flows</h2>
+    <p>The application follows a linear flow from user voice input to network broadcasting:</p>
+
+    <div class="flow-step">
+        <strong>1. Input (Client Side):</strong>
+        <br>User selects or speaks a command (e.g., "500kg onions from Nasik").
+    </div>
+
+    <div class="flow-step">
+        <strong>2. Processing (Server Action):</strong>
+        <br>The app calls <code>translateVoiceAction</code> in <code>app/actions.ts</code>. This runs securely on the server.
+    </div>
+
+    <div class="flow-step">
+        <strong>3. AI Translation (Logic Layer):</strong>
+        <br>The server calls <code>translateVoiceToJsonWithFallback</code> in <code>lib/translation-agent.ts</code>.
+        <br>It constructs a prompt and sends the text to <strong>Google Gemini (Gemini 3 Flash Preview)</strong>.
+    </div>
+
+    <div class="flow-step">
+        <strong>4. Structured Output:</strong>
+        <br>The AI analyzes the text and returns a strictly formatted <strong>JSON</strong> object adhering to the <strong>Beckn Protocol</strong> (Standard for ONDC).
+        <br>It extracts: Product Name, Location, Quality, Quantity, and Price.
+    </div>
+
+    <div class="flow-step">
+        <strong>5. Validation & Storage:</strong>
+        <br>The returned JSON is validated against a schema.
+        <br>When the user clicks "Save", it is stored in a <strong>SQLite database</strong> (for local dev) via **Prisma ORM**.
+    </div>
+
+    <div class="flow-step">
+        <strong>6. Broadcasting:</strong>
+        <br>Finally, the user "broadcasts" the catalog. This triggers a network simulation where a fake "Buyer" places a bid, completing the demo loop.
+    </div>
+
+    <h2>2. Technology Stack</h2>
+    <ul>
+        <li><strong>Framework:</strong> Next.js 15 (App Router) & React 19</li>
+        <li><strong>Styling:</strong> Tailwind CSS 4 & Shadcn/UI</li>
+        <li><strong>Database:</strong> SQLite (Local) / PostgreSQL (Production) with Prisma ORM</li>
+        <li><strong>AI SDK:</strong> Vercel AI SDK (Use <code>generateObject</code> for type-safe JSON)</li>
+    </ul>
+
+    <h2>3. Why Gemini instead of OpenAI?</h2>
+    <div class="note">
+        <strong>Current Implementation:</strong> The project uses <code>google('gemini-3-flash-preview')</code> via the Vercel AI SDK.
+    </div>
+
+    <p>We have switched to Google Gemini for the following reasons:</p>
+    <ol>
+        <li><strong>Performance/Cost:</strong> Gemini 3 Flash Preview is extremely fast and cost-effective for high-volume tasks like this.</li>
+        <li><strong>Vercel AI SDK Integration:</strong> The SDK supports Gemini via <code>@ai-sdk/google</code>, making it easy to swap providers with minimal code changes.</li>
+        <li><strong>Structured Output:</strong> Gemini also supports structured object generation, essential for the Beckn Protocol.</li>
+    </ol>
+
+</body>
+
+</html>

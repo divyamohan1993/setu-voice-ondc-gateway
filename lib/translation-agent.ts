@@ -7,7 +7,7 @@
  */
 
 import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 import { BecknCatalogItemSchema, type BecknCatalogItem } from "./beckn-schema";
 
 /**
@@ -46,31 +46,31 @@ const COMMODITY_MAPPING: Record<string, string> = {
   "pyaaz": "Onions",
   "pyaz": "Onions",
   "kanda": "Onions",
-  
+
   // Mangoes
   "aam": "Mangoes",
   "mango": "Mangoes",
   "alphonso": "Alphonso Mangoes",
-  
+
   // Tomatoes
   "tamatar": "Tomatoes",
   "tomato": "Tomatoes",
-  
+
   // Potatoes
   "aloo": "Potatoes",
   "potato": "Potatoes",
   "batata": "Potatoes",
-  
+
   // Wheat
   "gehun": "Wheat",
   "gehu": "Wheat",
   "wheat": "Wheat",
-  
+
   // Rice
   "chawal": "Rice",
   "rice": "Rice",
   "basmati": "Basmati Rice",
-  
+
   // Lentils
   "dal": "Lentils",
   "daal": "Lentils",
@@ -117,13 +117,13 @@ const GRADE_PATTERNS: Record<string, string> = {
  */
 function mapCommodityName(voiceText: string): string | null {
   const lowerText = voiceText.toLowerCase();
-  
+
   for (const [hindiTerm, englishName] of Object.entries(COMMODITY_MAPPING)) {
     if (lowerText.includes(hindiTerm)) {
       return englishName;
     }
   }
-  
+
   return null;
 }
 
@@ -137,13 +137,13 @@ function mapCommodityName(voiceText: string): string | null {
  */
 function extractLocation(voiceText: string): string | null {
   const lowerText = voiceText.toLowerCase();
-  
+
   for (const [pattern, location] of Object.entries(LOCATION_PATTERNS)) {
     if (lowerText.includes(pattern)) {
       return location;
     }
   }
-  
+
   return null;
 }
 
@@ -157,13 +157,13 @@ function extractLocation(voiceText: string): string | null {
  */
 function extractQualityGrade(voiceText: string): string | null {
   const lowerText = voiceText.toLowerCase();
-  
+
   for (const [pattern, grade] of Object.entries(GRADE_PATTERNS)) {
     if (lowerText.includes(pattern)) {
       return grade;
     }
   }
-  
+
   return null;
 }
 
@@ -180,7 +180,7 @@ function buildPrompt(voiceText: string): string {
   const commodity = mapCommodityName(voiceText);
   const location = extractLocation(voiceText);
   const grade = extractQualityGrade(voiceText);
-  
+
   return `You are a translation agent for the Setu Voice-to-ONDC Gateway system. Your task is to convert vernacular farmer voice commands into valid Beckn Protocol catalog items.
 
 Voice Input: "${voiceText}"
@@ -220,16 +220,16 @@ Generate a complete, valid Beckn Protocol catalog item.`;
 export function validateCatalog(data: unknown): BecknCatalogItem {
   try {
     const validated = BecknCatalogItemSchema.parse(data);
-    
+
     // Apply defaults for optional fields if not present
     if (!validated.tags.perishability) {
       validated.tags.perishability = "medium";
     }
-    
+
     if (!validated.tags.logistics_provider) {
       validated.tags.logistics_provider = "India Post";
     }
-    
+
     console.log("[OK] Catalog validation successful");
     return validated;
   } catch (error) {
@@ -250,20 +250,20 @@ export function validateCatalog(data: unknown): BecknCatalogItem {
  */
 export async function translateVoiceToJson(voiceText: string): Promise<BecknCatalogItem> {
   console.log(" Starting AI translation for:", voiceText);
-  
+
   const prompt = buildPrompt(voiceText);
-  
+
   const result = await generateObject({
-    model: openai("gpt-4o-mini"),
+    model: google("gemini-3-flash-preview"),
     schema: BecknCatalogItemSchema,
     prompt: prompt,
   });
-  
+
   console.log("[OK] AI translation completed");
-  
+
   // Validate the result
   const validated = validateCatalog(result.object);
-  
+
   return validated;
 }
 
@@ -284,37 +284,37 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
  */
 export async function translateVoiceToJsonWithFallback(voiceText: string): Promise<BecknCatalogItem> {
   // Check for API key
-  if (!process.env.OPENAI_API_KEY) {
-    console.warn("[!]  OpenAI API key missing, using fallback catalog");
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    console.warn("[!]  Google API key missing, using fallback catalog");
     return FALLBACK_CATALOG;
   }
-  
+
   // Retry logic with exponential backoff
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       console.log(` Translation attempt ${attempt}/3`);
-      
+
       const result = await translateVoiceToJson(voiceText);
-      
+
       console.log("[OK] Translation successful on attempt", attempt);
       return result;
-      
+
     } catch (error) {
       console.error(`[X] Translation attempt ${attempt} failed:`, error);
-      
+
       // If this was the last attempt, use fallback
       if (attempt === 3) {
         console.warn("[!]  All translation attempts failed, using fallback catalog");
         return FALLBACK_CATALOG;
       }
-      
+
       // Exponential backoff: wait 1s, 2s, 4s
       const backoffMs = 1000 * Math.pow(2, attempt - 1);
       console.log(` Waiting ${backoffMs}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, backoffMs));
     }
   }
-  
+
   // This should never be reached, but TypeScript needs it
   return FALLBACK_CATALOG;
 }

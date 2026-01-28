@@ -22,13 +22,13 @@ export const ERROR_MESSAGES = {
     description: "We couldn't understand your voice input. Please try speaking more clearly or select a different scenario.",
     action: "Try selecting another voice scenario from the dropdown",
   },
-  
+
   TRANSLATION_API_ERROR: {
     title: "Translation Service Unavailable",
     description: "The voice translation service is temporarily unavailable. We're using a backup system instead.",
     action: "Your catalog has been created with default values. You can still broadcast it.",
   },
-  
+
   TRANSLATION_INVALID_INPUT: {
     title: "Invalid Voice Input",
     description: "The voice input appears to be empty or invalid. Please select a voice scenario to continue.",
@@ -42,13 +42,13 @@ export const ERROR_MESSAGES = {
     action: "Please try again in a few moments",
     technical: "Check database connection and credentials",
   },
-  
+
   CATALOG_SAVE_FAILED: {
     title: "Catalog Save Failed",
     description: "We couldn't save your catalog to the database. Your progress might be lost.",
     action: "Please try creating the catalog again",
   },
-  
+
   CATALOG_NOT_FOUND: {
     title: "Catalog Not Found",
     description: "The catalog you're looking for doesn't exist or has been removed.",
@@ -61,13 +61,13 @@ export const ERROR_MESSAGES = {
     description: "We couldn't send your catalog to the buyer network. No buyers will see your listing.",
     action: "Please try broadcasting again",
   },
-  
+
   BROADCAST_NO_CATALOG: {
     title: "No Catalog to Broadcast",
     description: "You need to create a catalog first before you can broadcast it to buyers.",
     action: "Select a voice scenario to create your catalog",
   },
-  
+
   NETWORK_SIMULATION_ERROR: {
     title: "Network Error",
     description: "There was a problem simulating the buyer network response. Your catalog was broadcasted but we can't show buyer interest.",
@@ -80,7 +80,7 @@ export const ERROR_MESSAGES = {
     description: "The catalog information is incomplete or invalid. Some required fields are missing.",
     action: "Please try creating the catalog again with a different voice scenario",
   },
-  
+
   INVALID_FARMER_ID: {
     title: "Invalid Farmer Profile",
     description: "We couldn't identify your farmer profile. This might affect saving your catalog.",
@@ -93,7 +93,7 @@ export const ERROR_MESSAGES = {
     description: "We're having trouble connecting to our servers. Some features might not work properly.",
     action: "Please check your internet connection and try again",
   },
-  
+
   TIMEOUT_ERROR: {
     title: "Request Timeout",
     description: "The operation is taking longer than expected. This might be due to high server load.",
@@ -106,7 +106,7 @@ export const ERROR_MESSAGES = {
     description: "An unexpected error occurred. We're working to fix this issue.",
     action: "Please try again or contact support if the problem persists",
   },
-  
+
   FEATURE_UNAVAILABLE: {
     title: "Feature Temporarily Unavailable",
     description: "This feature is currently under maintenance and will be available soon.",
@@ -123,11 +123,11 @@ export type ErrorType = keyof typeof ERROR_MESSAGES;
  * Get user-friendly error message
  */
 export function getErrorMessage(
-  errorType: ErrorType, 
+  errorType: ErrorType,
   context?: Record<string, string>
 ): ErrorMessage {
-  const baseMessage = ERROR_MESSAGES[errorType];
-  
+  const baseMessage = ERROR_MESSAGES[errorType] as ErrorMessage;
+
   // Replace placeholders in the message with context values
   if (context) {
     const processText = (text: string) => {
@@ -144,7 +144,7 @@ export function getErrorMessage(
       technical: baseMessage.technical ? processText(baseMessage.technical) : undefined,
     };
   }
-  
+
   return baseMessage;
 }
 
@@ -176,28 +176,28 @@ export function formatErrorForDisplay(errorType: ErrorType, context?: Record<str
 export function categorizeError(error: unknown): ErrorType {
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
-    
+
     // Database errors
     if (message.includes('database') || message.includes('prisma') || message.includes('connection')) {
       return 'DATABASE_CONNECTION_ERROR';
     }
-    
+
     // Network errors
     if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
       return 'NETWORK_ERROR';
     }
-    
+
     // Translation errors
     if (message.includes('translation') || message.includes('ai') || message.includes('openai')) {
       return 'TRANSLATION_API_ERROR';
     }
-    
+
     // Validation errors
     if (message.includes('validation') || message.includes('invalid') || message.includes('required')) {
       return 'INVALID_CATALOG_DATA';
     }
   }
-  
+
   return 'UNKNOWN_ERROR';
 }
 
@@ -207,15 +207,15 @@ export function categorizeError(error: unknown): ErrorType {
 export class UserFriendlyError extends Error {
   public readonly errorType: ErrorType;
   public readonly userMessage: ErrorMessage;
-  
+
   constructor(errorType: ErrorType, context?: Record<string, string>, originalError?: Error) {
     const userMessage = getErrorMessage(errorType, context);
     super(userMessage.description);
-    
+
     this.name = 'UserFriendlyError';
     this.errorType = errorType;
     this.userMessage = userMessage;
-    
+
     if (originalError) {
       this.stack = originalError.stack;
       this.cause = originalError;
