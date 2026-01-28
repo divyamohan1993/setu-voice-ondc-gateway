@@ -1,0 +1,108 @@
+
+> setu-voice-ondc-gateway@0.1.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+
+./app/actions.test.ts
+21:3  Error: Parsing error: '}' expected.
+
+./app/actions.ts
+139:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/debug/page.tsx
+143:58  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/__tests__/actions.test.ts
+7:53  Warning: 'beforeEach' is defined but never used.  @typescript-eslint/no-unused-vars
+20:7  Warning: 'TEST_FARMER_ID' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+94:7  Warning: 'testCatalogId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./components/NetworkLogViewer.tsx
+49:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+146:3  Warning: 'farmerId' is defined but never used.  @typescript-eslint/no-unused-vars
+185:6  Warning: React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+193:6  Warning: React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/ui/BuyerBidNotification.tsx
+18:45  Warning: 'onDismiss' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./components/ui/ErrorBoundary.tsx
+224:61  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./components/VisualVerifier.test.tsx
+15:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+16:5  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+23:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+25:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./components/VoiceInjector.test.tsx
+139:13  Warning: 'styles' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./components/VoiceInjector.tsx
+7:10  Warning: 'cn' is defined but never used.  @typescript-eslint/no-unused-vars
+97:29  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+97:48  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./lib/beckn-schema-example.ts
+162:34  Error: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports
+
+./lib/beckn-schema-verify.js
+4:36  Error: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports
+31:9  Warning: 'result' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+90:10  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+116:10  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+144:10  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./lib/db.ts
+93:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/error-logger.ts
+30:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/network-simulator.ts
+90:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+149:54  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+154:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/translation-agent.test.ts
+11:3  Warning: 'translateVoiceToJson' is defined but never used.  @typescript-eslint/no-unused-vars
+882:16  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+963:12  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1007:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1053:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1126:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+1173:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./lib/__tests__/db.test.ts
+1:32  Warning: 'beforeAll' is defined but never used.  @typescript-eslint/no-unused-vars
+1:43  Warning: 'afterAll' is defined but never used.  @typescript-eslint/no-unused-vars
+2:10  Warning: 'checkDatabaseHealth' is defined but never used.  @typescript-eslint/no-unused-vars
+2:31  Warning: 'connectDatabase' is defined but never used.  @typescript-eslint/no-unused-vars
+2:48  Warning: 'disconnectDatabase' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./lib/__tests__/network-simulator-manual-test.ts
+8:10  Warning: 'simulateBroadcast' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./lib/__tests__/network-simulator.test.ts
+7:44  Warning: 'afterEach' is defined but never used.  @typescript-eslint/no-unused-vars
+41:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+42:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+62:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+63:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+73:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+89:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+105:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+106:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+126:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+127:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+145:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+146:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:37  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+176:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

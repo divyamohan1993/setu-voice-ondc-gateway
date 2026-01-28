@@ -1,3 +1,4 @@
+import 'server-only';
 import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
@@ -48,7 +49,7 @@ export async function checkDatabaseHealth(): Promise<boolean> {
 export async function connectDatabase(): Promise<void> {
   const maxRetries = 3;
   const retryDelay = 2000; // 2 seconds
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       await prisma.$connect();
@@ -56,11 +57,11 @@ export async function connectDatabase(): Promise<void> {
       return;
     } catch (error) {
       console.error(`[X] Database connection attempt ${attempt}/${maxRetries} failed:`, error);
-      
+
       if (attempt === maxRetries) {
         throw new Error(`Failed to connect to database after ${maxRetries} attempts`);
       }
-      
+
       // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
@@ -92,31 +93,31 @@ export async function disconnectDatabase(): Promise<void> {
  */
 export function handleDatabaseError(error: any): string {
   // Prisma error codes: https://www.prisma.io/docs/reference/api-reference/error-reference
-  
+
   if (error.code === 'P2002') {
     return 'A record with this information already exists';
   }
-  
+
   if (error.code === 'P2003') {
     return 'Referenced record not found';
   }
-  
+
   if (error.code === 'P2025') {
     return 'Record not found';
   }
-  
+
   if (error.code === 'P1001') {
     return 'Cannot reach database server';
   }
-  
+
   if (error.code === 'P1002') {
     return 'Database server connection timeout';
   }
-  
+
   if (error.code === 'P1008') {
     return 'Database operation timeout';
   }
-  
+
   // Generic error message
   return 'A database error occurred';
 }

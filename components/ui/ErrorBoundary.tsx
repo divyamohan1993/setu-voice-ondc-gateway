@@ -35,7 +35,7 @@ interface ErrorBoundaryProps {
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    
+
     this.state = {
       hasError: false,
       error: null,
@@ -103,9 +103,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     const { error, errorInfo, errorId } = this.state;
 
     if (level === "page") {
-      return <PageErrorFallback 
-        error={error} 
-        errorInfo={errorInfo} 
+      return <PageErrorFallback
+        error={error}
+        errorInfo={errorInfo}
         errorId={errorId}
         onRetry={this.handleRetry}
         onReload={this.handleReload}
@@ -114,18 +114,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
 
     if (level === "feature") {
-      return <FeatureErrorFallback 
-        error={error} 
-        errorInfo={errorInfo} 
+      return <FeatureErrorFallback
+        error={error}
+        errorInfo={errorInfo}
         errorId={errorId}
         onRetry={this.handleRetry}
         showDetails={showDetails}
       />;
     }
 
-    return <ComponentErrorFallback 
-      error={error} 
-      errorInfo={errorInfo} 
+    return <ComponentErrorFallback
+      error={error}
+      errorInfo={errorInfo}
       errorId={errorId}
       onRetry={this.handleRetry}
       showDetails={showDetails}
@@ -136,13 +136,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 /**
  * Page-level error fallback
  */
-function PageErrorFallback({ 
-  error, 
-  errorInfo, 
-  errorId, 
-  onRetry, 
-  onReload, 
-  showDetails 
+function PageErrorFallback({
+  error,
+  errorInfo,
+  errorId,
+  onRetry,
+  onReload,
+  showDetails
 }: {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -165,7 +165,7 @@ function PageErrorFallback({
             We encountered an unexpected error while loading this page.
           </p>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={onRetry} className="gap-2">
@@ -196,12 +196,12 @@ function PageErrorFallback({
 /**
  * Feature-level error fallback
  */
-function FeatureErrorFallback({ 
-  error, 
-  errorInfo, 
-  errorId, 
-  onRetry, 
-  showDetails 
+function FeatureErrorFallback({
+  error,
+  errorInfo,
+  errorId,
+  onRetry,
+  showDetails
 }: {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -216,15 +216,15 @@ function FeatureErrorFallback({
           <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center flex-shrink-0">
             <AlertTriangle className="w-5 h-5 text-destructive" />
           </div>
-          
+
           <div className="flex-1 space-y-3">
             <div>
               <h3 className="font-semibold text-destructive">Feature Unavailable</h3>
               <p className="text-sm text-muted-foreground">
-                This feature encountered an error and couldn't load properly.
+                This feature encountered an error and could not load properly.
               </p>
             </div>
-            
+
             <Button size="sm" onClick={onRetry} className="gap-2">
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -243,12 +243,12 @@ function FeatureErrorFallback({
 /**
  * Component-level error fallback
  */
-function ComponentErrorFallback({ 
-  error, 
-  errorInfo, 
-  errorId, 
-  onRetry, 
-  showDetails 
+function ComponentErrorFallback({
+  error,
+  errorInfo,
+  errorId,
+  onRetry,
+  showDetails
 }: {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -267,7 +267,7 @@ function ComponentErrorFallback({
           </p>
         </div>
       </div>
-      
+
       <Button size="sm" variant="outline" onClick={onRetry} className="gap-2">
         <RefreshCw className="w-3 h-3" />
         Retry
@@ -283,11 +283,11 @@ function ComponentErrorFallback({
 /**
  * Error details component
  */
-function ErrorDetails({ 
-  error, 
-  errorInfo, 
-  errorId, 
-  compact = false 
+function ErrorDetails({
+  error,
+  errorInfo,
+  errorId,
+  compact = false
 }: {
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -325,7 +325,7 @@ function ErrorDetails({
               </pre>
             </div>
           )}
-          
+
           {error?.stack && (
             <div>
               <strong>Stack Trace:</strong>
@@ -334,7 +334,7 @@ function ErrorDetails({
               </pre>
             </div>
           )}
-          
+
           {errorInfo?.componentStack && (
             <div>
               <strong>Component Stack:</strong>
@@ -355,7 +355,7 @@ function ErrorDetails({
 export function useErrorHandler() {
   return (error: Error, errorInfo?: React.ErrorInfo) => {
     console.error('Manual error report:', error, errorInfo);
-    
+
     // You can integrate with error reporting services here
     // Example: Sentry.captureException(error, { extra: errorInfo });
   };
@@ -375,6 +375,6 @@ export function withErrorBoundary<P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 }
