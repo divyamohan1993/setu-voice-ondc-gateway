@@ -11,31 +11,8 @@ import { google } from "@ai-sdk/google";
 import { BecknCatalogItemSchema, type BecknCatalogItem } from "./beckn-schema";
 
 /**
- * FALLBACK_CATALOG
- * 
- * A hardcoded valid Beckn Protocol catalog item used as a fallback
- * when AI translation fails or API key is missing. This ensures
- * live demos cannot fail.
+ * FALLBACK removed. We now use dynamic regex extraction or fail gracefully.
  */
-const FALLBACK_CATALOG: BecknCatalogItem = {
-  descriptor: {
-    name: "Nasik Onions",
-    symbol: "/icons/onion.png"
-  },
-  price: {
-    value: 40,
-    currency: "INR"
-  },
-  quantity: {
-    available: { count: 500 },
-    unit: "kg"
-  },
-  tags: {
-    grade: "A",
-    perishability: "medium",
-    logistics_provider: "India Post"
-  }
-};
 
 /**
  * Commodity name mapping from Hindi/Hinglish to English
@@ -74,7 +51,12 @@ const COMMODITY_MAPPING: Record<string, string> = {
   // Lentils
   "dal": "Lentils",
   "daal": "Lentils",
-  "lentil": "Lentils"
+  "lentil": "Lentils",
+
+  // Cucumber
+  "cucumber": "Cucumber",
+  "kheera": "Cucumber",
+  "kakdi": "Cucumber"
 };
 
 /**
@@ -177,34 +159,26 @@ function extractQualityGrade(voiceText: string): string | null {
  * @returns Formatted prompt string
  */
 function buildPrompt(voiceText: string): string {
-  const commodity = mapCommodityName(voiceText);
-  const location = extractLocation(voiceText);
-  const grade = extractQualityGrade(voiceText);
-
+  // Helpers usage removed as per previous instruction, logic moved to prompt
   return `You are a translation agent for the Setu Voice-to-ONDC Gateway system. Your task is to convert vernacular farmer voice commands into valid Beckn Protocol catalog items.
 
 Voice Input: "${voiceText}"
 
-Extract the following information and generate a valid Beckn Protocol catalog item:
+Extract ONLY the information explicitly mentioned in the voice input. Do NOT guess or estimate values.
 
-1. Product Name: ${commodity ? `Use "${commodity}"` : "Identify the commodity mentioned"}
-2. Location: ${location ? `The product is from ${location}` : "Extract location if mentioned"}
-3. Quality Grade: ${grade ? `Grade is "${grade}"` : "Extract quality grade if mentioned (A, B, Premium, Organic, etc.)"}
-4. Quantity: Extract the quantity and unit (kg, piece, liter, crate, etc.)
-5. Price: Estimate a reasonable market price in INR based on the commodity and quantity
+1. Product Name: If mentioned, map it to English (e.g., "Aloo" -> "Potatoes"). If NOT mentioned, use "Unknown Commodity".
+2. Location: If mentioned, extract it. If NOT mentioned, return empty string "".
+3. Quality Grade: If mentioned, extract it. If NOT mentioned, return empty string "".
+4. Quantity: Extract the count and unit. If NOT mentioned, set count to 0 and unit to "".
+5. Price: Extract the price mentioned. If specified as "market price" or NOT mentioned, set value to 0.
 
 Additional Guidelines:
-- For the symbol field, use "/icons/{commodity}.png" format (e.g., "/icons/onion.png")
-- Set perishability based on commodity type:
-  * Fruits/Vegetables: "high" or "medium"
-  * Grains/Pulses: "low"
-- Choose an appropriate logistics provider:
-  * For perishable items: "Delhivery" or "BlueDart"
-  * For non-perishable items: "India Post"
-- If location is mentioned, include it in the product name (e.g., "Nasik Onions")
-- Currency should always be "INR"
+- For the symbol field, use "/icons/default.png" if commodity is unknown, otherwise "/icons/{commodity}.png"
+- Set perishability based on commodity type only if commodity is known.
+- Choose logistics provider only if appropriate.
+- Currency is always "INR".
 
-Generate a complete, valid Beckn Protocol catalog item.`;
+Generate a Beckn Protocol catalog item based ONLY on the evidence in the text.`;
 }
 
 /**
@@ -282,20 +256,73 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
  * @param voiceText - The raw voice input text
  * @returns Promise resolving to BecknCatalogItem (never fails)
  */
+/**
+ * fallbackExtraction
+ * 
+ * Basic regex-based extraction when AI fails.
+ * Tries to find numbers near keys like "rs", "price", "kg", "quintal".
+ */
+function fallbackExtraction(text: string): BecknCatalogItem {
+  const lowerText = text.toLowerCase();
+
+  // 1. Identify commodity
+  let name = mapCommodityName(text) || "Unknown Commodity";
+  // If not in map, try to take the first noun or just default to unknown? 
+  // For safety, defaulting to Unknown is better than guessing wrong.
+
+  // 2. Extract Price (look for "rs", "rupees", "price")
+  // Regex: number followed optionally by space then rs/rupees/price OR price followed by number
+  let price = 0;
+  const priceMatch = lowerText.match(/(\d+)\s*(?:rs|rupees|rupaye|\/-)|(?:price|rate|kimat|bhav)\s*(?:is|of)?\s*(\d+)/);
+  if (priceMatch) {
+    price = parseInt(priceMatch[1] || priceMatch[2]);
+  }
+
+  // 3. Extract Quantity (look for "kg", "quintal", "ton", "kilo")
+  let count = 0;
+  let unit = "";
+  const qtyMatch = lowerText.match(/(\d+)\s*(kg|kilo|quintal|ton|g|gram|piece|crate|box|peti)/);
+  if (qtyMatch) {
+    count = parseInt(qtyMatch[1]);
+    unit = qtyMatch[2];
+  }
+
+  // 4. Location
+  const location = extractLocation(text) || "";
+
+  return {
+    descriptor: {
+      name: location ? `${location} ${name}` : name,
+      symbol: "/icons/default.png"
+    },
+    price: {
+      value: price,
+      currency: "INR"
+    },
+    quantity: {
+      available: { count },
+      unit
+    },
+    tags: {
+      grade: extractQualityGrade(text) || undefined,
+      perishability: "medium",
+      logistics_provider: "India Post"
+    }
+  };
+}
+
 export async function translateVoiceToJsonWithFallback(voiceText: string): Promise<BecknCatalogItem> {
   // Check for API key
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    console.warn("[!]  Google API key missing, using fallback catalog");
-    return FALLBACK_CATALOG;
+    console.warn("[!] Google API key missing, using dynamic regex fallback");
+    return validateCatalog(fallbackExtraction(voiceText));
   }
 
   // Retry logic with exponential backoff
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       console.log(` Translation attempt ${attempt}/3`);
-
       const result = await translateVoiceToJson(voiceText);
-
       console.log("[OK] Translation successful on attempt", attempt);
       return result;
 
@@ -304,17 +331,15 @@ export async function translateVoiceToJsonWithFallback(voiceText: string): Promi
 
       // If this was the last attempt, use fallback
       if (attempt === 3) {
-        console.warn("[!]  All translation attempts failed, using fallback catalog");
-        return FALLBACK_CATALOG;
+        console.warn("[!] All translation attempts failed, using regex fallback");
+        return validateCatalog(fallbackExtraction(voiceText));
       }
 
-      // Exponential backoff: wait 1s, 2s, 4s
+      // Exponential backoff
       const backoffMs = 1000 * Math.pow(2, attempt - 1);
-      console.log(` Waiting ${backoffMs}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, backoffMs));
     }
   }
 
-  // This should never be reached, but TypeScript needs it
-  return FALLBACK_CATALOG;
+  return validateCatalog(fallbackExtraction(voiceText));
 }

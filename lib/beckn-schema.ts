@@ -35,7 +35,7 @@ export const BecknDescriptorSchema = z.object({
  * @property currency - ISO 4217 currency code (required, 3-letter code, defaults to "INR")
  */
 export const BecknPriceSchema = z.object({
-  value: z.number().positive("Price must be positive"),
+  value: z.number().min(0, "Price must be non-negative"),
   currency: z.string().length(3, "Currency must be 3-letter code").default("INR")
 });
 
@@ -51,9 +51,9 @@ export const BecknPriceSchema = z.object({
  */
 export const BecknQuantitySchema = z.object({
   available: z.object({
-    count: z.number().positive("Count must be positive")
+    count: z.number().min(0, "Count must be non-negative")
   }),
-  unit: z.string().min(1, "Unit is required")
+  unit: z.string().optional().or(z.literal(""))
 });
 
 /**

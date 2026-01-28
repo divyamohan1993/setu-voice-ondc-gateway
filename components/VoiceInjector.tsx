@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Mic, Tractor, Apple, Loader2, Check } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect, useRef } from "react";
+import { Mic, Loader2, Volume2, Sparkles, Languages } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+// Declarations for Web Speech API
+declare global {
+    interface Window {
+        webkitSpeechRecognition: any;
+        SpeechRecognition: any;
+    }
+}
 
 export interface VoiceInjectorProps {
     onScenarioSelect: (scenario: string) => void;
@@ -11,104 +20,181 @@ export interface VoiceInjectorProps {
 }
 
 export function VoiceInjector({ onScenarioSelect, isProcessing }: VoiceInjectorProps) {
-    const [selectedScenario, setSelectedScenario] = useState<string>("");
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [showSimulate, setShowSimulate] = useState(false);
+    const recognitionRef = useRef<any>(null);
 
-    const scenarios = [
-        {
-            id: "onion",
-            label: "Nasik Onions",
-            icon: Tractor,
-            text: "I have 500kg of red onions from Nasik (pyaaz). Quality is Grade A. Expected price is 25 rupees per kg. Can deliver by tomorrow."
-        },
-        {
-            id: "mango",
-            label: "Alphonso Mangoes",
-            icon: Apple,
-            text: "Fresh Alphonso mangoes from Ratnagiri available. 200 dozen boxes ready. Premium export quality. 800 rupees per dozen."
+    // Initialize Speech Recognition
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognitionRef.current = new SpeechRecognition();
+                recognitionRef.current.continuous = false;
+                recognitionRef.current.interimResults = false;
+                recognitionRef.current.lang = "hi-IN"; // Default to Hindi
+
+                recognitionRef.current.onstart = () => {
+                    setIsListening(true);
+                    setError(null);
+                };
+
+                recognitionRef.current.onresult = (event: any) => {
+                    const text = event.results[0][0].transcript;
+                    setTranscript(text);
+                    onScenarioSelect(text);
+                };
+
+                recognitionRef.current.onerror = (event: any) => {
+                    console.error("Speech recognition error", event.error);
+                    setIsListening(false);
+                    // If not allowed or not supported, show simulation option
+                    if (event.error === 'not-allowed' || event.error === 'no-speech') {
+                        setError("माइक की समस्या (Mic Error). कृपया दोबारा कोशिश करें।");
+                    } else {
+                        setShowSimulate(true);
+                    }
+                };
+
+                recognitionRef.current.onend = () => {
+                    setIsListening(false);
+                };
+            } else {
+                setShowSimulate(true);
+            }
         }
-    ];
+    }, [onScenarioSelect]);
 
-    const handleSelect = (value: string) => {
-        const scenario = scenarios.find((s) => s.id === value);
-        if (scenario) {
-            setSelectedScenario(scenario.text);
-            onScenarioSelect(scenario.text);
+    const toggleListening = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+        } else {
+            try {
+                recognitionRef.current?.start();
+            } catch (err) {
+                console.error("Failed to start recognition:", err);
+                setShowSimulate(true);
+            }
         }
     };
 
+    // Fallback Simulation Data
+    const simulateVoiceInput = () => {
+        const scenarios = [
+            "मेरे पास ५०० किलो लाल प्याज है नासिक से। क्वालिटी ए ग्रेड है। मुझे २५ रुपये प्रति किलो चाहिए। कल तक दे सकता हूँ।",
+            "रत्नागिरी से ताजा हापुस आम उपलब्ध है। २०० दर्जन पेटी तैयार है। बढ़िया एक्सपर्ट क्वालिटी। ८०० रुपये दर्जन।"
+        ];
+        const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+        setTranscript(randomScenario);
+        onScenarioSelect(randomScenario);
+    };
+
     return (
-        <Card className="w-full max-w-md border-2 border-primary/10 shadow-lg" data-testid="voice-injector">
-            <CardHeader className="bg-muted/50 pb-4">
-                <CardTitle className="flex items-center gap-2 text-xl text-primary">
-                    <Mic className="h-6 w-6" />
-                    Voice Input Simulator
-                </CardTitle>
-                <CardDescription>
-                    Select a voice scenario to simulate farmer input
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-                <div className="space-y-2">
-                    <Select
+        <div className="w-full max-w-2xl mx-auto p-4 space-y-8">
+            {/* Visual Instructions Card */}
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Languages className="w-24 h-24 text-orange-500" />
+                </div>
+
+                <CardContent className="p-8 text-center space-y-6">
+                    <div className="flex justify-center mb-4">
+                        <span className="bg-orange-100 text-orange-800 px-4 py-1 rounded-full text-sm font-bold border border-orange-200">
+                            हिंदी / Marathi Mode
+                        </span>
+                    </div>
+
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight">
+                        अपनी फसल बेचने के लिए <br />
+                        <span className="text-orange-600">निचे दिए गए बटन को दबाएं</span>
+                    </h2>
+
+                    <div className="bg-white/60 p-6 rounded-2xl mx-auto max-w-lg border border-orange-100 shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center justify-center gap-3 mb-3 text-orange-700 font-semibold text-lg">
+                            <Volume2 className="w-6 h-6" />
+                            क्या बोलना है? (What to say?)
+                        </div>
+                        <p className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium">
+                            "मेरा <span className="text-green-600 font-bold">नाम</span>...
+                            मेरी <span className="text-green-600 font-bold">फसल</span>...
+                            कितनी <span className="text-green-600 font-bold">मात्रा</span>...
+                            और <span className="text-green-600 font-bold">कीमत</span>..."
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Main Interaction Area */}
+            <div className="flex flex-col items-center justify-center space-y-8 py-8">
+
+                {/* Giant Mic Button */}
+                <div className="relative group">
+                    {isListening && (
+                        <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75" />
+                    )}
+
+                    <Button
                         disabled={isProcessing}
-                        onValueChange={handleSelect}
+                        onClick={toggleListening}
+                        variant={isListening ? "destructive" : "default"}
+                        className={cn(
+                            "relative w-48 h-48 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 border-8",
+                            isListening
+                                ? "bg-red-500 hover:bg-red-600 border-red-200"
+                                : "bg-gradient-to-b from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-orange-200",
+                            isProcessing && "opacity-50 cursor-not-allowed"
+                        )}
                     >
-                        <SelectTrigger className="w-full min-h-[44px] bg-background">
-                            <SelectValue placeholder="Select a voice scenario" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {scenarios.map((scenario) => (
-                                <SelectItem key={scenario.id} value={scenario.id} className="py-3">
-                                    <div className="flex items-center gap-3">
-                                        <scenario.icon className="h-5 w-5 text-muted-foreground" />
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{scenario.label}</span>
-                                        </div>
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        {isProcessing ? (
+                            <Loader2 className="w-20 h-20 text-white animate-spin" />
+                        ) : (
+                            <Mic className={cn("w-24 h-24 text-white", isListening && "animate-pulse")} />
+                        )}
+                    </Button>
+
+                    {/* Label below button */}
+                    <div className="absolute -bottom-16 left-0 right-0 text-center">
+                        <p className={cn(
+                            "text-xl font-bold transition-all duration-300",
+                            isListening ? "text-red-500 scale-110" : "text-gray-500"
+                        )}>
+                            {isProcessing ? "Processing..." : isListening ? "सुन रहा हूँ... (Listening)" : "बोलने के लिए दबाएं (Tap to Speak)"}
+                        </p>
+                    </div>
                 </div>
 
-                {isProcessing && (
-                    <div className="flex flex-col items-center justify-center py-8 space-y-4 animate-in fade-in zoom-in duration-300">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-                            <div className="relative bg-background p-4 rounded-full border-2 border-primary shadow-sm">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                {/* Live Transcript or Error */}
+                <div className="h-24 w-full flex items-center justify-center text-center px-4">
+                    {error && (
+                        <p className="text-red-500 font-medium bg-red-50 px-4 py-2 rounded-lg animate-in fade-in slide-in-from-bottom-2">
+                            {error}
+                        </p>
+                    )}
+
+                    {transcript && !isProcessing && (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 max-w-2xl bg-white p-4 rounded-xl border-l-4 border-green-500 shadow-sm">
+                            <div className="flex items-center gap-2 mb-1 text-xs font-bold text-green-600 uppercase tracking-wider">
+                                <Sparkles className="w-3 h-3" />
+                                आवाज़ परजी (Voice Input)
                             </div>
+                            <p className="text-lg text-gray-800 font-medium">"{transcript}"</p>
                         </div>
-                        <div className="text-center space-y-1">
-                            <p className="text-sm font-medium text-foreground">Processing Voice Input</p>
-                            <p className="text-xs text-muted-foreground">Converting voice command to Beckn Protocol JSON...</p>
-                        </div>
-                    </div>
-                )}
-
-                {selectedScenario && !isProcessing && (
-                    <div className="rounded-lg border bg-muted/30 p-4 space-y-2 animate-in slide-in-from-top-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2 text-primary">
-                            <Check className="h-4 w-4" />
-                            Selected Voice Input:
-                        </h4>
-                        <div className="text-sm text-muted-foreground italic pl-6 border-l-2 border-primary/20">
-                            &quot;{selectedScenario}&quot;
-                        </div>
-                    </div>
-                )}
-
-                <div className="rounded-lg bg-blue-50/50 dark:bg-blue-950/20 p-4 text-sm text-blue-700 dark:text-blue-300">
-                    <p className="font-semibold mb-2 flex items-center gap-2">
-                        How it works:
-                    </p>
-                    <ol className="list-decimal list-inside space-y-1 opacity-90 ml-1">
-                        <li>Select a pre-recorded voice scenario</li>
-                        <li>System processes the natural language</li>
-                        <li>Converts to structured ONDC catalog</li>
-                    </ol>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+
+                {/* Fallback Simulation Button (Only visible if needed or for dev) */}
+                {(showSimulate || error) && !isProcessing && !isListening && (
+                    <Button
+                        variant="outline"
+                        onClick={simulateVoiceInput}
+                        className="mt-4 text-muted-foreground border-dashed"
+                    >
+                        Test Simulation (Developer Mode)
+                    </Button>
+                )}
+            </div>
+        </div>
     );
 }

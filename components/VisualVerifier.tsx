@@ -1,336 +1,181 @@
 "use client";
 
-/**
- * VisualVerifier Component
- * 
- * Displays catalog data as an accessible visual card with minimal text.
- * Designed for illiterate farmers to verify product listings through visual icons and images.
- * 
- * Features:
- * - Large commodity icons (128x128px)
- * - High-contrast price badge with large font (32px)
- * - Visual quantity indicators with bag icons
- * - Logistics provider logo display (64x64px)
- * - Thumbprint broadcast button (120x120px)
- * - Framer Motion animations for card entrance, button interactions, and success
- * - High-contrast colors and minimal text for accessibility
- * 
- * **Validates: Requirements 4, 5, 10**
- */
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Fingerprint, Loader2, CheckCircle2, Package, TrendingUp, Sparkles } from "lucide-react";
+import { Fingerprint, Loader2, CheckCircle2, Package, TrendingUp, Sparkles, RefreshCcw, AlertTriangle, Volume2 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { BecknCatalogItem } from "@/lib/beckn-schema";
 import { getCommodityIconFromProduct, getLogisticsLogo } from "@/lib/icon-mapper";
+import { cn } from "@/lib/utils";
 
-/**
- * VisualVerifierProps
- */
 export interface VisualVerifierProps {
   catalog: BecknCatalogItem;
   onBroadcast: () => Promise<void>;
+  onRetry: () => void;
   isBroadcasting: boolean;
 }
 
-/**
- * Confetti animation component
- * Displays celebratory confetti particles on broadcast success
- */
-function ConfettiAnimation() {
-  const confettiPieces = Array.from({ length: 20 }, (_, i) => i);
-  
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {confettiPieces.map((i) => (
-        <motion.div
-          key={i}
-          initial={{
-            x: "50%",
-            y: "50%",
-            opacity: 1,
-            scale: 1,
-          }}
-          animate={{
-            x: `${50 + (Math.random() - 0.5) * 200}%`,
-            y: `${50 + (Math.random() - 0.5) * 200}%`,
-            opacity: 0,
-            scale: 0,
-            rotate: Math.random() * 360,
-          }}
-          transition={{
-            duration: 1.5,
-            ease: "easeOut",
-            delay: i * 0.02,
-          }}
-          className="absolute w-3 h-3 rounded-full"
-          style={{
-            backgroundColor: [
-              "#FF6B6B",
-              "#4ECDC4",
-              "#45B7D1",
-              "#FFA07A",
-              "#98D8C8",
-              "#F7DC6F",
-            ][i % 6],
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/**
- * VisualVerifier Component
- */
-export function VisualVerifier({ catalog, onBroadcast, isBroadcasting }: VisualVerifierProps) {
+export function VisualVerifier({ catalog, onBroadcast, onRetry, isBroadcasting }: VisualVerifierProps) {
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Validation checks
+  const isPriceMissing = catalog.price.value === 0;
+  const isQtyMissing = catalog.quantity.available.count === 0;
+  const isNameUnknown = catalog.descriptor.name === "Unknown Commodity" || catalog.descriptor.name === "";
+
+  // Allow missing price/qty for "Get Quote" flow
+  const isCriticalMissing = isNameUnknown;
+  const isQuoteRequest = isPriceMissing || isQtyMissing;
+
+  // Speak summary on mount
+  useEffect(() => {
+    const speakSummary = () => {
+      if ('speechSynthesis' in window) {
+        const name = isNameUnknown ? "Unknown crop" : catalog.descriptor.name;
+        const qty = isQtyMissing ? "Quantity unknown" : `${catalog.quantity.available.count} ${catalog.quantity.unit}`;
+        const price = isPriceMissing ? "Price unknown" : `${catalog.price.value} rupees`;
+
+        // Hindi-ish synthesis attempt (best effort)
+        const text = `Aapne kaha: ${name}, ${qty}, ${price}. Kya ye sahi hai?`;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hi-IN';
+        utterance.onstart = () => setIsPlaying(true);
+        utterance.onend = () => setIsPlaying(false);
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    // Small delay to allow UI to settle
+    const timer = setTimeout(speakSummary, 500);
+    return () => clearTimeout(timer);
+  }, [catalog, isNameUnknown, isQtyMissing, isPriceMissing]);
 
   const handleBroadcast = async () => {
+    if (isCriticalMissing) return;
     await onBroadcast();
     setBroadcastSuccess(true);
-    
-    // Reset success state after animation
     setTimeout(() => setBroadcastSuccess(false), 3000);
   };
 
-  // Get icon paths using icon-mapper utility
   const commodityIconPath = getCommodityIconFromProduct(catalog.descriptor.name);
-  const logisticsLogoPath = catalog.tags.logistics_provider 
+  const logisticsLogoPath = catalog.tags.logistics_provider
     ? getLogisticsLogo(catalog.tags.logistics_provider)
     : null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="w-full max-w-md mx-auto p-4"
     >
-      <Card className="w-full max-w-2xl border-4 border-primary/20 shadow-2xl bg-gradient-to-br from-background to-muted/20">
-        <CardContent className="p-8 md:p-12">
-          <div className="flex flex-col items-center space-y-8">
-            {/* Commodity Icon - 128x128px */}
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ 
-                delay: 0.2, 
-                type: "spring", 
-                stiffness: 200,
-                damping: 15 
-              }}
-              className="relative w-32 h-32"
-            >
+      <Card className="border-0 shadow-2xl bg-white overflow-hidden rounded-3xl">
+        <div className="bg-orange-50 p-4 text-center border-b border-orange-100">
+          <h2 className="text-xl font-bold text-orange-900 flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-6 h-6 text-green-600" />
+            Verify Details (जांच करें)
+          </h2>
+        </div>
+
+        <CardContent className="p-6 space-y-8">
+          {/* Commodity Section */}
+          <div className="flex flex-col items-center">
+            <div className="w-32 h-32 relative mb-4">
               <Image
                 src={commodityIconPath}
-                alt={`${catalog.descriptor.name} commodity icon`}
-                width={128}
-                height={128}
-                className="object-contain drop-shadow-2xl"
-                priority
-                sizes="128px"
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                role="img"
-                aria-describedby="commodity-description"
+                alt={catalog.descriptor.name}
+                fill
+                className="object-contain drop-shadow-lg"
               />
-            </motion.div>
-
-            {/* Product Name - Minimal text, large font */}
-            <motion.h2
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
-              id="commodity-description"
-              aria-label={`Product: ${catalog.descriptor.name}`}
-            >
-              {catalog.descriptor.name}
-            </motion.h2>
-
-            {/* Price Badge - Large font (32px) with currency symbol */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
-            >
-              <Badge className="px-8 py-4 text-3xl md:text-4xl font-bold bg-green-600 hover:bg-green-700 shadow-xl border-2 border-green-400 transition-all duration-75 hover:scale-105 active:scale-95"
-                     aria-label={`Price: ${catalog.price.value} rupees per ${catalog.quantity.unit}`}
-                     role="status">
-                {catalog.price.value} / {catalog.quantity.unit}
-              </Badge>
-            </motion.div>
-
-            {/* Quantity Indicator with visual representation */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex items-center gap-4 text-2xl md:text-3xl bg-muted/50 px-6 py-3 rounded-full"
-              role="status"
-              aria-label={`Available quantity: ${catalog.quantity.available.count} ${catalog.quantity.unit}`}
-            >
-              <Package className="h-10 w-10 text-primary" strokeWidth={2.5} aria-hidden="true" />
-              <span className="font-bold text-foreground">
-                {catalog.quantity.available.count} {catalog.quantity.unit}
-              </span>
-            </motion.div>
-
-            {/* Quality Grade Badge */}
-            {catalog.tags.grade && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <Badge 
-                  variant="outline" 
-                  className="px-6 py-3 text-xl md:text-2xl font-semibold border-2 border-primary/50 bg-primary/5"
-                >
-                  Grade: {catalog.tags.grade}
-                </Badge>
-              </motion.div>
-            )}
-
-            {/* Logistics Provider Logo - 64x64px */}
-            {logisticsLogoPath && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="flex flex-col items-center gap-3"
-              >
-                <div className="relative w-16 h-16">
-                  <Image
-                    src={logisticsLogoPath}
-                    alt={catalog.tags.logistics_provider || "Logistics"}
-                    width={64}
-                    height={64}
-                    className="object-contain drop-shadow-lg"
-                    sizes="64px"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                  />
+              {isNameUnknown && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                  <AlertTriangle className="w-12 h-12 text-yellow-400" />
                 </div>
-                <span className="text-lg text-muted-foreground font-medium">
-                  {catalog.tags.logistics_provider}
-                </span>
-              </motion.div>
-            )}
-
-            {/* Thumbprint Broadcast Button - 120x120px */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="pt-6 relative"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onHoverStart={() => setIsHovering(true)}
-                onHoverEnd={() => setIsHovering(false)}
-              >
-                <Button
-                  onClick={handleBroadcast}
-                  disabled={isBroadcasting || broadcastSuccess}
-                  size="lg"
-                  className="h-32 w-32 rounded-full text-lg font-bold shadow-2xl hover:shadow-3xl transition-all duration-75 bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary border-4 border-primary/30 active:scale-95"
-                  aria-label={
-                    isBroadcasting 
-                      ? "Broadcasting catalog to network..." 
-                      : broadcastSuccess 
-                        ? "Catalog successfully broadcasted" 
-                        : `Broadcast ${catalog.descriptor.name} catalog to buyer network`
-                  }
-                  aria-describedby="broadcast-description"
-                >
-                  <AnimatePresence mode="wait">
-                    {isBroadcasting ? (
-                      <motion.div
-                        key="loading"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                      >
-                        <Loader2 className="h-14 w-14 animate-spin" strokeWidth={3} />
-                      </motion.div>
-                    ) : broadcastSuccess ? (
-                      <motion.div
-                        key="success"
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        exit={{ scale: 0, rotate: 180 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                      >
-                        <CheckCircle2 className="h-14 w-14 text-green-400" strokeWidth={3} />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="idle"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <motion.div
-                          animate={isHovering ? { scale: [1, 1.1, 1] } : {}}
-                          transition={{ duration: 0.5, repeat: isHovering ? Infinity : 0 }}
-                        >
-                          <Fingerprint className="h-14 w-14" strokeWidth={2.5} />
-                        </motion.div>
-                        <span className="text-sm font-semibold">Broadcast</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </Button>
-              </motion.div>
-
-              {/* Confetti Animation on Success */}
-              <AnimatePresence>
-                {broadcastSuccess && <ConfettiAnimation />}
-              </AnimatePresence>
-              
-              {/* Hidden description for screen readers */}
-              <div id="broadcast-description" className="sr-only">
-                Press this button to broadcast your {catalog.descriptor.name} catalog to the buyer network. 
-                The system will send your product listing to potential buyers who may place bids.
-              </div>
-            </motion.div>
-
-            {/* Broadcast Success Message with Animation */}
-            <AnimatePresence>
-              {broadcastSuccess && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, y: -20 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="text-center bg-green-50 dark:bg-green-950 px-6 py-4 rounded-2xl border-2 border-green-500"
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 0.5, repeat: 2 }}
-                  >
-                    <p className="text-xl md:text-2xl font-bold text-green-700 dark:text-green-300 flex items-center justify-center gap-3">
-                      <Sparkles className="h-7 w-7" />
-                      Catalog Broadcasted!
-                      <Sparkles className="h-7 w-7" />
-                    </p>
-                  </motion.div>
-                  <p className="text-base text-green-600 dark:text-green-400 mt-2 flex items-center justify-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Sent to buyer network
-                  </p>
-                </motion.div>
               )}
-            </AnimatePresence>
+            </div>
+
+            <h1 className={cn(
+              "text-3xl font-black text-center",
+              isNameUnknown ? "text-red-500" : "text-gray-900"
+            )}>
+              {isNameUnknown ? "Fasal Batayein?" : catalog.descriptor.name}
+            </h1>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Quantity */}
+            <div className={cn(
+              "p-4 rounded-2xl flex flex-col items-center justify-center border-2 transition-colors",
+              isQtyMissing ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-100"
+            )}>
+              <Package className={cn("w-8 h-8 mb-2", isQtyMissing ? "text-red-400" : "text-blue-500")} />
+              <span className="text-xs font-semibold text-gray-500 uppercase">Matra (Qty)</span>
+              <span className={cn("text-xl font-bold", isQtyMissing ? "text-red-600" : "text-gray-800")}>
+                {isQtyMissing ? "?" : `${catalog.quantity.available.count} ${catalog.quantity.unit}`}
+              </span>
+            </div>
+
+            {/* Price */}
+            <div className={cn(
+              "p-4 rounded-2xl flex flex-col items-center justify-center border-2 transition-colors",
+              isPriceMissing ? "bg-red-50 border-red-200" : "bg-green-50 border-green-100"
+            )}>
+              <span className={cn("text-3xl font-bold mb-1", isPriceMissing ? "text-red-400" : "text-green-600")}>₹</span>
+              <span className="text-xs font-semibold text-gray-500 uppercase">Keemat (Price)</span>
+              <span className={cn("text-xl font-bold", isPriceMissing ? "text-red-600" : "text-gray-800")}>
+                {isPriceMissing ? "?" : catalog.price.value}
+              </span>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {isCriticalMissing && (
+            <div className="bg-red-100 text-red-800 p-4 rounded-xl text-center font-medium animate-pulse flex items-center justify-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Kuch jaankari missing hai.<br />Kripya dobara bolein.
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            {/* Retry Button */}
+            <Button
+              variant="outline"
+              onClick={onRetry}
+              className="h-24 rounded-2xl flex flex-col gap-2 hover:bg-gray-50 border-2"
+            >
+              <RefreshCcw className="w-8 h-8 text-gray-500" />
+              <span className="text-lg font-semibold text-gray-600">Dobara (Retry)</span>
+            </Button>
+
+            {/* Confirm/Broadcast Button */}
+            <Button
+              onClick={handleBroadcast}
+              disabled={isBroadcasting || broadcastSuccess || isCriticalMissing}
+              className={cn(
+                "h-24 rounded-2xl flex flex-col gap-2 shadow-lg transition-all",
+                isCriticalMissing
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 text-white"
+              )}
+            >
+              {isBroadcasting ? (
+                <Loader2 className="w-8 h-8 animate-spin" />
+              ) : broadcastSuccess ? (
+                <CheckCircle2 className="w-10 h-10" />
+              ) : (
+                <Fingerprint className="w-10 h-10" />
+              )}
+              <span className="text-lg font-bold">
+                {broadcastSuccess ? "Sent!" : isQuoteRequest ? "Bhav Poochhein (Get Quote)" : "Bechein (Sell)"}
+              </span>
+            </Button>
           </div>
         </CardContent>
       </Card>
