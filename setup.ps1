@@ -422,20 +422,38 @@ function Resolve-PortConflict {
         # Auto-terminate process in automated mode
         Write-Info "Auto-terminating process to free port..."
         try {
-            Stop-Process -Id $process.Id -Force
-            Start-Sleep -Seconds 2
-            if (-not (Test-PortInUse $Port)) {
-                Write-Success "Port $Port is now available"
-                return $true
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            
+            # Wait checking loop (up to 10 seconds)
+            $checkLoop = 0
+            while ($checkLoop -lt 10) {
+                Start-Sleep -Seconds 1
+                if (-not (Test-PortInUse $Port)) {
+                    Write-Success "Port $Port is now available"
+                    return $true
+                }
+                $checkLoop++
             }
         }
         catch {
-            Write-Failure "Could not terminate process" $_.Exception.Message
+            Write-Verbose-Detail "Stop-Process failed: $_"
         }
-        return $false
+        
+        # Fallback: Taskkill
+        if (Test-PortInUse $Port) {
+            Write-Info "Process still running. Attempting forceful taskkill..."
+            Start-Process -FilePath "taskkill" -ArgumentList "/F", "/PID", $process.Id -NoNewWindow -Wait
+            Start-Sleep -Seconds 2
+        }
     }
     
-    Write-Warning "Port $Port is in use by an unknown process"
+    # Final check
+    if (-not (Test-PortInUse $Port)) {
+        Write-Success "Port $Port was successfully freed"
+        return $true
+    }
+    
+    Write-Warning "Port $Port is still in use by an unknown or stubborn process"
     return $false
 }
 
@@ -578,11 +596,57 @@ function Initialize-Database-Local {
     
     # Update prisma schema if needed for SQLite
     $prismaSchema = Join-Path $PSScriptRoot "prisma\schema.prisma"
+    if (Test-Path $prismaSchema) {
+        $schemaContent = Get-Content $prismaSchema -Raw
+        $newContent = $schemaContent
+        
+        # 1. Change provider from postgresql to sqlite
+        if ($newContent -match 'provider\s*=\s*"postgresql"') {
+            Write-Info "Patching schema.prisma: changing provider to sqlite..."
+            $newContent = $newContent -replace 'provider\s*=\s*"postgresql"', 'provider = "sqlite"'
+        }
+        
+        # 2. Remove 'url' field from datasource (required for Prisma 7 with prisma.config.ts)
+        # This regex matches 'url = ...' possibly with env() call, and replaces it with empty string
+        # We assume it's in the datasource block and uses standard formatting
+        if ($newContent -match 'url\s*=\s*env\("DATABASE_URL"\)') {
+            Write-Info "Patching schema.prisma: removing url property (managed by prisma.config.ts)..."
+            $newContent = $newContent -replace 'url\s*=\s*env\("DATABASE_URL"\)', ''
+        }
+        
+        if ($newContent -ne $schemaContent) {
+            $newContent | Set-Content $prismaSchema -Encoding UTF8
+            Write-Success "Updated schema.prisma for local development"
+        }
+    }
+
+    # Update .env for SQLite if needed
+    $envFile = Join-Path $PSScriptRoot ".env"
+    if (Test-Path $envFile) {
+        $envContent = Get-Content $envFile -Raw
+        if ($envContent -match "DATABASE_URL=postgresql") {
+            Write-Info "Patching .env: switching DATABASE_URL to SQLite..."
+            $envContent = $envContent -replace "DATABASE_URL=postgresql://.*", 'DATABASE_URL="file:./dev.db"'
+            $envContent | Set-Content $envFile -Encoding UTF8
+            Write-Success "Updated .env for local development"
+        }
+    }
     
     # Generate Prisma client
     Write-Info "Generating Prisma client..."
-    $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
-    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma generate" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    $prismaCmd = Join-Path $PSScriptRoot "node_modules\.bin\prisma.cmd"
+    if (-not (Test-Path $prismaCmd)) {
+        # Fallback to npx if local binary not found
+        $prismaCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
+        $prismaArgs = "prisma"
+    }
+    else {
+        $prismaArgs = ""
+    }
+
+    $genArgs = if ($prismaArgs) { "$prismaArgs generate" } else { "generate" }
+    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $genArgs -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma generate had issues: $($result.StdErr)"
@@ -590,7 +654,8 @@ function Initialize-Database-Local {
     
     # Push schema
     Write-Info "Pushing database schema..."
-    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    $pushArgs = if ($prismaArgs) { "$prismaArgs db push" } else { "db push" }
+    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $pushArgs -WorkingDirectory $PSScriptRoot -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
