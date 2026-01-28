@@ -37,7 +37,7 @@ REM ============================================================================
 REM CLEANUP SECTION
 REM Terminate process on Port 3001 and any Node.js process running from this directory
 REM ============================================================================
-powershell -NoProfile -Command "$path = '%~dp0'; Write-Host 'Cleaning up processes for: ' $path; Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ' - Killing process on port 3001 (PID: ' $_.OwningProcess ')'; Stop-Process -Id $_.OwningProcess -Force }; Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -like ('*' + $path + '*') } | ForEach-Object { Write-Host (' - Killing project node process (PID: ' + $_.ProcessId + ')'); Stop-Process -Id $_.ProcessId -Force }"
+powershell -NoProfile -Command "& { param($path) Write-Host 'Cleaning up processes for: ' $path; Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ' - Killing process on port 3001 (PID: ' $_.OwningProcess ')'; Stop-Process -Id $_.OwningProcess -Force }; Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -like ('*' + $path + '*') } | ForEach-Object { Write-Host (' - Killing project node process (PID: ' + $_.ProcessId + ')'); Stop-Process -Id $_.ProcessId -Force } }" "%~dp0"
 
 echo Cleanup complete.
 echo.

@@ -645,6 +645,8 @@ function Initialize-Database-Local {
         $prismaArgs = ""
     }
 
+
+
     $genArgs = if ($prismaArgs) { "$prismaArgs generate" } else { "generate" }
     $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $genArgs -WorkingDirectory $PSScriptRoot -PassThru
     
@@ -755,7 +757,7 @@ function Test-Installation {
     $checks = @(
         @{ Name = "node_modules exists"; Test = { Test-Path (Join-Path $PSScriptRoot "node_modules") } },
         @{ Name = ".env file exists"; Test = { Test-Path (Join-Path $PSScriptRoot ".env") } },
-        @{ Name = "Prisma client generated"; Test = { Test-Path (Join-Path $PSScriptRoot "node_modules\.prisma") } }
+        @{ Name = "Prisma client generated"; Test = { Test-Path (Join-Path $PSScriptRoot "lib\generated-client") } }
     )
     
     $passed = 0
@@ -811,10 +813,10 @@ function Write-Summary {
         Write-Host "  [!] SETUP COMPLETED WITH ERRORS" -ForegroundColor $Script:COLORS.Warning
         Write-Host ""
         Write-Host "  The following errors occurred:" -ForegroundColor White
-        foreach ($error in $Script:ERRORS) {
-            Write-Host "  Step $($error.Step): $($error.Message)" -ForegroundColor $Script:COLORS.Error
-            if ($error.Details) {
-                Write-Host "    -> $($error.Details)" -ForegroundColor DarkGray
+        foreach ($err in $Script:ERRORS) {
+            Write-Host "  Step $($err.Step): $($err.Message)" -ForegroundColor $Script:COLORS.Error
+            if ($err.Details) {
+                Write-Host "    -> $($err.Details)" -ForegroundColor DarkGray
             }
         }
     }
@@ -905,10 +907,16 @@ function Main {
     # Step 5: Start application (unless verify only)
     if (-not $VerifyOnly) {
         if ($Mode -eq "docker") {
-            Start-Application-Docker | Out-Null
+            if (-not (Start-Application-Docker)) {
+                Write-Summary
+                exit 1
+            }
         }
         else {
-            Start-Application-Local | Out-Null
+            if (-not (Start-Application-Local)) {
+                Write-Summary
+                exit 1
+            }
         }
     }
     

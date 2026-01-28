@@ -1,5 +1,6 @@
 import 'server-only';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from './generated-client/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -11,11 +12,17 @@ const globalForPrisma = globalThis as unknown as {
  * This ensures we only create one instance of PrismaClient in development
  * to avoid exhausting database connections during hot reloading.
  */
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+export const prisma = globalForPrisma.prisma ?? (() => {
+  // Use BetterSQLite3 adapter for local development
+  const adapter = new PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL || 'file:./dev.db'
+  });
+
+  return new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
+})();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
