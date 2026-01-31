@@ -46,6 +46,7 @@ const visualVerifierTest: VisualVerifierProps = {
     tags: {}
   },
   onBroadcast: async () => { },
+  onRetry: () => { },
   isBroadcasting: false
 };
 
