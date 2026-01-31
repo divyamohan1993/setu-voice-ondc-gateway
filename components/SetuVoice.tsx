@@ -419,7 +419,7 @@ export function SetuVoice() {
         // Only process final results
         if (isFinal && transcript.trim()) {
           console.log("Final transcript received, processing:", transcript);
-          
+
           // Reset retry count on success
           retryCountRef.current = 0;
 
@@ -641,7 +641,7 @@ export function SetuVoice() {
           >
             {/* Branding at top */}
             <div className="branding">
-              <span className="brand-name">सेतु</span>
+              <span className="brand-name">सेतु <span className="text-xs opacity-50">v2.0</span></span>
               <span className="brand-tagline">Voice to Market</span>
             </div>
 
