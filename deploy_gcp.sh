@@ -61,6 +61,17 @@ if [ ! -f .env ]; then
     # defaulting to simple local sqlite as per repo defaults
 fi
 
+# 6.5 Manually place scripts if they were SCP'd (in case they aren't in git yet)
+if [ -f ~/webhook-server.js ]; then
+    echo "Moving webhook-server.js to scripts/..."
+    mv ~/webhook-server.js $APP_DIR/scripts/
+fi
+if [ -f ~/redeploy.sh ]; then
+    echo "Moving redeploy.sh to scripts/..."
+    mv ~/redeploy.sh $APP_DIR/scripts/
+    chmod +x $APP_DIR/scripts/redeploy.sh
+fi
+
 # 7. Install Dependencies & Build
 echo "Installing dependencies..."
 npm install
