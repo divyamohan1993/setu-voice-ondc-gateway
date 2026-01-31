@@ -168,6 +168,7 @@ export function SetuVoice() {
   const autoListenTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const conversationStateRef = useRef<ConversationState | null>(null);
   const selectedLanguageRef = useRef<LanguageConfig | null>(null);
+  const retryCountRef = useRef(0);
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -418,6 +419,9 @@ export function SetuVoice() {
         // Only process final results
         if (isFinal && transcript.trim()) {
           console.log("Final transcript received, processing:", transcript);
+          
+          // Reset retry count on success
+          retryCountRef.current = 0;
 
           // Stop recognition before processing
           try {
@@ -451,12 +455,33 @@ export function SetuVoice() {
 
         switch (event.error) {
           case "no-speech":
-            // No speech detected, restart listening
-            console.log("No speech detected, restarting...");
-            setCurrentMessage(selectedLanguage?.code === "hi"
-              ? "कुछ सुनाई नहीं दिया, फिर से बोलिए..."
-              : "Didn't hear anything, please speak again...");
-            setTimeout(() => startListening(), 1500);
+            // No speech detected
+            console.log("No speech detected");
+
+            // Increment retry count
+            retryCountRef.current += 1;
+
+            if (retryCountRef.current >= 3) {
+              console.log("Max retries reached, stopping");
+              setError(selectedLanguage?.code === "hi"
+                ? "आवाज़ नहीं आ रही है। कृपया सुनिश्चित करें कि आपका माइक चालू है।"
+                : "No voice detected. Please check your microphone.");
+              setStage("error");
+              retryCountRef.current = 0; // Reset for next manual attempt
+            } else {
+              // Retry
+              console.log(`Retrying (${retryCountRef.current}/3)...`);
+              setCurrentMessage(selectedLanguage?.code === "hi"
+                ? "कुछ सुनाई नहीं दिया, फिर से बोलिए..."
+                : "Didn't hear anything, please speak again...");
+
+              // Use a slightly longer delay for restart to let things settle
+              setTimeout(() => {
+                // Only restart if we are still in a listening/interacting stage
+                // and haven't moved to error or another state legitimately
+                startListening();
+              }, 1500);
+            }
             break;
 
           case "aborted":
