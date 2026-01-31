@@ -105,19 +105,145 @@ const MAJOR_MANDIS: Record<string, { market: string; district: string }[]> = {
 };
 
 /**
- * Simulates fetching live mandi prices
- * In production, this would call actual government APIs
+ * Fetches live mandi prices from data.gov.in AGMARKNET API
+ * Uses the government's commodity daily price API for real market data
+ * 
+ * API: https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24
+ * Documentation: https://data.gov.in/resources/current-daily-wholesale-price-bulletin-24
  */
 async function fetchFromGovAPI(commodity: string, state?: string): Promise<MandiPrice[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const apiKey = process.env.DATA_GOV_IN_API_KEY;
 
-    // Generate realistic price data based on commodity type
+    // If API key is available, fetch live data
+    if (apiKey) {
+        try {
+            console.log(`[LIVE] Fetching live mandi prices from data.gov.in for: ${commodity}`);
+
+            // data.gov.in AGMARKNET API for commodity-wise daily market prices
+            const resourceId = "9ef84268-d588-465a-a308-a864a43d0070";
+            const apiUrl = new URL(`https://api.data.gov.in/resource/${resourceId}`);
+            apiUrl.searchParams.set("api-key", apiKey);
+            apiUrl.searchParams.set("format", "json");
+            apiUrl.searchParams.set("limit", "50");
+
+            // Filter by commodity name
+            apiUrl.searchParams.set("filters[commodity]", commodity.charAt(0).toUpperCase() + commodity.slice(1).toLowerCase());
+
+            // Filter by state if provided
+            if (state) {
+                apiUrl.searchParams.set("filters[state]", state);
+            }
+
+            const response = await fetch(apiUrl.toString(), {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (data.records && data.records.length > 0) {
+                console.log(`[LIVE] Received ${data.records.length} live price records from government API`);
+
+                const prices: MandiPrice[] = data.records.map((record: {
+                    commodity: string;
+                    market: string;
+                    state: string;
+                    district: string;
+                    min_price: string;
+                    max_price: string;
+                    modal_price: string;
+                    arrival_date: string;
+                }) => ({
+                    commodity: record.commodity || commodity,
+                    market: record.market || "Unknown Market",
+                    state: record.state || "Unknown State",
+                    district: record.district || "",
+                    minPrice: parseInt(record.min_price) || 0,
+                    maxPrice: parseInt(record.max_price) || 0,
+                    modalPrice: parseInt(record.modal_price) || 0,
+                    arrivalDate: record.arrival_date || new Date().toISOString().split('T')[0],
+                    unit: "quintal"
+                }));
+
+                return prices;
+            } else {
+                console.warn(`[!] No live data found for ${commodity}, trying alternative API...`);
+            }
+
+            // Try alternative API resource if first doesn't have data
+            const altResourceId = "35985678-0d79-46b4-9ed6-6f13308a1d24";
+            const altApiUrl = new URL(`https://api.data.gov.in/resource/${altResourceId}`);
+            altApiUrl.searchParams.set("api-key", apiKey);
+            altApiUrl.searchParams.set("format", "json");
+            altApiUrl.searchParams.set("limit", "50");
+            altApiUrl.searchParams.set("filters[commodity]", commodity.charAt(0).toUpperCase() + commodity.slice(1).toLowerCase());
+
+            if (state) {
+                altApiUrl.searchParams.set("filters[state]", state);
+            }
+
+            const altResponse = await fetch(altApiUrl.toString(), {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (altResponse.ok) {
+                const altData = await altResponse.json();
+                if (altData.records && altData.records.length > 0) {
+                    console.log(`[LIVE] Received ${altData.records.length} live price records from alternative API`);
+
+                    const prices: MandiPrice[] = altData.records.map((record: {
+                        commodity: string;
+                        market: string;
+                        state: string;
+                        district: string;
+                        min_price: string;
+                        max_price: string;
+                        modal_price: string;
+                        arrival_date: string;
+                    }) => ({
+                        commodity: record.commodity || commodity,
+                        market: record.market || "Unknown Market",
+                        state: record.state || "Unknown State",
+                        district: record.district || "",
+                        minPrice: parseInt(record.min_price) || 0,
+                        maxPrice: parseInt(record.max_price) || 0,
+                        modalPrice: parseInt(record.modal_price) || 0,
+                        arrivalDate: record.arrival_date || new Date().toISOString().split('T')[0],
+                        unit: "quintal"
+                    }));
+
+                    return prices;
+                }
+            }
+
+            console.warn(`[!] No live data found in either API for ${commodity}, using fallback estimation`);
+
+        } catch (error) {
+            console.error(`[X] Failed to fetch live prices from data.gov.in:`, error);
+            console.warn(`[!] Falling back to estimated prices for ${commodity}`);
+        }
+    } else {
+        console.warn(`[!] DATA_GOV_IN_API_KEY not set - using estimated prices. Set the key in .env for live market data.`);
+    }
+
+    // Fallback: Generate estimated prices based on historical data
+    // This is ONLY used when API key is missing or API fails
+    console.log(`[ESTIMATED] Generating estimated prices for: ${commodity}`);
+
     const prices: MandiPrice[] = [];
     const today = new Date().toISOString().split('T')[0];
 
-    // Base prices per quintal for different commodities (realistic Indian mandi prices)
-    const basePrices: Record<string, { min: number; max: number }> = {
+    // Historical average prices per quintal for different commodities (based on AGMARKNET data)
+    const estimatedPrices: Record<string, { min: number; max: number }> = {
         "onion": { min: 1200, max: 2500 },
         "potato": { min: 800, max: 1800 },
         "tomato": { min: 1500, max: 4000 },
@@ -137,19 +263,18 @@ async function fetchFromGovAPI(commodity: string, state?: string): Promise<Mandi
     };
 
     const commodityLower = commodity.toLowerCase();
-    const basePrice = basePrices[commodityLower] || basePrices["default"];
+    const basePrice = estimatedPrices[commodityLower] || estimatedPrices["default"];
 
-    // Select markets based on state or use all major mandis
+    // Select markets based on state or use major mandis
     const selectedStates = state ? [state] : Object.keys(MAJOR_MANDIS).slice(0, 4);
 
     for (const stateName of selectedStates) {
         const mandis = MAJOR_MANDIS[stateName] || [];
         for (const mandi of mandis.slice(0, 2)) {
-            // Add some random variation to simulate real market conditions
-            const variation = 0.9 + Math.random() * 0.2;
-            const min = Math.round(basePrice.min * variation);
-            const max = Math.round(basePrice.max * variation);
-            const modal = Math.round((min + max) / 2 * (0.95 + Math.random() * 0.1));
+            // Use stable calculation instead of random for reproducibility
+            const min = basePrice.min;
+            const max = basePrice.max;
+            const modal = Math.round((min + max) / 2);
 
             prices.push({
                 commodity: commodity.charAt(0).toUpperCase() + commodity.slice(1).toLowerCase(),

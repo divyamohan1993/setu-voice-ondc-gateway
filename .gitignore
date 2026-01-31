@@ -33,10 +33,25 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files
+# Environment files (NEVER commit API keys!)
 .env
-.env*.local
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
 .env.production
+.env.production.local
+!.env.example
+
+# API Keys and Secrets (extra safety)
+*.key
+*.secret
+*_key
+*_secret
+temp_agent_key
+temp_agent_key.pub
 
 # vercel
 .vercel
@@ -47,3 +62,9 @@ next-env.d.ts
 
 # prisma
 prisma/migrations/
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
