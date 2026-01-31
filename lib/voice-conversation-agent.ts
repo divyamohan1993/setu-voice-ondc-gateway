@@ -12,6 +12,7 @@ import { generateObject, generateText } from "ai";
 import { z } from "zod";
 import { getPriceSuggestion, formatPriceForVoice, type PriceSuggestion } from "./mandi-price-service";
 import { BecknCatalogItemSchema, type BecknCatalogItem } from "./beckn-schema";
+import { mapCommodityName } from "./translation-agent";
 
 /**
  * Supported Indian languages with their configurations
@@ -269,7 +270,68 @@ async function handleCommodity(
 ): Promise<{ response: VoiceResponse; newState: ConversationState }> {
     const lang = state.language;
 
+    // Helper for successful commodity found
+    const onCommodityFound = (commodity: string, commodityEnglish: string, quantity?: number, quality?: string) => {
+        const newState: ConversationState = {
+            ...state,
+            collectedData: {
+                ...state.collectedData,
+                commodity: commodityEnglish,
+                quantityKg: quantity,
+                quality: quality
+            }
+        };
+
+        // If quantity was also mentioned/found
+        if (quantity && quantity > 0) {
+            if (quality) {
+                newState.stage = "asking_price_preference";
+                return {
+                    response: {
+                        text: getLocalizedText("ask_price_preference", lang.code, {
+                            commodity: commodity,
+                            quantity: quantity.toString()
+                        }),
+                        stage: "asking_price_preference" as ConversationStage,
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            } else {
+                newState.stage = "asking_quality";
+                return {
+                    response: {
+                        text: getLocalizedText("ask_quality", lang.code, {
+                            commodity: commodity
+                        }),
+                        stage: "asking_quality" as ConversationStage,
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            }
+        }
+
+        // Ask for quantity
+        newState.stage = "asking_quantity";
+        return {
+            response: {
+                text: getLocalizedText("ask_quantity", lang.code, {
+                    commodity: commodity
+                }),
+                stage: "asking_quantity" as ConversationStage,
+                expectsResponse: true
+            },
+            newState
+        };
+    };
+
     try {
+        // Fallback: Check if API key is missing, if so, use regex directly
+        if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+            throw new Error("No API Key");
+        }
+
         // Use AI to extract commodity from natural speech
         const result = await generateObject({
             model: google("gemini-2.0-flash"),
@@ -286,7 +348,7 @@ async function handleCommodity(
 User said: "${userInput}"
 
 Extract:
-1. commodity: The name of the crop in ${lang.englishName} script/language. (e.g. if Hindi, use Devanargari "आलू", not "Aloo").
+1. commodity: The name of the crop in ${lang.englishName} script/language.
 2. commodityEnglish: The English name.
 3. Any location mentioned
 4. Quantity in kg if mentioned
@@ -296,6 +358,12 @@ If you cannot understand, set understood to false.`
         });
 
         if (!result.object.understood || !result.object.commodity) {
+            // AI couldn't match, maybe try regex fallback before giving up?
+            const fallbackEnglish = mapCommodityName(userInput);
+            if (fallbackEnglish) {
+                return onCommodityFound(fallbackEnglish, fallbackEnglish);
+            }
+
             return {
                 response: {
                     text: getLocalizedText("not_understood_commodity", lang.code),
@@ -306,65 +374,23 @@ If you cannot understand, set understood to false.`
             };
         }
 
-        // Update state with collected data
-        const newState: ConversationState = {
-            ...state,
-            collectedData: {
-                ...state.collectedData,
-                commodity: result.object.commodityEnglish || result.object.commodity,
-                location: result.object.location,
-                quantityKg: result.object.quantity,
-                quality: result.object.quality
-            }
-        };
-
-        // If quantity was also mentioned, skip that step
-        if (result.object.quantity && result.object.quantity > 0) {
-            if (result.object.quality) {
-                // Both quantity and quality mentioned, go to price
-                newState.stage = "asking_price_preference";
-                return {
-                    response: {
-                        text: getLocalizedText("ask_price_preference", lang.code, {
-                            commodity: result.object.commodity,
-                            quantity: result.object.quantity.toString()
-                        }),
-                        stage: "asking_price_preference",
-                        expectsResponse: true
-                    },
-                    newState
-                };
-            } else {
-                // Quantity mentioned, ask quality
-                newState.stage = "asking_quality";
-                return {
-                    response: {
-                        text: getLocalizedText("ask_quality", lang.code, {
-                            commodity: result.object.commodity
-                        }),
-                        stage: "asking_quality",
-                        expectsResponse: true
-                    },
-                    newState
-                };
-            }
-        }
-
-        // Ask for quantity
-        newState.stage = "asking_quantity";
-        return {
-            response: {
-                text: getLocalizedText("ask_quantity", lang.code, {
-                    commodity: result.object.commodity
-                }),
-                stage: "asking_quantity",
-                expectsResponse: true
-            },
-            newState
-        };
+        return onCommodityFound(
+            result.object.commodity,
+            result.object.commodityEnglish || result.object.commodity,
+            result.object.quantity,
+            result.object.quality
+        );
 
     } catch (error) {
-        console.error("[X] Commodity extraction failed:", error);
+        console.warn("[!] Commodity extraction failed (or no key), trying regex fallback:", error);
+
+        // Regex Fallback
+        const fallbackEnglish = mapCommodityName(userInput);
+        if (fallbackEnglish) {
+            console.log(`[OK] Regex fallback found: ${fallbackEnglish}`);
+            return onCommodityFound(fallbackEnglish, fallbackEnglish);
+        }
+
         return {
             response: {
                 text: getLocalizedText("error_retry", lang.code),

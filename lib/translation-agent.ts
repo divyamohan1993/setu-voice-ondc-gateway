@@ -18,7 +18,11 @@ import { BecknCatalogItemSchema, type BecknCatalogItem } from "./beckn-schema";
  * Commodity name mapping from Hindi/Hinglish to English
  * Maps vernacular terms to standardized product names
  */
-const COMMODITY_MAPPING: Record<string, string> = {
+/**
+ * Commodity name mapping from Hindi/Hinglish to English
+ * Maps vernacular terms to standardized product names
+ */
+export const COMMODITY_MAPPING: Record<string, string> = {
   // Onions
   "pyaaz": "Onions",
   "pyaz": "Onions",
@@ -97,7 +101,7 @@ const GRADE_PATTERNS: Record<string, string> = {
  * @param voiceText - The raw voice input text
  * @returns Standardized commodity name or null if not found
  */
-function mapCommodityName(voiceText: string): string | null {
+export function mapCommodityName(voiceText: string): string | null {
   const lowerText = voiceText.toLowerCase();
 
   for (const [hindiTerm, englishName] of Object.entries(COMMODITY_MAPPING)) {
