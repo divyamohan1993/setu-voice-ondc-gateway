@@ -2,7 +2,10 @@
  * Mandi Price Service
  * 
  * Fetches live agricultural commodity prices from government APIs.
- * Uses data.gov.in AGMARKNET API and eNAM APIs for real-time mandi prices.
+ * Uses data.gov.in AGMARKNET API for real-time mandi prices.
+ * Uses Google Maps API for real location-based nearest mandi finding.
+ * 
+ * REAL IMPLEMENTATION - No Simulation (except ONDC network)
  * 
  * @module mandi-price-service
  */
@@ -10,6 +13,12 @@
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
+import {
+    findNearestMandis,
+    findNearestMandiForCommodity,
+    type Coordinates,
+    type MandiLocation
+} from "./location-service";
 
 /**
  * Mandi price data structure
@@ -355,6 +364,87 @@ If you cannot identify it, return "Unknown" with low confidence.`
 }
 
 /**
+ * Historical price data for auto-learning trend analysis
+ */
+interface PriceHistory {
+    commodity: string;
+    prices: { price: number; timestamp: Date }[];
+    lastUpdated: Date;
+}
+
+// In-memory price history cache for trend analysis
+const priceHistoryCache: Map<string, PriceHistory> = new Map();
+
+/**
+ * Determine market trend using auto-learning from historical price data
+ * 
+ * AUTO-LEARNING MODE:
+ * - Tracks price history for each commodity
+ * - Compares current price with historical average
+ * - Identifies real trends based on price movements
+ * 
+ * @param commodity - Name of the commodity
+ * @param currentPrice - Current average price
+ * @returns Market trend: "rising" | "stable" | "falling"
+ */
+async function determineMarketTrend(
+    commodity: string,
+    currentPrice: number
+): Promise<"rising" | "stable" | "falling"> {
+    const commodityKey = commodity.toLowerCase();
+
+    // Get or create price history
+    let history = priceHistoryCache.get(commodityKey);
+
+    if (!history) {
+        history = {
+            commodity: commodityKey,
+            prices: [],
+            lastUpdated: new Date()
+        };
+        priceHistoryCache.set(commodityKey, history);
+    }
+
+    // Add current price to history
+    history.prices.push({ price: currentPrice, timestamp: new Date() });
+    history.lastUpdated = new Date();
+
+    // Keep only last 100 price points to prevent memory issues
+    if (history.prices.length > 100) {
+        history.prices = history.prices.slice(-100);
+    }
+
+    // Need at least 3 data points for trend analysis
+    if (history.prices.length < 3) {
+        console.log(`[LEARN] Not enough data for ${commodity} trend analysis (${history.prices.length} points)`);
+        return "stable"; // Default when insufficient data
+    }
+
+    // Calculate trend based on recent price movements
+    const recentPrices = history.prices.slice(-10); // Last 10 price points
+    const firstHalf = recentPrices.slice(0, Math.floor(recentPrices.length / 2));
+    const secondHalf = recentPrices.slice(Math.floor(recentPrices.length / 2));
+
+    const firstHalfAvg = firstHalf.reduce((sum, p) => sum + p.price, 0) / firstHalf.length;
+    const secondHalfAvg = secondHalf.reduce((sum, p) => sum + p.price, 0) / secondHalf.length;
+
+    // Calculate percentage change
+    const percentChange = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
+
+    console.log(`[LEARN] ${commodity} trend analysis: ${percentChange.toFixed(2)}% change over ${recentPrices.length} data points`);
+
+    // Determine trend based on percentage change
+    if (percentChange > 3) {
+        return "rising";
+    } else if (percentChange < -3) {
+        return "falling";
+    } else {
+        return "stable";
+    }
+}
+
+
+/**
  * Get price suggestion for a farmer
  * 
  * @param commodity - Name of the commodity
@@ -396,10 +486,9 @@ export async function getPriceSuggestion(
             average: Math.round(averagePrice / 100)
         };
 
-        // Determine market trend (simulated - in production, compare with historical data)
-        const trendRandom = Math.random();
-        const marketTrend: "rising" | "stable" | "falling" =
-            trendRandom > 0.6 ? "rising" : trendRandom > 0.3 ? "stable" : "falling";
+        // Determine market trend using auto-learning from historical price data
+        // The system learns from previous price queries to identify trends
+        const marketTrend = await determineMarketTrend(commodity, averagePrice);
 
         // Nearest market
         const nearestMarket = prices[0]?.market || "Local Mandi";
@@ -561,3 +650,141 @@ export function formatPriceForVoice(
     // Build voice-friendly message
     return `${market} ${t.market}: ${commodity}. ${t.min} ${pricePerKg.min} ${t.rupees}, ${t.max} ${pricePerKg.max} ${t.rupees} ${t.perKg}. ${t.avg} ${pricePerKg.average} ${t.rupees}. `;
 }
+
+/**
+ * Extended Price Suggestion with location info
+ */
+export interface PriceSuggestionWithLocation extends PriceSuggestion {
+    nearestMandi: MandiLocation;
+    distanceKm?: number;
+    userLocation?: Coordinates;
+}
+
+/**
+ * Get price suggestion for a farmer based on their current location
+ * 
+ * REAL IMPLEMENTATION:
+ * 1. Uses browser geolocation to get user's coordinates
+ * 2. Fetches mandi list from data.gov.in government API
+ * 3. Uses Google Maps Distance Matrix API to find nearest mandi
+ * 4. Fetches live prices from that nearest mandi
+ * 
+ * @param commodity - Name of the commodity
+ * @param userLocation - User's current GPS coordinates
+ * @returns Price suggestion from the nearest mandi with location info
+ */
+export async function getPriceSuggestionByLocation(
+    commodity: string,
+    userLocation: Coordinates
+): Promise<PriceSuggestionWithLocation> {
+    try {
+        console.log(`[PRICE] Getting price suggestion for ${commodity} from nearest mandi...`);
+        console.log(`[PRICE] User location: (${userLocation.lat}, ${userLocation.lng})`);
+
+        // Step 1: Find nearest mandi that has this commodity
+        const nearestMandi = await findNearestMandiForCommodity(userLocation, commodity);
+
+        if (!nearestMandi) {
+            throw new Error(`No mandi found for ${commodity}`);
+        }
+
+        console.log(`[PRICE] Nearest mandi with ${commodity}: ${nearestMandi.name}, ${nearestMandi.state}`);
+        if (nearestMandi.distanceKm) {
+            console.log(`[PRICE] Distance: ${nearestMandi.distanceKm.toFixed(1)} km`);
+        }
+
+        // Step 2: Fetch prices from that specific mandi
+        const prices = await getMandiPrices(commodity, nearestMandi.state);
+
+        // Filter to only the nearest mandi if we have prices from multiple markets
+        const mandiPrices = prices.filter(p =>
+            p.market.toLowerCase().includes(nearestMandi.name.toLowerCase()) ||
+            nearestMandi.name.toLowerCase().includes(p.market.toLowerCase())
+        );
+
+        // Use filtered prices if available, otherwise use all prices from the state
+        const relevantPrices = mandiPrices.length > 0 ? mandiPrices : prices;
+
+        if (relevantPrices.length === 0) {
+            throw new Error(`No price data available for ${commodity} at ${nearestMandi.name}`);
+        }
+
+        // Step 3: Calculate price suggestion
+        const allMinPrices = relevantPrices.map(p => p.minPrice);
+        const allMaxPrices = relevantPrices.map(p => p.maxPrice);
+        const allModalPrices = relevantPrices.map(p => p.modalPrice);
+
+        const minPrice = Math.min(...allMinPrices);
+        const maxPrice = Math.max(...allMaxPrices);
+        const averagePrice = Math.round(allModalPrices.reduce((a, b) => a + b, 0) / allModalPrices.length);
+        const suggestedPrice = Math.round(averagePrice * 1.05);
+
+        const pricePerKg = {
+            min: Math.round(minPrice / 100),
+            max: Math.round(maxPrice / 100),
+            average: Math.round(averagePrice / 100)
+        };
+
+        // Step 4: Determine market trend using auto-learning
+        const marketTrend = await determineMarketTrend(commodity, averagePrice);
+
+        // Generate advice with location context
+        let advice = "";
+        const mandiInfo = `Your nearest mandi is ${nearestMandi.name}${nearestMandi.distanceKm ? ` (${nearestMandi.distanceKm.toFixed(1)} km away)` : ''}.`;
+
+        if (marketTrend === "rising") {
+            advice = `${mandiInfo} Prices are rising. Consider holding for a few days. Current best price is Rs ${pricePerKg.max} per kg.`;
+        } else if (marketTrend === "falling") {
+            advice = `${mandiInfo} Prices are falling. Consider selling soon at Rs ${pricePerKg.average} per kg to avoid losses.`;
+        } else {
+            advice = `${mandiInfo} Market is stable. Good time to sell at Rs ${pricePerKg.average}-${pricePerKg.max} per kg.`;
+        }
+
+        return {
+            commodity: relevantPrices[0]?.commodity || commodity,
+            market: nearestMandi.name,
+            minPrice,
+            maxPrice,
+            averagePrice,
+            suggestedPrice,
+            pricePerKg,
+            marketTrend,
+            advice,
+            lastUpdated: new Date().toISOString(),
+            nearestMandi,
+            distanceKm: nearestMandi.distanceKm,
+            userLocation
+        };
+
+    } catch (error) {
+        console.error("[PRICE] Failed to get location-based price suggestion:", error);
+        // Fallback to regular price suggestion without location
+        const fallback = await getPriceSuggestion(commodity);
+        return {
+            ...fallback,
+            nearestMandi: {
+                name: fallback.market,
+                state: "Unknown",
+                district: ""
+            }
+        };
+    }
+}
+
+/**
+ * Get nearby mandis with their current commodity prices
+ * 
+ * @param userLocation - User's GPS coordinates
+ * @param limit - Maximum number of mandis to return
+ * @returns List of nearby mandis with distance info
+ */
+export async function getNearbyMandis(
+    userLocation: Coordinates,
+    limit: number = 5
+): Promise<MandiLocation[]> {
+    return findNearestMandis(userLocation, limit);
+}
+
+// Re-export types and functions from location service for convenience
+export type { Coordinates, MandiLocation };
+

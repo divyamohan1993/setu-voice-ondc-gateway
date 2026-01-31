@@ -24,7 +24,11 @@ export function UtilityComponentsDemo() {
     buyerName: 'Reliance Fresh',
     bidAmount: 42.50,
     timestamp: new Date(),
-    buyerLogo: '/logos/reliance.png'
+    buyerLogo: '/logos/reliance.png',
+    buyerRating: 4.5,
+    buyerLocation: 'Mumbai, Maharashtra',
+    buyerVerified: true,
+    bidId: 'mock-bid-001'
   };
 
   const handleBroadcast = () => {

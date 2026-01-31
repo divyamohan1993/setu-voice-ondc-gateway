@@ -53,7 +53,7 @@ export const BecknQuantitySchema = z.object({
   available: z.object({
     count: z.number().min(0, "Count must be non-negative")
   }),
-  unit: z.string().optional().or(z.literal(""))
+  unit: z.string().default("")
 });
 
 /**

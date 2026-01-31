@@ -59,6 +59,10 @@ export const MOCK_BUYER_BID = {
   bidAmount: 118,
   timestamp: new Date('2024-01-01T12:00:00Z'),
   buyerLogo: '/logos/reliance.png',
+  buyerRating: 4.5,
+  buyerLocation: 'Mumbai, Maharashtra',
+  buyerVerified: true,
+  bidId: 'mock-bid-test-001',
 };
 
 /**

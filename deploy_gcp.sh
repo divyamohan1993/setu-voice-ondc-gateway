@@ -74,21 +74,39 @@ npx prisma db push
 echo "Building Next.js App..."
 npm run build
 
-# 8. Start Application with PM2
+# 8. Start Application & Webhook Server with PM2
 echo "Starting App with PM2..."
+chmod +x scripts/redeploy.sh
 pm2 delete setu-app 2>/dev/null || true
 pm2 start npm --name "setu-app" -- start -- --port 3000
+
+echo "Starting Webhook Handler..."
+pm2 delete webhook-handler 2>/dev/null || true
+# Pass secret via env var if needed, here we default or rely on .env if loaded
+pm2 start scripts/webhook-server.js --name "webhook-handler"
+
 pm2 save
 # Ensure PM2 starts on boot
 sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp $HOME | bash 2>/dev/null || true
 
-# 9. Configure Nginx (Reserve Proxy Port 80 -> 3000)
+# 9. Configure Nginx (Reserve Proxy Port 80 -> 3000 & 4000)
 echo "Configuring Nginx..."
 sudo tee /etc/nginx/sites-available/default > /dev/null <<EOF
 server {
     listen 80;
     server_name _;
 
+    # Webhook Endpoint
+    location /api/webhook {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    # Main App
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -105,8 +123,12 @@ sudo systemctl enable nginx
 
 echo "=================================================="
 echo "Deployment Complete!"
-echo "Your app should be live at http://<YOUR_PUBLIC_IP>"
+echo "Your app is live at http://<YOUR_PUBLIC_IP>"
+echo "Webhook URL: http://<YOUR_PUBLIC_IP>/api/webhook"
 echo "=================================================="
-echo "NOTE: If you have a domain pointing here, run:"
-echo "sudo certbot --nginx -d aib26.dmj.one"
-echo "to enable HTTPS."
+echo "To finish setup:"
+echo "1. Add the Webhook URL to your GitHub Repo Settings"
+echo "   URL: http://<YOUR_PUBLIC_IP>/api/webhook (or domain)"
+echo "   Content Type: application/json"
+echo "   Secret: default-secret-change-me (Update in scripts/webhook-server.js if changed)" 
+echo "=================================================="

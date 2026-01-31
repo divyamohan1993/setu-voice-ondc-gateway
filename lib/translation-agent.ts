@@ -232,7 +232,7 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
   const prompt = buildPrompt(voiceText);
 
   const result = await generateObject({
-    model: google("gemini-3-flash-preview"),
+    model: google("gemini-2.0-flash"),
     schema: BecknCatalogItemSchema,
     prompt: prompt,
   });

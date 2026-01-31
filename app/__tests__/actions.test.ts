@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { 
+import {
   translateVoiceAction,
   saveCatalogAction,
   getCatalogAction,
@@ -44,11 +44,11 @@ const SAMPLE_CATALOG: BecknCatalogItem = {
 describe('Phase 4.1: Translation Action', () => {
   it('4.1.1-4.1.5: translateVoiceAction should translate voice text successfully', async () => {
     const result = await translateVoiceAction(TEST_VOICE_TEXT);
-    
+
     expect(result.success).toBe(true);
     expect(result.catalog).toBeDefined();
     expect(result.error).toBeUndefined();
-    
+
     if (result.catalog) {
       // Verify Beckn Protocol structure
       expect(result.catalog.descriptor).toBeDefined();
@@ -62,7 +62,7 @@ describe('Phase 4.1: Translation Action', () => {
 
   it('4.1.3: should validate empty voice text', async () => {
     const result = await translateVoiceAction("");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
     expect(result.error).toContain("empty");
@@ -70,7 +70,7 @@ describe('Phase 4.1: Translation Action', () => {
 
   it('4.1.3: should validate short voice text', async () => {
     const result = await translateVoiceAction("test");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
     expect(result.error).toContain("short");
@@ -80,7 +80,7 @@ describe('Phase 4.1: Translation Action', () => {
     // Test with very long text that might cause issues
     const longText = "a".repeat(10000);
     const result = await translateVoiceAction(longText);
-    
+
     // Should either succeed or fail gracefully
     expect(result.success).toBeDefined();
     if (!result.success) {
@@ -118,19 +118,19 @@ describe('Phase 4.2: Catalog Management Actions', () => {
 
   it('4.2.1-4.2.4: saveCatalogAction should save catalog successfully', async () => {
     const result = await saveCatalogAction(testFarmerId, SAMPLE_CATALOG);
-    
+
     expect(result.success).toBe(true);
     expect(result.catalogId).toBeDefined();
     expect(result.error).toBeUndefined();
-    
+
     if (result.catalogId) {
       testCatalogId = result.catalogId;
-      
+
       // Verify catalog was saved to database
       const catalog = await prisma.catalog.findUnique({
         where: { id: result.catalogId }
       });
-      
+
       expect(catalog).toBeDefined();
       expect(catalog?.status).toBe("DRAFT");
       expect(catalog?.farmerId).toBe(testFarmerId);
@@ -139,7 +139,7 @@ describe('Phase 4.2: Catalog Management Actions', () => {
 
   it('4.2.2: should validate farmer ID', async () => {
     const result = await saveCatalogAction("", SAMPLE_CATALOG);
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
     expect(result.error).toContain("Farmer ID");
@@ -147,7 +147,7 @@ describe('Phase 4.2: Catalog Management Actions', () => {
 
   it('4.2.2: should handle non-existent farmer', async () => {
     const result = await saveCatalogAction("non-existent-farmer", SAMPLE_CATALOG);
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
     expect(result.error).toContain("not found");
@@ -157,10 +157,10 @@ describe('Phase 4.2: Catalog Management Actions', () => {
     // First save a catalog
     const saveResult = await saveCatalogAction(testFarmerId, SAMPLE_CATALOG);
     expect(saveResult.success).toBe(true);
-    
+
     if (saveResult.catalogId) {
       const result = await getCatalogAction(saveResult.catalogId);
-      
+
       expect(result.success).toBe(true);
       expect(result.catalog).toBeDefined();
       expect(result.catalog?.id).toBe(saveResult.catalogId);
@@ -170,14 +170,14 @@ describe('Phase 4.2: Catalog Management Actions', () => {
 
   it('4.2.5: getCatalogAction should handle invalid ID', async () => {
     const result = await getCatalogAction("");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
 
   it('4.2.5: getCatalogAction should handle non-existent catalog', async () => {
     const result = await getCatalogAction("non-existent-catalog");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toContain("not found");
   });
@@ -186,14 +186,14 @@ describe('Phase 4.2: Catalog Management Actions', () => {
     // Save multiple catalogs
     await saveCatalogAction(testFarmerId, SAMPLE_CATALOG);
     await saveCatalogAction(testFarmerId, SAMPLE_CATALOG);
-    
+
     const result = await getCatalogsByFarmerAction(testFarmerId);
-    
+
     expect(result.success).toBe(true);
     expect(result.catalogs).toBeDefined();
     expect(result.catalogs!.length).toBeGreaterThanOrEqual(2);
     expect(result.error).toBeUndefined();
-    
+
     // Verify all catalogs belong to the farmer
     result.catalogs?.forEach(catalog => {
       expect(catalog.farmerId).toBe(testFarmerId);
@@ -202,7 +202,7 @@ describe('Phase 4.2: Catalog Management Actions', () => {
 
   it('4.2.6: getCatalogsByFarmerAction should validate farmer ID', async () => {
     const result = await getCatalogsByFarmerAction("");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
@@ -235,7 +235,7 @@ describe('Phase 4.3: Broadcast Action', () => {
     await prisma.networkLog.deleteMany({
       where: {
         payload: {
-          path: ['catalogId'],
+          path: ['catalogId'] as any,
           equals: testCatalogId
         }
       }
@@ -250,11 +250,11 @@ describe('Phase 4.3: Broadcast Action', () => {
 
   it('4.3.1-4.3.5: broadcastCatalogAction should broadcast successfully', async () => {
     const result = await broadcastCatalogAction(testCatalogId);
-    
+
     expect(result.success).toBe(true);
     expect(result.bid).toBeDefined();
     expect(result.error).toBeUndefined();
-    
+
     if (result.bid) {
       // 4.3.5: Verify bid data structure
       expect(result.bid.buyerName).toBeDefined();
@@ -262,31 +262,31 @@ describe('Phase 4.3: Broadcast Action', () => {
       expect(result.bid.timestamp).toBeDefined();
       expect(result.bid.buyerLogo).toBeDefined();
     }
-    
+
     // 4.3.2: Verify catalog status was updated
     const catalog = await prisma.catalog.findUnique({
       where: { id: testCatalogId }
     });
     expect(catalog?.status).toBe("BROADCASTED");
-    
+
     // 4.3.3: Verify OUTGOING_CATALOG event was logged
     const outgoingLog = await prisma.networkLog.findFirst({
       where: {
         type: "OUTGOING_CATALOG",
         payload: {
-          path: ['catalogId'],
+          path: ['catalogId'] as any,
           equals: testCatalogId
         }
       }
     });
     expect(outgoingLog).toBeDefined();
-    
+
     // 4.3.4: Verify network simulator created INCOMING_BID log
     const incomingLog = await prisma.networkLog.findFirst({
       where: {
         type: "INCOMING_BID",
         payload: {
-          path: ['catalogId'],
+          path: ['catalogId'] as any,
           equals: testCatalogId
         }
       }
@@ -296,14 +296,14 @@ describe('Phase 4.3: Broadcast Action', () => {
 
   it('4.3.1: should validate catalog ID', async () => {
     const result = await broadcastCatalogAction("");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
 
   it('4.3.1: should handle non-existent catalog', async () => {
     const result = await broadcastCatalogAction("non-existent-catalog");
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toContain("not found");
   });
@@ -337,7 +337,7 @@ describe('Phase 4.4: Network Log Actions', () => {
     await prisma.networkLog.deleteMany({
       where: {
         payload: {
-          path: ['catalogId'],
+          path: ['catalogId'] as any,
           equals: testCatalogId
         }
       }
@@ -352,13 +352,13 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.1-4.4.5: getNetworkLogsAction should fetch logs with pagination', async () => {
     const result = await getNetworkLogsAction("ALL", 1, 10);
-    
+
     expect(result.success).toBe(true);
     expect(result.logs).toBeDefined();
     expect(result.totalPages).toBeDefined();
     expect(result.currentPage).toBe(1);
     expect(result.error).toBeUndefined();
-    
+
     // 4.4.5: Verify pagination metadata
     expect(result.totalPages).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(result.logs)).toBe(true);
@@ -366,10 +366,10 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.2: should filter by OUTGOING_CATALOG', async () => {
     const result = await getNetworkLogsAction("OUTGOING_CATALOG", 1, 10);
-    
+
     expect(result.success).toBe(true);
     expect(result.logs).toBeDefined();
-    
+
     // Verify all logs are OUTGOING_CATALOG type
     result.logs?.forEach(log => {
       expect(log.type).toBe("OUTGOING_CATALOG");
@@ -378,10 +378,10 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.2: should filter by INCOMING_BID', async () => {
     const result = await getNetworkLogsAction("INCOMING_BID", 1, 10);
-    
+
     expect(result.success).toBe(true);
     expect(result.logs).toBeDefined();
-    
+
     // Verify all logs are INCOMING_BID type
     result.logs?.forEach(log => {
       expect(log.type).toBe("INCOMING_BID");
@@ -390,10 +390,10 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.3: should sort by timestamp descending', async () => {
     const result = await getNetworkLogsAction("ALL", 1, 10);
-    
+
     expect(result.success).toBe(true);
     expect(result.logs).toBeDefined();
-    
+
     if (result.logs && result.logs.length > 1) {
       // Verify logs are sorted by timestamp descending
       for (let i = 0; i < result.logs.length - 1; i++) {
@@ -407,10 +407,10 @@ describe('Phase 4.4: Network Log Actions', () => {
   it('4.4.4: should calculate total pages correctly', async () => {
     const pageSize = 2;
     const result = await getNetworkLogsAction("ALL", 1, pageSize);
-    
+
     expect(result.success).toBe(true);
     expect(result.totalPages).toBeDefined();
-    
+
     // If we have logs, verify page calculation
     if (result.logs && result.logs.length > 0) {
       expect(result.totalPages).toBeGreaterThanOrEqual(1);
@@ -419,7 +419,7 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.1: should handle invalid page numbers', async () => {
     const result = await getNetworkLogsAction("ALL", -1, 10);
-    
+
     // Should default to page 1
     expect(result.success).toBe(true);
     expect(result.currentPage).toBe(1);
@@ -427,7 +427,7 @@ describe('Phase 4.4: Network Log Actions', () => {
 
   it('4.4.1: should handle pagination beyond available pages', async () => {
     const result = await getNetworkLogsAction("ALL", 9999, 10);
-    
+
     expect(result.success).toBe(true);
     expect(result.logs).toBeDefined();
     expect(result.logs?.length).toBe(0);
