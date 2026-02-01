@@ -6,7 +6,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 ## Demo Environment Setup
 - **Duration**: 5-7 minutes
 - **Audience**: Stakeholders, developers, potential users
-- **Prerequisites**: Application running on localhost:3000
+- **Prerequisites**: Application running on localhost:3001
 - **Required**: Sample data seeded in database
 
 ## Demo Flow
@@ -37,12 +37,12 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 
 ### 3. AI Translation Process (45 seconds)
 **Script**: 
-"The system uses advanced AI to understand the farmer's voice input in Hindi/Hinglish and converts it into a structured catalog following the Beckn Protocol standard."
+"The system uses advanced Google Gemini AI to understand the farmer's voice input in Hindi/Hinglish and converts it into a structured catalog following the Beckn Protocol standard."
 
 **Actions**:
 - Show the loading state during translation
 - Explain the AI processing happening in the background
-- Mention fallback mechanisms for reliability
+- Mention fallback mechanisms for reliability and live Mandi price integration via data.gov.in
 
 **Key Points to Highlight**:
 - Supports multiple languages (Hindi, Hinglish, English)
@@ -69,34 +69,35 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 
 ### 5. Broadcast to Network (1 minute)
 **Script**: 
-"When the farmer is satisfied with the catalog, they can broadcast it to the buyer network with a simple thumbprint press."
+"When the farmer is satisfied with the catalog, they can broadcast it to the buyer network with a simple thumbprint press. We are simulating a production-grade ONDC network here."
 
 **Actions**:
 1. Click the large broadcast button
 2. Show the loading animation
-3. Wait for the network simulation (8 seconds)
+3. Wait for the network simulation (12-25 seconds)
 4. Display the buyer bid notification
 
 **Network Simulation Results**:
-- Show "BigBasket" as the interested buyer
-- Display bid amount (23-27 per kg range)
+- Show a verified ONDC buyer like "BigBasket (Tata Digital)" or "Reliance Retail"
+- Display bid amount (optimized by auto-learning engine)
 - Show buyer logo and contact information
+- Explain the realism: transaction IDs, multi-phase networking, and potential for failures (if any occur)
 
 ### 6. Network Activity Monitoring (1 minute)
 **Script**: 
 "Let's check the network activity to see what happened behind the scenes."
 
 **Actions**:
-1. Navigate to the Debug Console
+1. Navigate to the Debug Console (/debug)
 2. Show the network logs
 3. Expand the OUTGOING_CATALOG entry
 4. Show the INCOMING_BID entry
-5. Highlight the JSON structure
+5. Highlight the JSON structure and the UUIDv4 Transaction ID
 
 **Technical Details to Show**:
-- Beckn Protocol compliance
+- Beckn Protocol compliance (v1.2.0)
 - Timestamp tracking
-- Buyer network simulation
+- Buyer network simulation details
 - Structured data format
 
 ### 7. Real-world Impact (30 seconds)
@@ -115,23 +116,23 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 ### Scenario 1: Onion Farmer (Primary Demo)
 - **Voice Input**: "     ,     50  , 25   India Post    "
 - **Expected Output**: Onion catalog with 25/kg, 50kg quantity, India Post logistics
-- **Buyer Response**: BigBasket bid at 23-27/kg
+- **Buyer Response**: "Reliance Retail" or "BigBasket" bid
 
 ### Scenario 2: Mango Farmer (Alternative Demo)
 - **Voice Input**: "Alphonso mango ready for sale. Grade A quality, 100 kg available. Price 80 rupees per kg. Delhivery delivery."
 - **Expected Output**: Mango catalog with 80/kg, 100kg quantity, Delhivery logistics
-- **Buyer Response**: Reliance Fresh bid at 75-85/kg
+- **Buyer Response**: "Amazon Fresh India" bid
 
 ### Scenario 3: Wheat Farmer (Bulk Commodity)
 - **Voice Input**: "   500   22   Blue Dart    "
 - **Expected Output**: Wheat catalog with 22/kg, 500kg quantity, Blue Dart logistics
-- **Buyer Response**: Paytm Mall bid at 20-24/kg
+- **Buyer Response**: "Udaan B2B" bid
 
 ## Technical Demonstration Points
 
 ### Architecture Highlights
 - **Next.js 15**: Modern React framework with App Router
-- **Vercel AI SDK**: Reliable AI integration with fallbacks
+- **Google Gemini**: Reliable AI integration with fallbacks
 - **Prisma + PostgreSQL**: Robust data persistence
 - **Beckn Protocol**: Standardized commerce format
 - **Docker**: Containerized deployment
@@ -155,9 +156,9 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 - **Explanation**: "The system has built-in fallbacks. Even if the AI service is unavailable, it will create a valid catalog using default values."
 - **Action**: Show the fallback catalog creation
 
-### If Network Simulation is Slow
-- **Explanation**: "The 8-second delay simulates real-world network latency in the ONDC ecosystem."
-- **Action**: Use the time to explain the background processes
+### If Network Simulation takes >20s
+- **Explanation**: "The 12-25 second delay simulates real-world network latency in the complex ONDC ecosystem (BAP->Gateway->BPP)."
+- **Action**: Use the time to explain the background processes (Auth, Validation, Matching)
 
 ### If Database Connection Fails
 - **Explanation**: "The application includes comprehensive error handling with user-friendly messages."
@@ -171,7 +172,7 @@ This demo script showcases the complete voice-to-catalog-to-broadcast flow of th
 A: The system uses advanced AI with commodity-specific training data. It includes fallback mechanisms and validation to ensure reliable catalog creation even when translation isn't perfect.
 
 **Q: Can it handle different Indian languages?**
-A: Currently supports Hindi, Hinglish, and English. The architecture is designed to easily add more languages as needed.
+A: Currently supports 12 Indian languages including Hindi, Tamil, Telugu, etc. The architecture is designed to scale easily.
 
 **Q: How does it ensure data privacy?**
 A: Voice input is processed securely, and farmer data is stored locally. The system follows data protection best practices.
@@ -189,7 +190,7 @@ A: The interface is designed for intuitive use with minimal training. Visual cue
 - [ ] Translation completes within 5 seconds
 - [ ] Visual catalog displays correctly with all elements
 - [ ] Broadcast button responds immediately
-- [ ] Network simulation completes and shows buyer bid
+- [ ] Network simulation completes and shows verified buyer bid
 - [ ] Debug console shows proper network logs
 - [ ] No error messages or broken functionality
 
@@ -198,23 +199,3 @@ A: The interface is designed for intuitive use with minimal training. Visual cue
 - **Static screenshots**: Key interface elements for discussion
 - **Code walkthrough**: Technical architecture explanation
 - **Use case scenarios**: Story-based explanation without live demo
-
-## Follow-up Materials
-
-### For Technical Audience
-- GitHub repository access
-- Architecture documentation
-- API documentation
-- Deployment guide
-
-### For Business Audience
-- ROI calculations
-- Market opportunity analysis
-- Implementation timeline
-- Cost-benefit analysis
-
-### For End Users
-- User manual with visual guides
-- Training materials
-- Support contact information
-- Feedback collection mechanism

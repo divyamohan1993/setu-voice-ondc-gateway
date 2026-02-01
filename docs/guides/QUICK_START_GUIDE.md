@@ -30,7 +30,7 @@ npx prisma db seed
 ```
 
 This creates the database schema and populates it with sample data:
-- 2 farmers ( ,  )
+- 2 farmers (Ramesh, Suresh)
 - 2 sample catalogs (Onions, Mangoes)
 - 3 network log entries
 
@@ -40,7 +40,7 @@ This creates the database schema and populates it with sample data:
 npm run dev
 ```
 
-The application will be available at: http://localhost:3000
+The application will be available at: http://localhost:3001
 
 ## Using the Application
 
@@ -63,7 +63,7 @@ The application will be available at: http://localhost:3000
 
 3. **Broadcast Catalog**
    - Click the large thumbprint button
-   - Wait 8 seconds for network simulation
+   - Wait 12-25 seconds for production-grade network simulation
    - View buyer bid notification
 
 ### Debug Console (/debug)
@@ -132,10 +132,11 @@ The application will be available at: http://localhost:3000
 - Large icons and high-contrast colors
 - Minimal text, maximum visual communication
 
-### 3. Network Simulation
-- 8-second delay simulating real network latency
-- Mock buyer bids from realistic buyers
-- Complete network event logging
+### 3. Network Simulation (Production Grade)
+- 12-25 second delay simulating real network latency
+- Multi-phase transaction tracking (Auth -> Validation -> Broadcast)
+- Mock buyer bids from realistic buyers (JioMart, BigBasket, Amazon)
+- Complete network event logging with Transaction IDs
 
 ### 4. Developer Tools
 - Debug console with system stats
@@ -148,7 +149,7 @@ The application will be available at: http://localhost:3000
 - **Styling**: Tailwind CSS 4.0, Shadcn/UI
 - **Animations**: Framer Motion
 - **Backend**: Next.js Server Actions
-- **AI**: Vercel AI SDK (with fallback)
+- **AI**: Google Gemini (Vercel AI SDK)
 - **Database**: PostgreSQL 16, Prisma ORM
 - **Validation**: Zod schemas
 - **Notifications**: Sonner
@@ -159,7 +160,10 @@ Create a `.env` file with:
 
 ```env
 DATABASE_URL="postgresql://setu:setu123@localhost:5432/setu_db"
-OPENAI_API_KEY="your-api-key-here"  # Optional, fallback available
+GOOGLE_GENERATIVE_AI_API_KEY="your-gemini-key"  # Optional, fallback available
+DATA_GOV_IN_API_KEY="your-key"                  # Optional, for live prices
+GOOGLE_MAPS_API_KEY="your-key"                  # Optional, for location
+PORT=3001
 ```
 
 ## Troubleshooting
@@ -180,11 +184,11 @@ docker-compose logs postgres
 ### Port Already in Use
 
 ```bash
-# Kill process on port 3000
-npx kill-port 3000
+# Kill process on port 3001
+npx kill-port 3001
 
 # Or use a different port
-PORT=3001 npm run dev
+PORT=3002 npm run dev
 ```
 
 ### Prisma Issues

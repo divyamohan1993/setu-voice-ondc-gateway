@@ -3,6 +3,7 @@
 Setu's backend logic is exposed via **Next.js Server Actions**. This document provides detailed information on all available actions, their parameters, and return types.
 
 ## Table of Contents
+- [Voice Processing](#voice-processing)
 - [Voice Translation](#voice-translation)
 - [Catalog Management](#catalog-management)
 - [Broadcast Operations](#broadcast-operations)
@@ -10,10 +11,31 @@ Setu's backend logic is exposed via **Next.js Server Actions**. This document pr
 
 ---
 
+## Voice Processing
+
+### `processVoiceAction`
+The core conversational agent handler. Manages state, understands intent, and drives the conversation.
+
+**Parameters:**
+- `currentState: ConversationState` - The current context of conversation
+- `userAudioTranscription: string` - Text input from user
+
+**Returns:** `Promise<ConversationResult>`
+```typescript
+interface ConversationResult {
+  success: boolean;
+  response: VoiceResponse;   // Text to speak back + language
+  newState: ConversationState; // Updated context
+  error?: string;
+}
+```
+
+---
+
 ## Voice Translation
 
 ### `translateVoiceAction`
-Converts vernacular voice commands into structured Beckn Protocol JSON using AI.
+Converts vernacular voice commands into structured Beckn Protocol JSON using Google Gemini AI.
 
 **Parameters:**
 - `voiceText: string` - The raw text received from voice input (Hindi / Hinglish).
@@ -28,9 +50,10 @@ interface TranslateVoiceResult {
 ```
 
 **Workflow:**
-1. Validates input text (minimum 10 characters).
-2. Forwards request to `translateVoiceToJsonWithFallback`.
-3. Returns a valid `BecknCatalogItem` if successful.
+1. Validates input text.
+2. Uses Google Gemini to extract commodity, quantity, price.
+3. Maps commodity names to standard codes (e.g., "Kanda" -> "Onion").
+4. Returns a valid `BecknCatalogItem` if successful.
 
 ---
 
@@ -64,26 +87,39 @@ Retrieves a specific catalog by its ID.
 
 ## Broadcast Operations
 
-### `broadcastCatalogAction`
-Publishes a catalog to the simulated ONDC/Beckn network.
+### `broadcastFromVoiceAction`
+Orchestrates the complete broadcast flow from a voice conversation.
 
 **Parameters:**
-- `catalogId: string` - ID of the catalog to broadcast.
+- `catalogItem: BecknCatalogItem` - The validated catalog.
+- `language: LanguageConfig` - User's language for success message generation.
 
-**Returns:** `Promise<BroadcastCatalogResult>`
+**Returns:** `Promise<VoiceBroadcastResult>`
 ```typescript
-interface BroadcastCatalogResult {
+interface VoiceBroadcastResult {
+  // Status
   success: boolean;
-  bid?: BuyerBid;
   error?: string;
+  errorType?: 'TIMEOUT' | 'DENIED' | 'NETWORK_ERROR' | 'VALIDATION_ERROR' | 'RATE_LIMITED';
+  
+  // Data
+  catalogId?: string;
+  bid?: BuyerBid;
+  successMessage?: string;
+  
+  // ONDC Metadata
+  transactionId?: string;    // UUIDv4 (Production)
+  processingTimeMs?: number; // Total network time
 }
 ```
 
 **Workflow:**
-1. Updates catalog status to `BROADCASTED`.
-2. Creates an `OUTGOING_CATALOG` entry in the Network Logs.
-3. Triggers the `Network Simulator`.
-4. Returns a simulated `BuyerBid` (e.g., from a buyer like Reliance Fresh).
+1. Validates catalog schema (Beckn v1.2).
+2. Saves catalog to database (`status: DRAFT`).
+3. Updates status to `BROADCASTED`.
+4. Logs `OUTGOING_CATALOG` event.
+5. Calls ONDC Network Simulator (v3.0 Production Grade).
+6. Returns `BuyerBid` or typed error.
 
 ---
 
@@ -121,4 +157,5 @@ Defined in `lib/beckn-schema.ts`.
 
 ---
 
-*Last Updated: January 2026*
+*Last Updated: February 2026*
+*Version: 1.0.0*

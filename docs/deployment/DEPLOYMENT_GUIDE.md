@@ -32,7 +32,7 @@ This guide provides comprehensive instructions for deploying the Setu Voice-to-O
 
 - **RAM**: Minimum 4GB, Recommended 8GB
 - **Disk Space**: Minimum 2GB free space
-- **Ports**: 3000 (Application) and 5432 (PostgreSQL) must be available
+- **Ports**: 3001 (Application) and 5432 (PostgreSQL) must be available
 - **Operating System**: 
   - Windows 10/11 (64-bit)
   - macOS 10.15 or later
@@ -44,24 +44,24 @@ This guide provides comprehensive instructions for deploying the Setu Voice-to-O
 
 ```bash
 # Make the script executable
-chmod +x install_setu.sh
+chmod +x setup.sh
 
 # Run the deployment script
-./install_setu.sh
+./setup.sh
 ```
 
 ### Windows
 
-```cmd
-# Run the deployment script
-install_setu.bat
+```powershell
+# Run the deployment script via PowerShell
+.\setup.ps1
 ```
 
 That's it! The script will handle everything automatically.
 
 ## Deployment Scripts
 
-### Linux/macOS Script: `install_setu.sh`
+### Linux/macOS Script: `setup.sh`
 
 A comprehensive Bash script that automates the entire deployment process on Unix-like systems.
 
@@ -71,12 +71,11 @@ A comprehensive Bash script that automates the entire deployment process on Unix
 - [OK] Interactive port conflict resolution
 - [OK] Health checks for all services
 - [OK] Automatic database initialization and seeding
-- [OK] Beautiful ASCII art success banner
 - [OK] Detailed deployment summary
 
-### Windows Script: `install_setu.bat`
+### Windows Script: `setup.ps1`
 
-A Windows batch script that provides the same functionality for Windows users.
+A PowerShell script that provides the same functionality for Windows users.
 
 **Features:**
 - [OK] Windows-compatible commands
@@ -98,7 +97,7 @@ The deployment script performs the following steps automatically:
 
 ### 2. Port Management [OK]
 
-- Checks if port 3000 (Application) is available
+- Checks if port 3001 (Application) is available
 - Checks if port 5432 (PostgreSQL) is available
 - Offers to kill processes using required ports
 - Provides clear error messages if ports cannot be freed
@@ -108,7 +107,7 @@ The deployment script performs the following steps automatically:
 - Checks for existing `.env` file
 - Creates `.env` with default values if missing
 - Sets up database connection string
-- Configures OpenAI API key placeholder
+- Configures Google AI, Data.gov.in, and Google Maps API placeholders
 - Preserves existing configuration if `.env` exists
 
 **Default Environment Variables:**
@@ -117,9 +116,13 @@ POSTGRES_USER=setu
 POSTGRES_PASSWORD=setu_password
 POSTGRES_DB=setu_db
 DATABASE_URL=postgresql://setu:setu_password@localhost:5432/setu_db
-OPENAI_API_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=
+DATA_GOV_IN_API_KEY=
+GOOGLE_MAPS_API_KEY=
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
+ONDC_SIMULATION_MODE=true
+PORT=3001
 ```
 
 ### 4. Docker Operations [OK]
@@ -147,7 +150,7 @@ NEXT_TELEMETRY_DISABLED=1
 
 ### 7. Success Output [OK]
 
-- Displays beautiful ASCII art banner
+- Displays success banner
 - Shows deployment summary with:
   - Application URL
   - Database connection information
@@ -158,7 +161,7 @@ NEXT_TELEMETRY_DISABLED=1
 
 ### 8. Error Handling [OK]
 
-- Traps all errors with `set -e` (Bash) or error checking (Batch)
+- Traps all errors
 - Provides context-specific error messages
 - Automatically cleans up partial deployments on failure
 - Suggests troubleshooting steps for common issues
@@ -169,22 +172,24 @@ NEXT_TELEMETRY_DISABLED=1
 
 Once deployment is complete, you can access:
 
-1. **Main Application**: http://localhost:3000
+1. **Main Application**: http://localhost:3001
    - Voice scenario selection interface
    - Visual catalog verifier
    - Broadcast functionality
 
-2. **Debug Interface**: http://localhost:3000/debug
+2. **Debug Interface**: http://localhost:3001/debug
    - Network log viewer
    - Catalog list
    - Farmer profiles
 
-### Configuring OpenAI API Key
+### Configuring API Keys
 
-For AI-powered translation, update your `.env` file:
+For full functionality, update your `.env` file with production keys:
 
 ```env
-OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+GOOGLE_GENERATIVE_AI_API_KEY=AIzaSy...
+DATA_GOV_IN_API_KEY=...
+GOOGLE_MAPS_API_KEY=AIzaSy...
 ```
 
 Then restart the application:
@@ -193,7 +198,7 @@ Then restart the application:
 docker compose restart app
 ```
 
-**Note**: The system will work without an API key using fallback responses, but AI-powered translation provides better results.
+**Note**: The system will work without keys using fallback/simulated responses, but live translations and prices require keys.
 
 ### Verifying the Deployment
 
@@ -224,7 +229,7 @@ docker compose restart app
 
 #### Issue: Port Already in Use
 
-**Symptom**: Script reports port 3000 or 5432 is in use
+**Symptom**: Script reports port 3001 or 5432 is in use
 
 **Solution**:
 1. The script will offer to kill the process automatically
@@ -232,20 +237,20 @@ docker compose restart app
 
 **Linux/macOS**:
 ```bash
-# Find process using port 3000
-lsof -i :3000
+# Find process using port 3001
+lsof -i :3001
 
 # Kill the process
 kill -9 <PID>
 ```
 
 **Windows**:
-```cmd
-# Find process using port 3000
-netstat -ano | findstr :3000
+```poweredhell
+# Find process using port 3001
+netstat -ano | findstr :3001
 
 # Kill the process
-taskkill /F /PID <PID>
+Stop-Process -Id <PID> -Force
 ```
 
 #### Issue: Docker Daemon Not Running
@@ -275,29 +280,6 @@ taskkill /F /PID <PID>
 2. Verify database connection: `docker compose exec db pg_isready -U setu`
 3. Check Prisma schema syntax: `npx prisma validate`
 4. Try manual migration: `docker compose exec app npx prisma db push`
-
-#### Issue: Seed Script Fails
-
-**Symptom**: "Failed to seed database"
-
-**Solution**:
-1. Check seed script exists: `ls prisma/seed.js`
-2. Verify database schema is up to date
-3. Check for unique constraint violations
-4. Run seed manually: `docker compose exec app node prisma/seed.js`
-
-### Getting Help
-
-If you encounter issues not covered here:
-
-1. **Check Logs**: `docker compose logs -f`
-2. **Verify Configuration**: Review `.env` file
-3. **Clean Restart**: 
-   ```bash
-   docker compose down -v
-   ./install_setu.sh
-   ```
-4. **Report Issues**: Include logs and error messages
 
 ## Manual Deployment
 
@@ -374,7 +356,7 @@ docker rmi postgres:16-alpine
 rm -rf /path/to/setu-voice-ondc-gateway
 
 # Windows
-rmdir /s /q C:\path\to\setu-voice-ondc-gateway
+Remove-Item -Recurse -Force C:\path\to\setu-voice-ondc-gateway
 ```
 
 ### Clean Docker System (Optional)
@@ -446,9 +428,6 @@ docker compose exec app npx prisma generate
 
 # Validate Prisma Schema
 docker compose exec app npx prisma validate
-
-# Format Prisma Schema
-docker compose exec app npx prisma format
 ```
 
 ## Performance Tuning
@@ -490,7 +469,7 @@ docker compose exec app npx prisma format
 
 2. **Use Environment-Specific API Keys**:
    ```env
-   OPENAI_API_KEY=<production-api-key>
+   GOOGLE_GENERATIVE_AI_API_KEY=<production-api-key>
    ```
 
 3. **Enable HTTPS**:
@@ -556,5 +535,5 @@ For additional support:
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: 2024  
+**Last Updated**: Feb 2026  
 **Maintained By**: Setu Development Team

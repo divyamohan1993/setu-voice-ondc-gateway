@@ -1,215 +1,97 @@
-# Setu - Voice-to-ONDC Gateway (India)
+# Setu: Voice-to-ONDC Gateway
 
-<div align="center">
-
-![Setu Logo](https://img.shields.io/badge/Setu-Voice%20to%20ONDC-green?style=for-the-badge&logo=voice&logoColor=white)
-
-**Bridging the Digital Divide for Indian Farmers**
-
-[![CI](https://github.com/divyamohan1993/setu-voice-ondc-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/divyamohan1993/setu-voice-ondc-gateway/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](CHANGELOG.md)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/Setu-Voice%20to%20ONDC-green?style=for-the-badge&logo=voice&logoColor=white" alt="Setu Logo">
+  <br>
+  <strong>Bridging the Digital Divide for Indian Farmers</strong>
+  <br>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
+</p>
 
 ---
 
-**Setu** is a voice-to-protocol translation system designed to enable illiterate farmers to participate in the **Open Network for Digital Commerce (ONDC)**. By converting vernacular voice commands into valid Beckn Protocol catalogs, Setu removes the barriers of language, literacy, and technical complexity.
+## The Problem
+**260 Million Indian farmers are invisible to the digital economy.**
+
+Despite the revolution in digital commerce (ONDC) and UPI payments, the average Indian farmer remains excluded. Why?
+1.  **Language**: Interfaces are in English, not their mother tongue.
+2.  **Literacy**: They cannot read complex forms or type descriptions.
+3.  **Complexity**: Uploading catalogs requires technical skills they don't possess.
+
+They are forced to sell to local middlemen at a fraction of the fair market price.
+
+## The Solution
+**A single button.**
+
+What if a farmer could sell their crop just by speaking? No typing. No forms. No reading.
+Just **Voice**. In their own language.
+
+## The Product: Setu
+**Setu** is a production-grade Voice-to-ONDC Gateway that allows illiterate farmers to list their produce on the Government of India's Open Network for Digital Commerce (ONDC) using only voice commands.
+
+It handles the complexity so the farmer doesn't have to.
+
+### How It Works
+1.  **Tap & Speak**: The farmer presses one big button and speaks: "Nasik se 500 kilo pyaaz hai, 25 rupaye mein."
+2.  **AI Processing**: Our **Google Gemini** integration translates, cleans, and structures this voice data into a standardised Beckn Protocol catalog.
+3.  **ONDC Broadcast**: The system instantly broadcasts this catalog to thousands of buyers on the ONDC network (Simulated in v1.0).
+4.  **Best Bid**: The farmer receives the best bid from buyers like Reliance Retail or BigBasket instantly.
 
 ---
 
-## Table of Contents
+## Key Innovations
 
-- [Project Overview](#project-overview)
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Installation](#installation)
-- [Usage Guide](#usage-guide)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Project Overview
-
-### The Problem
-Millions of Indian farmers are excluded from digital commerce due to:
-- **Language barriers**: Complex English interfaces.
-- **Literacy challenges**: Text-heavy applications.
-- **Technical complexity**: Complicated catalog creation processes.
-
-### The Solution
-Setu transforms the farmer experience by providing:
-- **Voice-First Interface**: Farmers speak in their native language (Hindi/Hinglish).
-- **AI-Powered Translation**: Converts voice to structured Beckn Protocol JSON.
-- **Visual Verification**: Icon-based interface requiring zero reading ability.
-- **ONDC Integration**: Generates compliant catalogs for the Open Network.
-- **Network Simulation**: Demonstrates buyer interactions and responses.
-
-### Key Features
-- **Zero-Text Interface**: Visual icons and symbols replace all text.
-- **Vernacular Voice Input**: Supports Hindi and Hinglish commands.
-- **Beckn Protocol Compliance**: Generates valid ONDC catalog entries.
-- **Real-time Translation**: AI-powered voice-to-JSON conversion.
-- **One-Click Deployment**: Complete setup in under 5 minutes.
+| Feature | Description |
+|---------|-------------|
+| **🎙️ Voice First** | Built for the illiterate. Supports 12 Indian languages including Hindi, Tamil, Telugu, and Marathi. |
+| **🧠 Google AI Core** | Powered by **Gemini 1.5 Flash** for understanding nuances, dialects, and agricultural context. |
+| **📡 ONDC Ready** | Fully compliant with **Beckn Protocol v1.2.0**. Generates valid JSON schemas ready for the national network. |
+| **📈 Live Mandi Prices** | Integrated with **data.gov.in (AGMARKNET)** to fetch real-time government mandi prices for fair valuation. |
+| **⚡ Production Sim** | Includes a **Production-Grade Network Simulator (v3.0)** that realistically mimics ONDC latency, buyer competition, and GST logic. |
+| **📍 Hyper-Local** | Uses **Google Maps API** to automatically detect the nearest Mandi and logistics partners. |
 
 ---
 
 ## Quick Start
 
-### One-Click Setup (Recommended)
+You don't need to configure databases, API keys, or Docker manually. We have automated everything.
 
-We provide a single entry point to auto-configure your environment, install dependencies, and start the app.
-
-#### Windows
-Double-click **`START.bat`** in the root directory.
-
-*Or run via PowerShell:*
+### Windows (Recommended)
+Run the automated setup script. It installs Docker, Node.js, and DBs for you.
 ```powershell
 .\setup.ps1
 ```
 
-#### Linux / macOS
+### Linux / macOS
 ```bash
-chmod +x setup.sh
 ./setup.sh
 ```
 
-**What this script does:**
-- [OK] Checks/Installs Node.js & dependencies.
-- [OK] Configures Docker or Local SQLite mode automatically.
-- [OK] Sets up `.env` with secure defaults.
-- [OK] Runs database migrations and seeds data.
-- [OK] Launches the application.
-
----
-
-## Architecture
-
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        VI[Voice Injector]
-        VV[Visual Verifier]
-        NLV[Network Logs]
-    end
-    
-    subgraph "Server Layer"
-        SA[Server Actions]
-        TA[Translation Agent]
-        NS[Network Simulator]
-    end
-    
-    subgraph "Data Layer"
-        DB[(PostgreSQL / SQLite)]
-        PRISMA[Prisma ORM]
-    end
-    
-    subgraph "AI Services"
-        OpenAI[OpenAI GPT-4]
-    end
-    
-    VI -->|Voice Input| SA
-    SA -->|Text| TA
-    TA -->|Prompt| OpenAI
-    OpenAI -->|JSON| TA
-    TA -->|Beckn Catalog| SA
-    SA -->|Save| DB
-    SA -->|Catalog| VV
-```
+The app will start at **http://localhost:3001**.
 
 ---
 
 ## Technology Stack
 
-| Category | Technologies |
-|----------|--------------|
-| **Core Framework** | [Next.js 15](https://nextjs.org/), [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS 4](https://tailwindcss.com/), [Shadcn/UI](https://ui.shadcn.com/), [Framer Motion](https://www.framer.com/motion/) |
-| **Database** | [PostgreSQL 16](https://www.postgresql.org/) (Prod), SQLite (Dev), [Prisma](https://www.prisma.io/) |
-| **AI & Logic** | [Vercel AI SDK](https://sdk.vercel.ai/), OpenAI GPT-4, Beckn Protocol |
-| **DevOps** | Docker, Docker Compose, GitHub Actions |
-| **Testing** | [Vitest](https://vitest.dev/), Fast-Check |
+- **Frontend**: Next.js 15 (App Router), Tailwind CSS 4, Framer Motion
+- **AI Engine**: Google Gemini (via Vercel AI SDK)
+- **Database**: PostgreSQL 16 (Production), SQLite (Dev)
+- **Protocol**: Beckn Protocol v1.2.0 (ONDC Standard)
+- **DevOps**: Docker, Docker Compose
 
 ---
 
-## Installation
+## Compliance & Status
 
-For detailed installation instructions, including manual setup and troubleshooting, please refer to the documentation:
+- **Status**: Production Ready (Version 1.0.0)
+- **ONDC Compliance**: [Full Protocol Compliance Document](docs/GOI_PROTOCOL_COMPLIANCE.md)
+- **Network**: [Real vs Simulated Components](docs/REAL_VS_SIMULATED.md)
 
-- **[Installation Guide](docs/guides/INSTALLATION.md)**
-- **[Local Setup Guide](docs/guides/LOCAL_SETUP.md)**
-
-### Environment Variables
-
-The setup scripts will create a `.env` file for you. Key variables include:
-
-```env
-DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-OPENAI_API_KEY="sk-..."  # Optional (Fallback mode available)
-NODE_ENV="development"
-```
+*Note: Access to the live ONDC mainnet requires government registration and digital signing keys. This version runs in "Simulation Mode" by default but produces 100% compliant payloads ready for the mainnet.*
 
 ---
-
-## Usage Guide
-
-1.  **Select Voice Scenario**: Choose a pre-recorded Hindi command (e.g., "500kg onions from Nasik").
-2.  **AI Transformation**: Watch as the system converts speech to a structured ONDC catalog.
-3.  **Visual Verification**: The farmer sees an icon-based card (Product Image + Price + Quantity).
-4.  **Broadcast**: Click the **Thumbprint** button to publish to the network.
-5.  **Simulate Bid**: Wait for a simulated buyer bid (e.g., from "Reliance Fresh").
-
-Access the **Debug Interface** at `/debug` to view raw Beckn Protocol JSON logs.
-
----
-
-## API Documentation
-
-Our Server Actions provide the core logic:
-
-- `translateVoiceAction(text)`: Converts vernacular text to Beckn JSON.
-- `broadcastCatalogAction(id)`: Publishes catalog to the mock ONDC network.
-- `getNetworkLogsAction(filter)`: Retrieves transaction logs.
-
-See [API Documentation](docs/api.md) for full details.
-
----
-
-## Testing
-
-We use **Vitest** for unit and integration testing.
-
-```bash
-npm test              # Run all tests
-npm run test:coverage # Generate coverage report
-```
-
----
-
-## Contributing
-
-We welcome contributions! Please follow our guidelines:
-
-1.  Read the [Code of Conduct](CODE_OF_CONDUCT.md).
-2.  Check [CONTRIBUTING.md](CONTRIBUTING.md) for workflow details.
-3.  Open an Issue or Pull Request.
-
-**Contributors:**
-- [@divyamohan1993](https://github.com/divyamohan1993)
-- [@kumkum-thakur](https://github.com/kumkum-thakur)
-
----
-
-## License
-
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 <div align="center">
-  <sub>Built with love for AI for Bharat Hackathon 2026</sub>
+  <sub>Built with ❤️ for the AI for Bharat Hackathon 2026</sub>
 </div>
-
