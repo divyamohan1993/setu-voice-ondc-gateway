@@ -105,7 +105,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body
-        className="antialiased font-sans bg-white text-gray-900 overflow-hidden"
+        className="antialiased font-sans bg-white text-gray-900 overflow-auto min-h-[100dvh]"
         style={{
           fontFamily: "var(--font-noto-sans), var(--font-noto-devanagari), system-ui, sans-serif"
         }}

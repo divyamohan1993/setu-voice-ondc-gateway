@@ -1189,10 +1189,11 @@ export function SetuVoice() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           background: #FFFFFF;
           overflow-x: hidden;
           overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .setu-voice-container.no-center {
@@ -1203,22 +1204,33 @@ export function SetuVoice() {
         .landing-container {
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
-          height: 100%;
+          min-height: 100%;
           width: 100%;
-          padding: 1.5rem;
-          max-width: 720px;
+          padding: 1rem 1.25rem 2rem 1.25rem;
+          max-width: 600px;
           margin: 0 auto;
           position: relative;
           background: #FFFFFF;
+          box-sizing: border-box;
+        }
+        
+        /* Desktop: Center content vertically */
+        @media (min-width: 768px) {
+          .landing-container {
+            padding: 2rem;
+            justify-content: center;
+            min-height: 100vh;
+            max-width: 560px;
+          }
         }
 
         .landing-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1rem 0;
+          padding: 0.75rem 0 1rem 0;
           border-bottom: 2px solid #E5E7EB;
+          flex-shrink: 0;
         }
 
         .logo-badge {
@@ -1269,21 +1281,27 @@ export function SetuVoice() {
 
         .landing-hero {
           text-align: center;
-          margin: 2rem 0;
-          flex-grow: 1;
+          margin: 1.5rem 0;
           display: flex;
           flex-direction: column;
           justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        @media (min-width: 768px) {
+          .landing-hero {
+            margin: 2.5rem 0;
+          }
         }
 
         .hero-title {
-          font-size: clamp(2rem, 5vw, 3rem);
+          font-size: clamp(1.75rem, 5vw, 2.5rem);
           line-height: 1.2;
           font-weight: 700;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.15rem;
           color: #1A365D;
         }
 
@@ -1292,7 +1310,7 @@ export function SetuVoice() {
         }
 
         .hero-subtitle {
-          font-size: clamp(1rem, 3vw, 1.5rem);
+          font-size: clamp(0.95rem, 2.5vw, 1.25rem);
           color: #1F2937;
           font-weight: 400;
           font-family: var(--font-noto-devanagari), sans-serif;
@@ -1300,10 +1318,10 @@ export function SetuVoice() {
 
         .hero-description {
           color: #6B7280;
-          font-size: 1rem;
-          line-height: 1.6;
-          max-width: 85%;
-          margin: 0 auto;
+          font-size: 0.95rem;
+          line-height: 1.5;
+          max-width: 100%;
+          margin: 0.75rem auto 0 auto;
         }
 
         .highlight-text {
@@ -1317,12 +1335,20 @@ export function SetuVoice() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-          padding: 2rem;
+          gap: 1.25rem;
+          margin: 1rem 0 1.5rem 0;
+          padding: 1.5rem 1rem;
           background: #F9FAFB;
           border-radius: 12px;
           border: 1px solid #E5E7EB;
+          flex-shrink: 0;
+        }
+        
+        @media (min-width: 768px) {
+          .action-section {
+            padding: 2rem;
+            margin: 1.5rem 0 2rem 0;
+          }
         }
 
         .mic-button-futuristic {
@@ -1385,7 +1411,7 @@ export function SetuVoice() {
         }
 
         .action-hint {
-          font-size: 1rem;
+          font-size: 0.95rem;
           color: #1F2937;
           letter-spacing: 0.5px;
           font-weight: 600;
@@ -1394,30 +1420,40 @@ export function SetuVoice() {
         .landing-footer {
           display: flex;
           justify-content: center;
-          gap: 1rem;
+          gap: 0.5rem;
           flex-wrap: wrap;
-          margin-bottom: 1rem;
+          margin-top: auto;
           padding-top: 1rem;
           border-top: 1px solid #E5E7EB;
+          flex-shrink: 0;
         }
 
         .feature-pill {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: #1A365D;
           background: #F3F4F6;
-          padding: 8px 16px;
+          padding: 6px 12px;
           border-radius: 6px;
           border: 1px solid #D1D5DB;
           font-weight: 500;
+          white-space: nowrap;
+        }
+        
+        @media (min-width: 768px) {
+          .feature-pill {
+            font-size: 0.8rem;
+            padding: 8px 16px;
+          }
         }
 
         .test-buttons-compact {
           display: flex;
           justify-content: center;
-          gap: 1rem;
-          margin-top: 1rem;
-          padding-top: 1rem;
+          gap: 0.75rem;
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
           border-top: 1px dashed #D1D5DB;
+          flex-shrink: 0;
         }
 
         .test-link {
@@ -1440,19 +1476,27 @@ export function SetuVoice() {
         /* ============== LANGUAGE SELECT (Official Style) ============== */
         .language-select-container {
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 1.5rem 1rem 2rem 1rem;
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-start;
           overflow-y: auto;
           background: #FFFFFF;
+          box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+          .language-select-container {
+            padding: 2rem;
+            justify-content: center;
+          }
         }
         
         .language-title {
           color: #1A365D;
-          font-size: clamp(1.5rem, 4vw, 2rem);
+          font-size: clamp(1.25rem, 4vw, 1.75rem);
           font-weight: 700;
           margin-bottom: 0.5rem;
           text-align: center;
@@ -1460,7 +1504,7 @@ export function SetuVoice() {
         
         .language-title-en {
           display: block;
-          font-size: clamp(0.875rem, 2vw, 1rem);
+          font-size: clamp(0.8rem, 2vw, 1rem);
           font-weight: 400;
           color: #6B7280;
           margin-top: 0.25rem;
@@ -1468,11 +1512,25 @@ export function SetuVoice() {
         
         .language-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
           width: 100%;
-          max-width: 640px;
-          padding: 1.5rem 0;
+          max-width: 500px;
+          padding: 1rem 0;
+        }
+        
+        @media (min-width: 480px) {
+          .language-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+          }
+        }
+        
+        @media (min-width: 768px) {
+          .language-grid {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 600px;
+          }
         }
         
         .language-button {
@@ -1537,16 +1595,30 @@ export function SetuVoice() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 1.5rem 1rem;
           background: #FFFFFF;
+          box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+          .listening-container {
+            padding: 2rem;
+          }
         }
         
         .listening-animation {
           position: relative;
-          width: min(50vw, 200px);
-          height: min(50vw, 200px);
+          width: min(45vw, 180px);
+          height: min(45vw, 180px);
           margin: 0 auto;
+        }
+        
+        @media (min-width: 768px) {
+          .listening-animation {
+            width: min(50vw, 200px);
+            height: min(50vw, 200px);
+          }
         }
         
         .listening-ring {
@@ -1756,13 +1828,26 @@ export function SetuVoice() {
           flex-direction: column;
           align-items: center;
           width: 100%;
-          padding: 2rem 1.5rem 4rem 1.5rem;
+          padding: 1.5rem 1rem 3rem 1rem;
           background: #FFFFFF;
+          box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+          .success-container {
+            padding: 2rem 1.5rem 4rem 1.5rem;
+          }
         }
 
         .success-container > * {
-          max-width: 600px;
+          max-width: 520px;
           width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+          .success-container > * {
+            max-width: 560px;
+          }
         }
         
         .success-header {
