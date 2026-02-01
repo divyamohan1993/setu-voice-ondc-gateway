@@ -27,9 +27,9 @@ export function BroadcastLoader({ message = "Broadcasting to network..." }: Broa
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute inset-0 bg-blue-400 rounded-full"
+          className="absolute inset-0 bg-primary/20 rounded-full"
         />
-        
+
         <motion.div
           animate={{
             scale: [1, 1.3, 1],
@@ -41,22 +41,22 @@ export function BroadcastLoader({ message = "Broadcasting to network..." }: Broa
             ease: "easeInOut",
             delay: 0.5
           }}
-          className="absolute inset-0 bg-purple-400 rounded-full"
+          className="absolute inset-0 bg-accent/20 rounded-full"
         />
-        
-        <div className="relative bg-gradient-to-br from-blue-600 to-purple-700 p-6 rounded-full">
-          <Radio className="w-12 h-12 text-white" />
+
+        <div className="relative bg-gradient-to-br from-primary via-white to-accent p-6 rounded-full border border-gray-100 shadow-lg">
+          <Radio className="w-12 h-12 text-secondary" />
         </div>
       </div>
 
       {/* Loading Spinner and Text */}
       <div className="flex items-center gap-3">
-        <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+        <Loader2 className="w-6 h-6 text-primary animate-spin" />
         <p className="text-lg font-semibold text-gray-900">
           {message}
         </p>
       </div>
-      
+
       <p className="text-sm text-gray-600 mt-2">
         Please wait while we connect to the ONDC network
       </p>

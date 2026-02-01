@@ -37,7 +37,7 @@ export function LoadingSpinner({
       aria-busy="true"
     >
       <Loader2
-        className={cn(sizeClasses[size], "animate-spin text-blue-600", className)}
+        className={cn(sizeClasses[size], "animate-spin text-primary", className)}
         aria-hidden="true"
       />
       {text ? (

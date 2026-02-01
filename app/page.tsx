@@ -21,8 +21,8 @@ const SetuVoice = dynamic(
   () => import("@/components/SetuVoice").then((mod) => ({ default: mod.SetuVoice })),
   {
     loading: () => (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]">
-        <LoadingSpinner />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <LoadingSpinner size="lg" text="Connecting to ONDC Network..." />
       </div>
     ),
     ssr: false, // Disable SSR for speech APIs
