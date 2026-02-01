@@ -1189,6 +1189,7 @@ export function SetuVoice() {
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: center;
           background: #FFFFFF;
           overflow-x: hidden;
           overflow-y: auto;
@@ -1198,6 +1199,12 @@ export function SetuVoice() {
 
         .setu-voice-container.no-center {
           justify-content: flex-start;
+        }
+        
+        /* Ensure all animated children stay within viewport */
+        .setu-voice-container > * {
+          flex-shrink: 0;
+          max-height: 100%;
         }
         
         /* ============== LANDING PAGE (Official Style) ============== */
@@ -1596,28 +1603,30 @@ export function SetuVoice() {
           justify-content: center;
           width: 100%;
           min-height: 100%;
-          padding: 1.5rem 1rem;
+          padding: 3rem 1rem;
           background: #FFFFFF;
           box-sizing: border-box;
+          overflow: hidden;
         }
         
         @media (min-width: 768px) {
           .listening-container {
-            padding: 2rem;
+            padding: 4rem 2rem;
           }
         }
         
         .listening-animation {
           position: relative;
-          width: min(45vw, 180px);
-          height: min(45vw, 180px);
+          width: min(40vw, 160px);
+          height: min(40vw, 160px);
           margin: 0 auto;
+          flex-shrink: 0;
         }
         
         @media (min-width: 768px) {
           .listening-animation {
-            width: min(50vw, 200px);
-            height: min(50vw, 200px);
+            width: min(45vw, 180px);
+            height: min(45vw, 180px);
           }
         }
         
@@ -1672,9 +1681,10 @@ export function SetuVoice() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 3rem 1rem;
           background: #FFFFFF;
+          overflow: hidden;
         }
         
         .processing-animation {
@@ -1713,19 +1723,21 @@ export function SetuVoice() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 3rem 1rem;
           background: #FFFFFF;
+          overflow: hidden;
         }
         
         .speaking-avatar {
           position: relative;
-          width: min(40vw, 180px);
-          height: min(40vw, 180px);
+          width: min(35vw, 150px);
+          height: min(35vw, 150px);
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 0 auto;
+          flex-shrink: 0;
         }
         
         .speaking-wave {
@@ -1768,9 +1780,10 @@ export function SetuVoice() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 3rem 1rem;
           background: #FFFFFF;
+          overflow: hidden;
         }
         
         .broadcast-animation {
@@ -2147,10 +2160,11 @@ export function SetuVoice() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 100vh;
-          padding: 2rem;
+          min-height: 100%;
+          padding: 3rem 1rem;
           text-align: center;
           background: #FFFFFF;
+          overflow: hidden;
         }
         
         .error-icon {
