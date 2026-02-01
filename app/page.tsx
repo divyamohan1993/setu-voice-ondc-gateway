@@ -3,14 +3,14 @@
 /**
  * Home Page - Setu Voice-to-ONDC Gateway
  * 
- * Steve Jobs-inspired single-button interface.
- * Voice-first design for illiterate farmers.
+ * Formal, futuristic voice-first interface for farmers.
+ * "Farmer is King" - Empowering users with direct market access.
  * 
  * Features:
- * - One giant button to start
+ * - Intuitive voice interaction
  * - Support for 12 Indian languages
- * - No reading or writing required
- * - Works on cheapest smartphones
+ * - Context-aware "Farmer First" design
+ * - Works on all smartphones
  */
 
 import dynamic from "next/dynamic";

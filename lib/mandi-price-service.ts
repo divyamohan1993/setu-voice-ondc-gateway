@@ -276,8 +276,11 @@ async function fetchFromGovAPI(commodity: string, state?: string): Promise<Mandi
 
     // Select markets based on state or use major mandis
     const selectedStates = state ? [state] : Object.keys(MAJOR_MANDIS).slice(0, 4);
+    console.log(`[DEBUG] Fallback estimation - state: ${state}, selectedStates: ${JSON.stringify(selectedStates)}`);
 
     for (const stateName of selectedStates) {
+        console.log(`[DEBUG] Processing state: ${stateName}, mandis: ${JSON.stringify(MAJOR_MANDIS[stateName])}`);
+
         const mandis = MAJOR_MANDIS[stateName] || [];
         for (const mandi of mandis.slice(0, 2)) {
             // Use stable calculation instead of random for reproducibility

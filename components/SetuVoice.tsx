@@ -630,55 +630,69 @@ export function SetuVoice() {
     <div className={`setu-voice-container ${stage === "success" ? "no-center" : ""}`}>
       <AnimatePresence mode="wait">
 
-        {/* IDLE STATE - The Big Button */}
+        {/* IDLE STATE - New Formal & Futuristic Design */}
         {stage === "idle" && (
           <motion.div
             key="idle"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="big-button-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="landing-container"
           >
-            {/* Branding at top */}
-            <div className="branding">
-              <span className="brand-name">सेतु <span className="text-xs opacity-50">v2.0</span></span>
-              <span className="brand-tagline">Voice to Market</span>
+            {/* Header / Branding */}
+            <header className="landing-header">
+              <div className="logo-badge">
+                <span className="logo-icon">🌾</span>
+                <span className="logo-text">Setu<span className="version">Voice</span></span>
+              </div>
+              <div className="network-status">
+                <span className="status-dot"></span>
+                ONDC Live
+              </div>
+            </header>
+
+            {/* Hero Section - Context */}
+            <div className="landing-hero">
+              <h1 className="hero-title">
+                <span className="gradient-text">Farmer is King</span>
+                <span className="hero-subtitle">किसान ही राजा है</span>
+              </h1>
+              <p className="hero-description">
+                Direct market access. Best prices. No middlemen.
+                <br />
+                <span className="highlight-text">Just speak to sell your crop.</span>
+              </p>
             </div>
 
-            {/* Main Button */}
-            <button
-              onClick={handleBigButtonClick}
-              className="big-button"
-              aria-label="Start selling your crop"
-            >
-              <div className="big-button-content">
-                <div className="big-button-icon">
-                  <svg viewBox="0 0 100 100" className="mic-icon">
-                    <circle cx="50" cy="35" r="15" fill="currentColor" />
-                    <rect x="42" y="45" width="16" height="20" rx="3" fill="currentColor" />
-                    <path d="M30 55 Q30 75 50 80 Q70 75 70 55" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <rect x="47" y="78" width="6" height="12" fill="currentColor" />
-                    <rect x="38" y="88" width="24" height="4" rx="2" fill="currentColor" />
+            {/* Action Section - The Reasonable Mic Button */}
+            <div className="action-section">
+              <button
+                onClick={handleBigButtonClick}
+                className="mic-button-futuristic"
+                aria-label="Start selling"
+              >
+                <div className="mic-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="modern-mic-icon">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                   </svg>
                 </div>
-                <div className="big-button-text">
-                  <span className="big-button-text-english">Tap to Sell</span>
-                  <span className="big-button-text-hindi">बोलकर बेचें</span>
-                </div>
-                <div className="big-button-pulse" />
-                <div className="big-button-pulse delay" />
-              </div>
-            </button>
+                <div className="mic-rings"></div>
+              </button>
+              <p className="action-hint">Tap to Speak / बोलें</p>
+            </div>
 
-            {/* Quick Test Buttons - for development testing */}
-            <div className="test-buttons">
-              <span className="test-label">🧪 Quick Test:</span>
-              <button onClick={() => runTestScenario(0)} className="test-btn">
-                🍅 Tomato
-              </button>
-              <button onClick={() => runTestScenario(1)} className="test-btn">
-                🌾 Wheat
-              </button>
+            {/* Footer / Trust */}
+            <footer className="landing-footer">
+              <div className="feature-pill">🎙️ Voice First</div>
+              <div className="feature-pill">🌍 12 Languages</div>
+              <div className="feature-pill">⚡ Instant Bid</div>
+            </footer>
+
+            {/* Quick Test Buttons (kept but styled smaller) */}
+            <div className="test-buttons-compact">
+              <button onClick={() => runTestScenario(0)} className="test-link">Demo: Tomato</button>
+              <button onClick={() => runTestScenario(1)} className="test-link">Demo: Wheat</button>
             </div>
           </motion.div>
         )}
@@ -1014,156 +1028,231 @@ export function SetuVoice() {
           justify-content: flex-start;
         }
         
-        /* ============== BIG BUTTON ============== */
-        .big-button-container {
+        /* ============== LANDING PAGE (New Idle State) ============== */
+        .landing-container {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          padding: 2rem;
-        }
-        
-        .big-button {
-          position: relative;
-          width: min(80vw, 80vh, 400px);
-          height: min(80vw, 80vh, 400px);
-          border-radius: 50%;
-          border: none;
-          background: linear-gradient(145deg, #ff6b35, #f7931a);
-          box-shadow: 
-            0 30px 60px rgba(255, 107, 53, 0.4),
-            0 0 100px rgba(247, 147, 26, 0.2),
-            inset 0 -10px 30px rgba(0, 0, 0, 0.2);
-          cursor: pointer;
-          transition: all 0.3s ease;
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        .big-button:hover {
-          transform: scale(1.02);
-          box-shadow: 
-            0 40px 80px rgba(255, 107, 53, 0.5),
-            0 0 120px rgba(247, 147, 26, 0.3),
-            inset 0 -10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .big-button:active {
-          transform: scale(0.98);
-        }
-        
-        .big-button-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          justify-content: space-between;
           height: 100%;
-          color: white;
-        }
-        
-        .big-button-icon {
-          width: 40%;
-          margin-bottom: 1rem;
-        }
-        
-        .mic-icon {
           width: 100%;
-          height: auto;
-          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-        
-        .big-button-text {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.25rem;
-        }
-        
-        .big-button-text-hindi {
-          font-size: clamp(1.5rem, 5vw, 2.5rem);
-          font-weight: 700;
-          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .big-button-text-english {
-          font-size: clamp(0.875rem, 2.5vw, 1.25rem);
-          font-weight: 500;
-          opacity: 0.9;
-        }
-        
-        .big-button-pulse {
-          position: absolute;
-          inset: -20px;
-          border-radius: 50%;
-          border: 2px solid rgba(255, 107, 53, 0.5);
-          animation: pulse 2s ease-out infinite;
-        }
-        
-        .big-button-pulse.delay {
-          animation-delay: 1s;
-        }
-        
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(1.3);
-            opacity: 0;
-          }
-        }
-        
-        .branding {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          color: white;
-          margin-bottom: 2rem;
-        }
-        
-        .brand-name {
-          font-size: 2rem;
-          font-weight: 700;
-          opacity: 0.8;
-        }
-        
-        .brand-tagline {
-          font-size: 0.875rem;
-          opacity: 0.5;
+          padding: 1.5rem;
+          max-width: 600px;
+          margin: 0 auto;
+          position: relative;
         }
 
-        /* Test Mode Buttons */
-        .test-buttons {
+        .landing-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 1rem;
+        }
+
+        .logo-badge {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          background: rgba(0, 0, 0, 0.3);
+          gap: 0.5rem;
+          background: rgba(255, 255, 255, 0.05);
           padding: 0.5rem 1rem;
           border-radius: 2rem;
           border: 1px solid rgba(255, 255, 255, 0.1);
-          margin-top: 2rem;
+          backdrop-filter: blur(10px);
         }
 
-        .test-label {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.75rem;
-        }
-
-        .test-btn {
-          background: rgba(255, 107, 53, 0.2);
-          border: 1px solid rgba(255, 107, 53, 0.4);
+        .logo-text {
+          font-weight: 700;
+          font-size: 1.2rem;
           color: white;
-          padding: 0.4rem 0.8rem;
-          border-radius: 1rem;
-          font-size: 0.75rem;
-          cursor: pointer;
-          transition: all 0.2s;
         }
 
-        .test-btn:hover {
-          background: rgba(255, 107, 53, 0.4);
+        .version {
+          font-size: 0.7rem;
+          opacity: 0.6;
+          margin-left: 4px;
+          font-weight: 400;
+        }
+
+        .network-status {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.8rem;
+          color: #4ade80;
+          background: rgba(74, 222, 128, 0.1);
+          padding: 4px 8px;
+          border-radius: 12px;
+        }
+
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          background: #4ade80;
+          border-radius: 50%;
+          box-shadow: 0 0 8px #4ade80;
+        }
+
+        .landing-hero {
+          text-align: center;
+          margin: 2rem 0;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .hero-title {
+          font-size: clamp(2.5rem, 6vw, 3.5rem);
+          line-height: 1.1;
+          font-weight: 800;
+          margin-bottom: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+
+        .gradient-text {
+          background: linear-gradient(135deg, #FF6B35, #F7931A);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+          font-size: clamp(1.2rem, 4vw, 1.8rem);
+          color: white;
+          opacity: 0.9;
+          font-weight: 400;
+          font-family: var(--font-noto-devanagari), sans-serif;
+        }
+
+        .hero-description {
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 1rem;
+          line-height: 1.6;
+          max-width: 80%;
+          margin: 0 auto;
+        }
+
+        .highlight-text {
+          color: white;
+          font-weight: 600;
+          display: block;
+          margin-top: 0.5rem;
+        }
+
+        .action-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+
+        .mic-button-futuristic {
+          position: relative;
+          width: 90px;
+          height: 90px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #FF6B35, #F7C41A);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+          z-index: 10;
+          transition: transform 0.2s, box-shadow 0.2s;
+          margin-bottom: 0.5rem;
+        }
+
+        .mic-button-futuristic:hover {
           transform: scale(1.05);
+          box-shadow: 0 15px 40px rgba(255, 107, 53, 0.6);
+        }
+
+        .mic-button-futuristic:active {
+          transform: scale(0.95);
+        }
+
+        .mic-icon-wrapper {
+          color: white;
+          width: 36px;
+          height: 36px;
+          z-index: 2;
+        }
+        
+        .modern-mic-icon {
+          width: 100%;
+          height: 100%;
+        }
+
+        .mic-rings {
+          position: absolute;
+          inset: -15px;
+          border: 1px solid rgba(255, 107, 53, 0.3);
+          border-radius: 50%;
+          animation: pulse-ring 2s infinite;
+        }
+
+        .mic-rings::before {
+          content: '';
+          position: absolute;
+          inset: -15px;
+          border: 1px solid rgba(255, 107, 53, 0.1);
+          border-radius: 50%;
+          animation: pulse-ring 2s infinite 0.5s;
+        }
+
+        @keyframes pulse-ring {
+          0% { transform: scale(0.8); opacity: 0.5; }
+          100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .action-hint {
+          font-size: 1rem;
+          color: white;
+          opacity: 0.8;
+          letter-spacing: 1px;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+
+        .landing-footer {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
+
+        .feature-pill {
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.05);
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .test-buttons-compact {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          opacity: 0.4;
+          margin-top: 1rem;
+        }
+
+        .test-link {
+          background: none;
+          border: none;
+          color: white;
+          text-decoration: underline;
+          cursor: pointer;
+          font-size: 0.75rem;
+          opacity: 0.8;
+        }
+        
+        .test-link:hover {
+            opacity: 1;
         }
         
         /* ============== LANGUAGE SELECT ============== */
