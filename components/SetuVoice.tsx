@@ -227,7 +227,7 @@ export function SetuVoice() {
   // ============================================================================
 
   const speak = useCallback((text: string, lang: string = "hi-IN"): Promise<void> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (typeof window === "undefined" || !window.speechSynthesis) {
         console.warn("Speech synthesis not available");
         resolve();
@@ -238,21 +238,105 @@ export function SetuVoice() {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
+
+      // Get available voices and find the best match
+      const voices = window.speechSynthesis.getVoices();
+
+      // Find a voice for the requested language
+      let selectedVoice = voices.find(v => v.lang === lang);
+
+      // Fallback: Try language code without region (e.g., "hi" from "hi-IN")
+      if (!selectedVoice) {
+        const langCode = lang.split('-')[0];
+        selectedVoice = voices.find(v => v.lang.startsWith(langCode));
+      }
+
+      // Fallback: Try any Indian voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.includes('IN') || v.lang.includes('India'));
+      }
+
+      // Fallback: Use English as last resort
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.startsWith('en'));
+      }
+
+      // Use default voice if still nothing found
+      if (!selectedVoice && voices.length > 0) {
+        selectedVoice = voices[0];
+      }
+
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang; // Use the actual voice language
+        console.log(`[TTS] Using voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+      } else {
+        utterance.lang = lang;
+        console.warn(`[TTS] No voices available, using default with lang: ${lang}`);
+      }
+
       utterance.rate = 0.9; // Slightly slower for clarity
       utterance.pitch = 1;
       utterance.volume = 1;
 
-      utterance.onend = () => resolve();
+      // Handle speech end
+      utterance.onend = () => {
+        console.log("[TTS] Speech completed successfully");
+        resolve();
+      };
+
+      // Handle speech error with detailed logging
       utterance.onerror = (e) => {
-        console.error("Speech synthesis error:", e);
+        // Log detailed error info
+        const errorInfo = {
+          error: e.error || 'unknown',
+          charIndex: e.charIndex,
+          elapsedTime: e.elapsedTime,
+          name: e.name,
+          type: e.type
+        };
+        console.warn("[TTS] Speech synthesis error:", errorInfo);
+
+        // Check for specific error types and handle gracefully
+        if (e.error === 'canceled' || e.error === 'interrupted') {
+          console.log("[TTS] Speech was cancelled or interrupted (normal behavior)");
+        } else if (e.error === 'not-allowed') {
+          console.warn("[TTS] Speech synthesis not allowed - user gesture may be required");
+        } else if (e.error === 'audio-busy') {
+          console.warn("[TTS] Audio output device is busy");
+        }
+
         resolve(); // Don't reject, continue flow
       };
 
       setStage("speaking");
       setCurrentMessage(text);
 
-      window.speechSynthesis.speak(utterance);
+      // Chrome workaround: voices may not be loaded immediately
+      if (voices.length === 0) {
+        // Wait for voices to load
+        const handleVoicesChanged = () => {
+          window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+          const newVoices = window.speechSynthesis.getVoices();
+          if (newVoices.length > 0) {
+            let voice = newVoices.find(v => v.lang === lang || v.lang.split('-')[0] === lang.split('-')[0]);
+            if (voice) {
+              utterance.voice = voice;
+              utterance.lang = voice.lang;
+            }
+          }
+          window.speechSynthesis.speak(utterance);
+        };
+        window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+
+        // Fallback timeout in case voiceschanged doesn't fire
+        setTimeout(() => {
+          if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;
+          window.speechSynthesis.speak(utterance);
+        }, 100);
+      } else {
+        window.speechSynthesis.speak(utterance);
+      }
     });
   }, []);
 

@@ -60,6 +60,7 @@
     "jsdom": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
+    "tsx": "^4.21.0",
     "typescript": "latest",
     "vitest": "latest"
   }

@@ -1063,22 +1063,48 @@ async function handleMarketPriceConfirmation(
     const lang = state.language;
 
     try {
+        console.log(`[CONFIRM] handleMarketPriceConfirmation called with input: "${userInput}"`);
+
         const result = await generateObject({
             model: google("gemini-3-flash-preview"),
             schema: z.object({
-                confirmed: z.boolean().describe("User confirmed/agreed"),
+                confirmed: z.boolean().describe("User confirmed/agreed to proceed"),
                 newPrice: z.number().optional().describe("If user specified a different price"),
                 understood: z.boolean()
             }),
-            prompt: `Understand if farmer confirmed the price.
+            prompt: `Understand if farmer confirmed the price and wants to proceed with broadcasting.
       
 User said: "${userInput}"
 
-Look for:
-- Confirmation: "haan", "theek hai", "chalo", "ok", "yes", "done"
-- New price: any number mentioned
-- Rejection: "nahi", "no", "zyada", "kam"`
+Look for CONFIRMATION:
+- Positive: "haan", "theek hai", "chalo", "ok", "yes", "done", "kar do", "bhejo", "broadcast", "acha", "sahi hai"
+- Any affirmative response = confirmed: true
+
+Look for REJECTION:
+- Negative: "nahi", "no", "zyada", "kam", "ruko", "wait"
+- Any negative response = confirmed: false
+
+If user mentions a NEW PRICE (number), extract it as newPrice.
+Be generous in understanding - if the user seems agreeable, set confirmed=true.`
         });
+
+        console.log(`[CONFIRM] AI result: confirmed=${result.object.confirmed}, newPrice=${result.object.newPrice}`);
+
+        // Handle rejection - ask again
+        if (!result.object.confirmed && !result.object.newPrice) {
+            console.log(`[CONFIRM] User rejected, asking again`);
+            return {
+                response: {
+                    text: getLocalizedText("ask_price_preference", lang.code, {
+                        commodity: state.collectedData.commodity || "crop",
+                        quantity: state.collectedData.quantityKg?.toString() || "0"
+                    }),
+                    stage: "asking_price_preference",
+                    expectsResponse: true
+                },
+                newState: { ...state, stage: "asking_price_preference" }
+            };
+        }
 
         let finalPrice = state.priceSuggestion?.pricePerKg.average || 0;
 
@@ -1087,6 +1113,9 @@ Look for:
         } else if (state.collectedData.preferredPrice) {
             finalPrice = state.collectedData.preferredPrice;
         }
+
+        console.log(`[CONFIRM] Final price: ${finalPrice}, building catalog item...`);
+
 
         // Build catalog item
         const catalogItem: BecknCatalogItem = {
@@ -1161,6 +1190,9 @@ async function handleListingConfirmation(
     const lang = state.language;
 
     try {
+        console.log(`[BROADCAST] handleListingConfirmation called with input: "${userInput}"`);
+        console.log(`[BROADCAST] Current catalogItem exists: ${!!state.catalogItem}`);
+
         const result = await generateObject({
             model: google("gemini-3-flash-preview"),
             schema: z.object({
@@ -1171,10 +1203,21 @@ async function handleListingConfirmation(
       
 User said: "${userInput}"
 
-Look for: "haan", "yes", "bhejo", "broadcast", "theek hai", "chalo", "kar do"`
+Look for CONFIRMATION to broadcast:
+- "haan", "yes", "bhejo", "broadcast", "theek hai", "chalo", "kar do", "ok", "done", "acha"
+- Any affirmative response = confirmed: true
+
+Look for REJECTION:
+- "nahi", "no", "ruko", "wait", "cancel"
+- Any negative response = confirmed: false
+
+Be generous - if user seems to agree, set confirmed=true.`
         });
 
+        console.log(`[BROADCAST] AI result: confirmed=${result.object.confirmed}`);
+
         if (!result.object.confirmed) {
+            console.log(`[BROADCAST] User cancelled, returning to greeting`);
             return {
                 response: {
                     text: getLocalizedText("cancelled", lang.code),
@@ -1186,6 +1229,9 @@ Look for: "haan", "yes", "bhejo", "broadcast", "theek hai", "chalo", "kar do"`
         }
 
         // Proceed to broadcasting
+        console.log(`[BROADCAST] User confirmed! Proceeding to broadcast...`);
+        console.log(`[BROADCAST] Catalog item to broadcast:`, JSON.stringify(state.catalogItem, null, 2));
+
         const newState: ConversationState = {
             ...state,
             stage: "broadcasting"
@@ -1200,6 +1246,7 @@ Look for: "haan", "yes", "bhejo", "broadcast", "theek hai", "chalo", "kar do"`
             },
             newState
         };
+
 
     } catch (error) {
         return {

@@ -42,7 +42,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "Continue"
-
+clean
 $Script:CONFIG = @{
     AppName          = "Setu Voice-to-ONDC Gateway"
     Version          = "1.0.0"
@@ -663,10 +663,51 @@ function Initialize-Database-Local {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
     }
     
-    # Run Seed
+    # Run Seed using tsx.cmd directly from node_modules\.bin (bypasses npm/npx issues)
     Write-Info "Seeding database..."
-    $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
-    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "tsx prisma/seed.ts" -WorkingDirectory $PSScriptRoot -PassThru
+    
+    $tsxCmd = Join-Path $PSScriptRoot "node_modules\.bin\tsx.cmd"
+    
+    if (Test-Path $tsxCmd) {
+        # Use local tsx directly with PowerShell call operator
+        Write-Command "$tsxCmd prisma/seed.ts"
+        
+        # Execute tsx using Start-Process to avoid path issues
+        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+        $pinfo.FileName = $tsxCmd
+        $pinfo.Arguments = "prisma/seed.ts"
+        $pinfo.RedirectStandardError = $true
+        $pinfo.RedirectStandardOutput = $true
+        $pinfo.UseShellExecute = $false
+        $pinfo.WorkingDirectory = $PSScriptRoot
+        $pinfo.CreateNoWindow = $true
+        
+        $process = New-Object System.Diagnostics.Process
+        $process.StartInfo = $pinfo
+        
+        try {
+            $process.Start() | Out-Null
+            $stdout = $process.StandardOutput.ReadToEnd()
+            $stderr = $process.StandardError.ReadToEnd()
+            $process.WaitForExit()
+            
+            $result = @{
+                ExitCode = $process.ExitCode
+                StdOut = $stdout
+                StdErr = $stderr
+            }
+        } catch {
+            $result = @{
+                ExitCode = 1
+                StdOut = ""
+                StdErr = $_.Exception.Message
+            }
+        }
+    } else {
+        # Fallback: Try using the global npm to run tsx
+        Write-Info "tsx.cmd not found locally, trying global npm..."
+        $result = Invoke-CommandWithOutput -Command "npm" -Arguments "exec tsx -- prisma/seed.ts" -WorkingDirectory $PSScriptRoot -PassThru
+    }
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Database seeding had issues: $($result.StdErr)"

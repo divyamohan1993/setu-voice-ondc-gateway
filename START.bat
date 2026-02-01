@@ -12,6 +12,7 @@ REM Contributors: divyamohan1993, kumkum-thakur
 REM Hackathon: AI for Bharat - Republic Day 2026
 REM
 REM ============================================================================
+clear 
 
 title Setu Voice-to-ONDC Gateway Setup
 
@@ -37,7 +38,8 @@ REM ============================================================================
 REM CLEANUP SECTION
 REM Terminate process on Port 3001 and any Node.js process running from this directory
 REM ============================================================================
-powershell -NoProfile -Command "& { param($path) Write-Host 'Cleaning up processes for: ' $path; Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host ' - Killing process on port 3001 (PID: ' $_.OwningProcess ')'; Stop-Process -Id $_.OwningProcess -Force }; Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -like ('*' + $path + '*') } | ForEach-Object { Write-Host (' - Killing project node process (PID: ' + $_.ProcessId + ')'); Stop-Process -Id $_.ProcessId -Force } }" "%~dp0"
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
+
 
 echo Cleanup complete.
 echo.

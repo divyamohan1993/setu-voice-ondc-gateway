@@ -53,7 +53,161 @@ export interface PriceSuggestion {
     marketTrend: "rising" | "stable" | "falling";
     advice: string;
     lastUpdated: string;
+    /** If fallback was used, contains info about the original requested city and the fallback */
+    fallbackInfo?: {
+        requestedCity: string;
+        fallbackCity: string;
+        distanceKm: number;
+    };
 }
+
+// ============================================================================
+// CACHING - Speed optimization for repeated queries
+// ============================================================================
+
+interface PriceCacheEntry {
+    prices: MandiPrice[];
+    timestamp: number;
+}
+
+interface CommodityCacheEntry {
+    normalized: string;
+    timestamp: number;
+}
+
+// Cache for mandi prices (10 minute TTL)
+const priceCache: Map<string, PriceCacheEntry> = new Map();
+const PRICE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+// Cache for commodity name normalization (1 hour TTL)
+const commodityCache: Map<string, CommodityCacheEntry> = new Map();
+const COMMODITY_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+/**
+ * Get cached price data if available and fresh
+ */
+function getCachedPrices(key: string): MandiPrice[] | null {
+    const entry = priceCache.get(key);
+    if (entry && (Date.now() - entry.timestamp) < PRICE_CACHE_TTL_MS) {
+        console.log(`[CACHE] Price cache hit for: ${key}`);
+        return entry.prices;
+    }
+    return null;
+}
+
+/**
+ * Store prices in cache
+ */
+function setCachedPrices(key: string, prices: MandiPrice[]): void {
+    priceCache.set(key, { prices, timestamp: Date.now() });
+    console.log(`[CACHE] Cached prices for: ${key}`);
+}
+
+/**
+ * Get cached normalized commodity name if available
+ */
+function getCachedCommodity(input: string): string | null {
+    const entry = commodityCache.get(input.toLowerCase());
+    if (entry && (Date.now() - entry.timestamp) < COMMODITY_CACHE_TTL_MS) {
+        console.log(`[CACHE] Commodity cache hit for: ${input} -> ${entry.normalized}`);
+        return entry.normalized;
+    }
+    return null;
+}
+
+/**
+ * Store normalized commodity name in cache
+ */
+function setCachedCommodity(input: string, normalized: string): void {
+    commodityCache.set(input.toLowerCase(), { normalized, timestamp: Date.now() });
+}
+
+// ============================================================================
+// CITY DATA - All cities with mandi data (for nearest city lookup)
+// ============================================================================
+
+/**
+ * Known cities with mandi price data, with approximate coordinates
+ * Used for finding the nearest available city when requested city has no data
+ */
+export interface MandiCity {
+    name: string;
+    state: string;
+    lat: number;
+    lng: number;
+}
+
+export const MANDI_CITIES: MandiCity[] = [
+    // Maharashtra
+    { name: "Lasalgaon", state: "Maharashtra", lat: 20.1486, lng: 74.2114 },
+    { name: "Vashi", state: "Maharashtra", lat: 19.0760, lng: 72.9990 },
+    { name: "Pune", state: "Maharashtra", lat: 18.5204, lng: 73.8567 },
+    { name: "Nagpur", state: "Maharashtra", lat: 21.1458, lng: 79.0882 },
+    { name: "Nashik", state: "Maharashtra", lat: 19.9975, lng: 73.7898 },
+    { name: "Aurangabad", state: "Maharashtra", lat: 19.8762, lng: 75.3433 },
+    { name: "Kolhapur", state: "Maharashtra", lat: 16.7050, lng: 74.2433 },
+    // Gujarat
+    { name: "Rajkot", state: "Gujarat", lat: 22.3039, lng: 70.8022 },
+    { name: "Ahmedabad", state: "Gujarat", lat: 23.0225, lng: 72.5714 },
+    { name: "Surat", state: "Gujarat", lat: 21.1702, lng: 72.8311 },
+    { name: "Vadodara", state: "Gujarat", lat: 22.3072, lng: 73.1812 },
+    // Delhi/NCR
+    { name: "Azadpur", state: "Delhi", lat: 28.7189, lng: 77.1806 },
+    { name: "Ghazipur", state: "Delhi", lat: 28.6304, lng: 77.3210 },
+    // Uttar Pradesh
+    { name: "Lucknow", state: "Uttar Pradesh", lat: 26.8467, lng: 80.9462 },
+    { name: "Agra", state: "Uttar Pradesh", lat: 27.1767, lng: 78.0081 },
+    { name: "Varanasi", state: "Uttar Pradesh", lat: 25.3176, lng: 82.9739 },
+    { name: "Kanpur", state: "Uttar Pradesh", lat: 26.4499, lng: 80.3319 },
+    { name: "Allahabad", state: "Uttar Pradesh", lat: 25.4358, lng: 81.8463 },
+    // Karnataka
+    { name: "Yeshwantpur", state: "Karnataka", lat: 13.0288, lng: 77.5400 },
+    { name: "Hubli", state: "Karnataka", lat: 15.3647, lng: 75.1240 },
+    { name: "Mysore", state: "Karnataka", lat: 12.2958, lng: 76.6394 },
+    // Tamil Nadu
+    { name: "Koyambedu", state: "Tamil Nadu", lat: 13.0708, lng: 80.1936 },
+    { name: "Coimbatore", state: "Tamil Nadu", lat: 11.0168, lng: 76.9558 },
+    { name: "Madurai", state: "Tamil Nadu", lat: 9.9252, lng: 78.1198 },
+    // Andhra Pradesh
+    { name: "Kurnool", state: "Andhra Pradesh", lat: 15.8281, lng: 78.0373 },
+    { name: "Vijayawada", state: "Andhra Pradesh", lat: 16.5062, lng: 80.6480 },
+    { name: "Guntur", state: "Andhra Pradesh", lat: 16.3067, lng: 80.4365 },
+    // Telangana
+    { name: "Hyderabad", state: "Telangana", lat: 17.3850, lng: 78.4867 },
+    { name: "Warangal", state: "Telangana", lat: 17.9784, lng: 79.6000 },
+    // Madhya Pradesh
+    { name: "Indore", state: "Madhya Pradesh", lat: 22.7196, lng: 75.8577 },
+    { name: "Bhopal", state: "Madhya Pradesh", lat: 23.2599, lng: 77.4126 },
+    { name: "Jabalpur", state: "Madhya Pradesh", lat: 23.1815, lng: 79.9864 },
+    // Rajasthan
+    { name: "Jaipur", state: "Rajasthan", lat: 26.9124, lng: 75.7873 },
+    { name: "Jodhpur", state: "Rajasthan", lat: 26.2389, lng: 73.0243 },
+    { name: "Udaipur", state: "Rajasthan", lat: 24.5854, lng: 73.7125 },
+    { name: "Kota", state: "Rajasthan", lat: 25.2138, lng: 75.8648 },
+    // West Bengal
+    { name: "Howrah", state: "West Bengal", lat: 22.5958, lng: 88.2636 },
+    { name: "Siliguri", state: "West Bengal", lat: 26.7271, lng: 88.3953 },
+    { name: "Asansol", state: "West Bengal", lat: 23.6833, lng: 86.9833 },
+    // Punjab
+    { name: "Ludhiana", state: "Punjab", lat: 30.9010, lng: 75.8573 },
+    { name: "Amritsar", state: "Punjab", lat: 31.6340, lng: 74.8723 },
+    { name: "Jalandhar", state: "Punjab", lat: 31.3260, lng: 75.5762 },
+    // Haryana
+    { name: "Gurgaon", state: "Haryana", lat: 28.4595, lng: 77.0266 },
+    { name: "Karnal", state: "Haryana", lat: 29.6857, lng: 76.9905 },
+    { name: "Hisar", state: "Haryana", lat: 29.1492, lng: 75.7217 },
+    // Bihar
+    { name: "Patna", state: "Bihar", lat: 25.5941, lng: 85.1376 },
+    { name: "Gaya", state: "Bihar", lat: 24.7914, lng: 85.0002 },
+    // Odisha
+    { name: "Bhubaneswar", state: "Odisha", lat: 20.2961, lng: 85.8245 },
+    { name: "Cuttack", state: "Odisha", lat: 20.4625, lng: 85.8830 },
+    // Kerala
+    { name: "Kochi", state: "Kerala", lat: 9.9312, lng: 76.2673 },
+    { name: "Thiruvananthapuram", state: "Kerala", lat: 8.5241, lng: 76.9366 },
+    // Assam
+    { name: "Guwahati", state: "Assam", lat: 26.1445, lng: 91.7362 },
+];
 
 /**
  * Common Indian agricultural commodities - dynamically expanded by AI
@@ -276,12 +430,10 @@ async function fetchFromGovAPI(commodity: string, state?: string): Promise<Mandi
 
     // Select markets based on state or use major mandis
     const selectedStates = state ? [state] : Object.keys(MAJOR_MANDIS).slice(0, 4);
-    console.log(`[DEBUG] Fallback estimation - state: ${state}, selectedStates: ${JSON.stringify(selectedStates)}`);
 
     for (const stateName of selectedStates) {
-        console.log(`[DEBUG] Processing state: ${stateName}, mandis: ${JSON.stringify(MAJOR_MANDIS[stateName])}`);
-
         const mandis = MAJOR_MANDIS[stateName] || [];
+
         for (const mandi of mandis.slice(0, 2)) {
             // Use stable calculation instead of random for reproducibility
             const min = basePrice.min;
@@ -316,12 +468,25 @@ export async function getMandiPrices(commodity: string, state?: string): Promise
     try {
         console.log(` Fetching mandi prices for: ${commodity}`);
 
-        // Use AI to normalize commodity name
+        // Use AI to normalize commodity name (with caching)
         const normalizedCommodity = await normalizeCommodityName(commodity);
         console.log(`[OK] Normalized commodity: ${normalizedCommodity}`);
 
+        // Check cache first
+        const cacheKey = `${normalizedCommodity}:${state || 'ALL'}`;
+        const cachedPrices = getCachedPrices(cacheKey);
+        if (cachedPrices) {
+            console.log(`[CACHE] Using cached prices for ${normalizedCommodity}`);
+            return cachedPrices;
+        }
+
         // Fetch from government API
         const prices = await fetchFromGovAPI(normalizedCommodity, state);
+
+        // Cache the result
+        if (prices.length > 0) {
+            setCachedPrices(cacheKey, prices);
+        }
 
         console.log(`[OK] Found ${prices.length} price entries`);
         return prices;
@@ -334,8 +499,15 @@ export async function getMandiPrices(commodity: string, state?: string): Promise
 
 /**
  * Use AI to normalize commodity names from any Indian language
+ * Includes caching to speed up repeated queries
  */
 async function normalizeCommodityName(input: string): Promise<string> {
+    // Check cache first
+    const cachedResult = getCachedCommodity(input);
+    if (cachedResult) {
+        return cachedResult;
+    }
+
     try {
         const result = await generateObject({
             model: google("gemini-3-flash-preview"),
@@ -354,15 +526,23 @@ Return the standard English name of the commodity, its category, and your confid
 If you cannot identify it, return "Unknown" with low confidence.`
         });
 
+        let normalizedName: string;
         if (result.object.confidence < 0.3) {
-            return input; // Return original if low confidence
+            normalizedName = input.toLowerCase(); // Return original if low confidence
+        } else {
+            normalizedName = result.object.englishName.toLowerCase();
         }
 
-        return result.object.englishName.toLowerCase();
+        // Cache the result
+        setCachedCommodity(input, normalizedName);
+
+        return normalizedName;
 
     } catch (error) {
         console.warn("AI commodity normalization failed, using original:", error);
-        return input.toLowerCase();
+        const fallback = input.toLowerCase();
+        setCachedCommodity(input, fallback);
+        return fallback;
     }
 }
 
@@ -446,9 +626,115 @@ async function determineMarketTrend(
     }
 }
 
+// ============================================================================
+// NEAREST CITY FALLBACK - Find nearest available mandi city
+// ============================================================================
+
+/**
+ * Calculate Haversine distance between two coordinates (pure calculation without Google Maps)
+ */
+function haversineDistanceSimple(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+/**
+ * Find the nearest mandi city from a given city name using Google Maps Geocoding
+ * 
+ * @param cityName - Name of the city to search from
+ * @returns The nearest MandiCity with mandi price data, or null if geocoding fails
+ */
+export async function findNearestMandiCity(cityName: string): Promise<{ city: MandiCity; distanceKm: number } | null> {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+    // First, check if the city is already in our MANDI_CITIES list
+    const normalizedCityName = cityName.toLowerCase().trim();
+    const exactMatch = MANDI_CITIES.find(c =>
+        c.name.toLowerCase() === normalizedCityName ||
+        c.state.toLowerCase() === normalizedCityName
+    );
+
+    if (exactMatch) {
+        console.log(`[LOCATION] City "${cityName}" is directly available in mandi catalog`);
+        return { city: exactMatch, distanceKm: 0 };
+    }
+
+    // If no API key, use a simple string match for state/region
+    if (!apiKey) {
+        console.warn("[LOCATION] GOOGLE_MAPS_API_KEY not set, using string matching for nearest city");
+
+        // Try to match by state name in the city string
+        for (const mandiCity of MANDI_CITIES) {
+            if (normalizedCityName.includes(mandiCity.state.toLowerCase()) ||
+                mandiCity.state.toLowerCase().includes(normalizedCityName)) {
+                console.log(`[LOCATION] Found city by state match: ${mandiCity.name}, ${mandiCity.state}`);
+                return { city: mandiCity, distanceKm: -1 }; // -1 indicates unknown distance
+            }
+        }
+
+        // Return a default major market if nothing matches
+        const defaultCity = MANDI_CITIES.find(c => c.name === "Azadpur") || MANDI_CITIES[0];
+        console.log(`[LOCATION] Using default major market: ${defaultCity.name}`);
+        return { city: defaultCity, distanceKm: -1 };
+    }
+
+    try {
+        console.log(`[LOCATION] Geocoding city: ${cityName}`);
+
+        // Geocode the requested city to get coordinates
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(cityName + ", India")}&key=${apiKey}`;
+        const response = await fetch(geocodeUrl);
+
+        if (!response.ok) {
+            throw new Error(`Geocoding API returned ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status !== "OK" || !data.results || data.results.length === 0) {
+            console.warn(`[LOCATION] Could not geocode city: ${cityName}`);
+            // Return default city
+            const defaultCity = MANDI_CITIES.find(c => c.name === "Azadpur") || MANDI_CITIES[0];
+            return { city: defaultCity, distanceKm: -1 };
+        }
+
+        const userLocation = data.results[0].geometry.location;
+        console.log(`[LOCATION] Geocoded "${cityName}" to: (${userLocation.lat}, ${userLocation.lng})`);
+
+        // Calculate distances to all mandi cities and find the nearest
+        const citiesWithDistance = MANDI_CITIES.map(city => ({
+            city,
+            distanceKm: haversineDistanceSimple(userLocation.lat, userLocation.lng, city.lat, city.lng)
+        }));
+
+        // Sort by distance
+        citiesWithDistance.sort((a, b) => a.distanceKm - b.distanceKm);
+
+        const nearest = citiesWithDistance[0];
+        console.log(`[LOCATION] Nearest mandi city to "${cityName}": ${nearest.city.name} (${nearest.distanceKm.toFixed(1)} km away)`);
+
+        return nearest;
+
+    } catch (error) {
+        console.error(`[LOCATION] Error finding nearest city:`, error);
+        // Return default city on error
+        const defaultCity = MANDI_CITIES.find(c => c.name === "Azadpur") || MANDI_CITIES[0];
+        return { city: defaultCity, distanceKm: -1 };
+    }
+}
+
 
 /**
  * Get price suggestion for a farmer
+ * 
+ * ENHANCED: Now includes fallback to nearest available mandi city when
+ * the requested city doesn't have price data
  * 
  * @param commodity - Name of the commodity
  * @param farmerLocation - Farmer's location (state or district)
@@ -464,7 +750,42 @@ export async function getPriceSuggestion(
         console.log(` Getting price suggestion for ${commodity}`);
 
         // Get current mandi prices
-        const prices = await getMandiPrices(commodity, farmerLocation);
+        let prices = await getMandiPrices(commodity, farmerLocation);
+        let fallbackInfo: PriceSuggestion['fallbackInfo'] = undefined;
+
+        // If no prices found for the requested location, find nearest available city
+        if (prices.length === 0 && farmerLocation) {
+            console.log(`[FALLBACK] No prices found for "${farmerLocation}", searching for nearest mandi city...`);
+
+            const nearestResult = await findNearestMandiCity(farmerLocation);
+
+            if (nearestResult) {
+                console.log(`[FALLBACK] Using prices from ${nearestResult.city.name}, ${nearestResult.city.state}`);
+
+                // Try to get prices from the nearest city's state
+                prices = await getMandiPrices(commodity, nearestResult.city.state);
+
+                // If still no prices, try without state filter
+                if (prices.length === 0) {
+                    console.log(`[FALLBACK] Still no prices, fetching national prices...`);
+                    prices = await getMandiPrices(commodity);
+                }
+
+                if (prices.length > 0 && nearestResult.distanceKm >= 0) {
+                    fallbackInfo = {
+                        requestedCity: farmerLocation,
+                        fallbackCity: nearestResult.city.name,
+                        distanceKm: nearestResult.distanceKm
+                    };
+                }
+            }
+        }
+
+        // If still no prices, try national prices
+        if (prices.length === 0 && farmerLocation) {
+            console.log(`[FALLBACK] Fetching national prices for ${commodity}...`);
+            prices = await getMandiPrices(commodity);
+        }
 
         if (prices.length === 0) {
             throw new Error(`No price data available for ${commodity}`);
@@ -496,14 +817,18 @@ export async function getPriceSuggestion(
         // Nearest market
         const nearestMarket = prices[0]?.market || "Local Mandi";
 
-        // Generate advice
+        // Generate advice (include fallback info if applicable)
         let advice = "";
+        if (fallbackInfo) {
+            advice = `Note: Prices shown are from ${fallbackInfo.fallbackCity} (${fallbackInfo.distanceKm > 0 ? fallbackInfo.distanceKm.toFixed(0) + ' km away' : 'nearest available'}), as "${fallbackInfo.requestedCity}" is not in our database. `;
+        }
+
         if (marketTrend === "rising") {
-            advice = `Prices are rising. Consider holding for a few days if storage is available. Current best price is Rs ${pricePerKg.max} per kg.`;
+            advice += `Prices are rising. Consider holding for a few days if storage is available. Current best price is Rs ${pricePerKg.max} per kg.`;
         } else if (marketTrend === "falling") {
-            advice = `Prices are falling. Consider selling soon at or above Rs ${pricePerKg.average} per kg to avoid losses.`;
+            advice += `Prices are falling. Consider selling soon at or above Rs ${pricePerKg.average} per kg to avoid losses.`;
         } else {
-            advice = `Market is stable. Good time to sell at Rs ${pricePerKg.average}-${pricePerKg.max} per kg.`;
+            advice += `Market is stable. Good time to sell at Rs ${pricePerKg.average}-${pricePerKg.max} per kg.`;
         }
 
         return {
@@ -516,7 +841,8 @@ export async function getPriceSuggestion(
             pricePerKg,
             marketTrend,
             advice,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
+            fallbackInfo
         };
 
     } catch (error) {
