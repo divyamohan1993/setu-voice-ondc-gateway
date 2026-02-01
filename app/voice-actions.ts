@@ -145,6 +145,13 @@ export async function getLivePricesAction(
 
 /**
  * Broadcast catalog from voice conversation
+ * 
+ * PRODUCTION-GRADE IMPLEMENTATION:
+ * - Validates catalog against Beckn Protocol schema
+ * - Saves to database with proper status tracking
+ * - Broadcasts to ONDC network (simulated with production characteristics)
+ * - Handles network failures, timeouts, and denials gracefully
+ * - Returns detailed transaction information
  */
 export interface VoiceBroadcastResult {
     success: boolean;
@@ -152,6 +159,12 @@ export interface VoiceBroadcastResult {
     bid?: BuyerBid;
     successMessage?: string;
     error?: string;
+    /** ONDC Transaction ID for tracking */
+    transactionId?: string;
+    /** Processing time in milliseconds */
+    processingTimeMs?: number;
+    /** Error type for UI handling */
+    errorType?: 'TIMEOUT' | 'DENIED' | 'NETWORK_ERROR' | 'VALIDATION_ERROR' | 'RATE_LIMITED';
 }
 
 export async function broadcastFromVoiceAction(
@@ -160,6 +173,7 @@ export async function broadcastFromVoiceAction(
 ): Promise<VoiceBroadcastResult> {
     try {
         console.log(` Broadcasting catalog from voice conversation`);
+        console.log(` [ONDC] Initiating production-grade broadcast...`);
 
         // Validate catalog
         const validatedCatalog = validateCatalog(catalogItem);
@@ -175,7 +189,8 @@ export async function broadcastFromVoiceAction(
         if (!farmer) {
             return {
                 success: false,
-                error: "Farmer not found"
+                error: "Farmer not found",
+                errorType: 'VALIDATION_ERROR'
             };
         }
 
@@ -205,32 +220,70 @@ export async function broadcastFromVoiceAction(
                     farmerId: FARMER_ID,
                     becknJson: validatedCatalog,
                     timestamp: new Date().toISOString(),
-                    source: "voice_conversation"
+                    source: "voice_conversation",
+                    protocolVersion: "1.2.0",
+                    domain: "ONDC:AGR10"
                 },
                 timestamp: new Date()
             }
         });
 
-        // Simulate broadcast
-        const bid = await simulateBroadcast(savedCatalog.id);
+        // Simulate broadcast with production-grade ONDC network behavior
+        // This may throw an error if network simulation encounters failure scenarios
+        try {
+            const bid = await simulateBroadcast(savedCatalog.id);
 
-        // Generate success message in user's language
-        const successMessage = getSuccessMessage(language, bid.buyerName, bid.bidAmount);
+            // Generate success message in user's language
+            const successMessage = getSuccessMessage(language, bid.buyerName, bid.bidAmount);
 
-        console.log(`[OK] Broadcast successful: ${bid.buyerName} bid ${bid.bidAmount}`);
+            console.log(`[OK] Broadcast successful: ${bid.buyerName} bid Rs ${bid.bidAmount}`);
+            console.log(`[OK] Transaction ID: ${bid.transactionId || 'N/A'}`);
+            console.log(`[OK] Processing Time: ${bid.processingTimeMs || 0}ms`);
 
-        return {
-            success: true,
-            catalogId: savedCatalog.id,
-            bid,
-            successMessage
-        };
+            return {
+                success: true,
+                catalogId: savedCatalog.id,
+                bid,
+                successMessage,
+                transactionId: bid.transactionId,
+                processingTimeMs: bid.processingTimeMs
+            };
+
+        } catch (networkError) {
+            // Handle ONDC network errors (timeouts, denials, etc.)
+            const errorMessage = networkError instanceof Error ? networkError.message : "Network broadcast failed";
+            console.warn(`[!] ONDC Network Event: ${errorMessage}`);
+
+            // Parse error type from message
+            let errorType: VoiceBroadcastResult['errorType'] = 'NETWORK_ERROR';
+            if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
+                errorType = 'TIMEOUT';
+            } else if (errorMessage.includes('denied') || errorMessage.includes('No buyers')) {
+                errorType = 'DENIED';
+            } else if (errorMessage.includes('rate') || errorMessage.includes('Rate')) {
+                errorType = 'RATE_LIMITED';
+            }
+
+            // Update catalog status to reflect the failed broadcast
+            await prisma.catalog.update({
+                where: { id: savedCatalog.id },
+                data: { status: "DRAFT" } // Revert to draft so user can retry
+            });
+
+            return {
+                success: false,
+                catalogId: savedCatalog.id,
+                error: errorMessage,
+                errorType
+            };
+        }
 
     } catch (error) {
         console.error("[X] Voice broadcast failed:", error);
         return {
             success: false,
-            error: error instanceof Error ? error.message : "Broadcast failed"
+            error: error instanceof Error ? error.message : "Broadcast failed",
+            errorType: 'VALIDATION_ERROR'
         };
     }
 }
