@@ -63,14 +63,15 @@ export const metadata: Metadata = {
 
 /**
  * Viewport settings for mobile optimization
+ * WCAG 2.1 Compliant: Allows user scaling for accessibility
  */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false, // Prevent zoom issues with voice UI
-  themeColor: "#1a1a2e",
-  colorScheme: "dark",
+  maximumScale: 5, // WCAG 1.4.4: Allow zooming up to 500%
+  userScalable: true, // WCAG compliance: users must be able to zoom
+  themeColor: "#FFFFFF", // Official Government Light Theme
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -97,28 +98,57 @@ export default function RootLayout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-        {/* Theme color for mobile browsers */}
-        <meta name="theme-color" content="#1a1a2e" />
+        {/* Theme color for mobile browsers - Official Government White */}
+        <meta name="theme-color" content="#FFFFFF" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body
-        className="antialiased font-sans bg-[#1a1a2e] text-white overflow-hidden"
+        className="antialiased font-sans bg-white text-gray-900 overflow-hidden"
         style={{
           fontFamily: "var(--font-noto-sans), var(--font-noto-devanagari), system-ui, sans-serif"
         }}
       >
-        {children}
+        {/* WCAG 2.4.1: Skip Navigation Link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-[#1A365D] focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-[#E07800]"
+          tabIndex={0}
+        >
+          Skip to main content / मुख्य सामग्री पर जाएं
+        </a>
+
+        {/* WCAG: Main content landmark */}
+        <main id="main-content" role="main" aria-label="Setu Voice Commerce">
+          {children}
+        </main>
+
+        {/* WCAG: Live region for screen reader announcements */}
+        <div
+          id="aria-live-region"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        />
+
+        {/* WCAG: Assertive announcements for urgent messages */}
+        <div
+          id="aria-alert-region"
+          role="alert"
+          aria-live="assertive"
+          className="sr-only"
+        />
+
         <Toaster
           position="top-center"
           richColors
           toastOptions={{
             style: {
-              background: "rgba(26, 26, 46, 0.95)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              color: "white",
-              backdropFilter: "blur(10px)",
+              background: "#FFFFFF",
+              border: "1px solid #D1D5DB",
+              color: "#1F2937",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
             }
           }}
         />
@@ -126,3 +156,4 @@ export default function RootLayout({
     </html>
   );
 }
+

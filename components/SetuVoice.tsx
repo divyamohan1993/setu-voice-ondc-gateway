@@ -710,8 +710,30 @@ export function SetuVoice() {
   // Render
   // ============================================================================
 
+  // WCAG: Announce stage changes to screen readers
+  useEffect(() => {
+    const liveRegion = document.getElementById('aria-live-region');
+    if (liveRegion) {
+      const announcements: Record<AppStage, string> = {
+        idle: 'Ready to start. Press the microphone button to begin selling your crop.',
+        language_select: 'Language selection. Choose your preferred language.',
+        listening: 'Listening. Please speak now.',
+        processing: 'Processing your input. Please wait.',
+        speaking: 'System is speaking. Please listen.',
+        broadcasting: 'Broadcasting to ONDC network. Please wait.',
+        success: 'Broadcast successful! Your crop listing has been published.',
+        error: error || 'An error occurred. Please try again.',
+      };
+      liveRegion.textContent = announcements[stage];
+    }
+  }, [stage, error]);
+
   return (
-    <div className={`setu-voice-container ${stage === "success" ? "no-center" : ""}`}>
+    <div
+      className={`setu-voice-container ${stage === "success" ? "no-center" : ""}`}
+      role="application"
+      aria-label="Setu Voice Commerce - Voice-first marketplace for farmers"
+    >
       <AnimatePresence mode="wait">
 
         {/* IDLE STATE - New Formal & Futuristic Design */}
@@ -722,15 +744,22 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -20 }}
             className="landing-container"
+            role="region"
+            aria-label="Welcome screen"
           >
             {/* Header / Branding */}
-            <header className="landing-header">
-              <div className="logo-badge">
-                <span className="logo-icon">🌾</span>
+            <header className="landing-header" role="banner">
+              <div className="logo-badge" aria-label="Setu Voice Logo">
+                <span className="logo-icon" aria-hidden="true">🌾</span>
                 <span className="logo-text">Setu<span className="version">Voice</span></span>
               </div>
-              <div className="network-status">
-                <span className="status-dot"></span>
+              <div
+                className="network-status"
+                role="status"
+                aria-live="polite"
+                aria-label="Network status: ONDC Live"
+              >
+                <span className="status-dot" aria-hidden="true"></span>
                 ONDC Live
               </div>
             </header>
@@ -749,35 +778,47 @@ export function SetuVoice() {
             </div>
 
             {/* Action Section - The Reasonable Mic Button */}
-            <div className="action-section">
+            <div className="action-section" role="group" aria-label="Voice input controls">
               <button
                 onClick={handleBigButtonClick}
                 className="mic-button-futuristic"
-                aria-label="Start selling"
+                aria-label="Start selling your crop using voice. Press Enter or click to begin. / आवाज़ से फसल बेचना शुरू करें"
+                aria-describedby="mic-hint"
+                type="button"
               >
-                <div className="mic-icon-wrapper">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="modern-mic-icon">
+                <div className="mic-icon-wrapper" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="modern-mic-icon" aria-hidden="true">
                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
                     <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                   </svg>
                 </div>
-                <div className="mic-rings"></div>
+                <div className="mic-rings" aria-hidden="true"></div>
               </button>
-              <p className="action-hint">Tap to Speak / बोलें</p>
+              <p id="mic-hint" className="action-hint" aria-live="polite">Tap to Speak / बोलें</p>
             </div>
 
             {/* Footer / Trust */}
-            <footer className="landing-footer">
-              <div className="feature-pill">🎙️ Voice First</div>
-              <div className="feature-pill">🌍 12 Languages</div>
-              <div className="feature-pill">⚡ Instant Bid</div>
+            <footer className="landing-footer" role="contentinfo">
+              <div className="feature-pill" aria-label="Voice First interface"><span aria-hidden="true">🎙️</span> Voice First</div>
+              <div className="feature-pill" aria-label="Supports 12 Indian languages"><span aria-hidden="true">🌍</span> 12 Languages</div>
+              <div className="feature-pill" aria-label="Get instant bids from buyers"><span aria-hidden="true">⚡</span> Instant Bid</div>
             </footer>
 
             {/* Quick Test Buttons (kept but styled smaller) */}
-            <div className="test-buttons-compact">
-              <button onClick={() => runTestScenario(0)} className="test-link">Demo: Tomato</button>
-              <button onClick={() => runTestScenario(1)} className="test-link">Demo: Wheat</button>
-            </div>
+            <nav className="test-buttons-compact" aria-label="Demo options">
+              <button
+                onClick={() => runTestScenario(0)}
+                className="test-link"
+                type="button"
+                aria-label="Run tomato selling demo"
+              >Demo: Tomato</button>
+              <button
+                onClick={() => runTestScenario(1)}
+                className="test-link"
+                type="button"
+                aria-label="Run wheat selling demo"
+              >Demo: Wheat</button>
+            </nav>
           </motion.div>
         )}
 
@@ -789,20 +830,29 @@ export function SetuVoice() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
             className="language-select-container"
+            role="region"
+            aria-labelledby="language-selection-title"
           >
-            <h2 className="language-title">
+            <h2 id="language-selection-title" className="language-title">
               अपनी भाषा चुनें
               <span className="language-title-en">Choose your language</span>
             </h2>
 
-            <div className="language-grid">
-              {SUPPORTED_LANGUAGES.map((lang) => (
+            <div
+              className="language-grid"
+              role="group"
+              aria-label="Available languages"
+            >
+              {SUPPORTED_LANGUAGES.map((lang, index) => (
                 <motion.button
                   key={lang.code}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleLanguageSelect(lang)}
                   className="language-button"
+                  type="button"
+                  aria-label={`Select ${lang.name} - ${lang.region}`}
+                  tabIndex={0}
                 >
                   <span className="language-native">{lang.name}</span>
                   <span className="language-region">{lang.region}</span>
@@ -813,6 +863,8 @@ export function SetuVoice() {
             <button
               onClick={() => setStage("idle")}
               className="back-button"
+              type="button"
+              aria-label="Go back to home screen / वापस जाएं"
             >
               ← वापस / Back
             </button>
@@ -827,20 +879,24 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="listening-container"
+            role="region"
+            aria-label="Voice input active"
+            aria-live="polite"
           >
-            <div className="listening-animation">
+            <div className="listening-animation" aria-hidden="true">
               <div className="listening-ring ring-1" />
               <div className="listening-ring ring-2" />
               <div className="listening-ring ring-3" />
               <div className="listening-center">
-                <svg viewBox="0 0 50 50" className="listening-mic">
+                <svg viewBox="0 0 50 50" className="listening-mic" aria-hidden="true">
                   <circle cx="25" cy="18" r="8" fill="white" />
                   <rect x="21" y="24" width="8" height="10" rx="2" fill="white" />
                   <path d="M15 28 Q15 40 25 42 Q35 40 35 28" stroke="white" strokeWidth="2" fill="none" />
                 </svg>
               </div>
             </div>
-            <p className="listening-text">{currentMessage}</p>
+            <p className="listening-text" role="status" aria-live="polite">{currentMessage}</p>
+            <span className="sr-only">Microphone is active. Speak now to enter your crop details.</span>
           </motion.div>
         )}
 
@@ -852,13 +908,17 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="processing-container"
+            role="status"
+            aria-label="Processing your input"
+            aria-busy="true"
           >
-            <div className="processing-animation">
+            <div className="processing-animation" aria-hidden="true">
               <div className="processing-dot" style={{ animationDelay: "0ms" }} />
               <div className="processing-dot" style={{ animationDelay: "150ms" }} />
               <div className="processing-dot" style={{ animationDelay: "300ms" }} />
             </div>
-            <p className="processing-text">{currentMessage || "समझ रहा हूं..."}</p>
+            <p className="processing-text" aria-live="polite">{currentMessage || "समझ रहा हूं... / Processing..."}</p>
+            <span className="sr-only">Please wait while we process your voice input.</span>
           </motion.div>
         )}
 
@@ -870,8 +930,10 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="speaking-container"
+            role="region"
+            aria-label="System response"
           >
-            <div className="speaking-avatar">
+            <div className="speaking-avatar" aria-hidden="true">
               <div className="speaking-wave wave-1" />
               <div className="speaking-wave wave-2" />
               <div className="speaking-wave wave-3" />
@@ -879,7 +941,8 @@ export function SetuVoice() {
                 🗣️
               </div>
             </div>
-            <p className="speaking-text">{currentMessage}</p>
+            <p className="speaking-text" role="alert" aria-live="assertive">{currentMessage}</p>
+            <span className="sr-only">System is speaking. Listen to the response.</span>
           </motion.div>
         )}
 
@@ -891,8 +954,11 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="broadcasting-container"
+            role="status"
+            aria-label="Broadcasting to ONDC network"
+            aria-busy="true"
           >
-            <div className="broadcast-animation">
+            <div className="broadcast-animation" aria-hidden="true">
               <div className="broadcast-signal signal-1" />
               <div className="broadcast-signal signal-2" />
               <div className="broadcast-signal signal-3" />
@@ -900,7 +966,8 @@ export function SetuVoice() {
                 📡
               </div>
             </div>
-            <p className="broadcasting-text">{currentMessage}</p>
+            <p className="broadcasting-text" aria-live="polite">{currentMessage}</p>
+            <span className="sr-only">Your crop listing is being broadcast to buyers on the ONDC network. Please wait.</span>
           </motion.div>
         )}
 
@@ -912,27 +979,33 @@ export function SetuVoice() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="success-container"
+            role="region"
+            aria-labelledby="success-title"
+            aria-describedby="success-description"
           >
             {/* Success Header */}
-            <div className="success-header">
-              <div className="success-icon">✅</div>
-              <h2 className="success-title">
+            <div className="success-header" role="banner">
+              <div className="success-icon" aria-hidden="true">✅</div>
+              <h2 id="success-title" className="success-title">
                 {getText("success_title")}
               </h2>
+              <p id="success-description" className="sr-only">
+                Your crop has been successfully listed on the ONDC network. A buyer has made an offer.
+              </p>
             </div>
 
             {/* Main Content Card */}
-            <div className="summary-card">
+            <article className="summary-card" aria-label="Transaction Summary">
               {/* Protocol Badge */}
-              <div className="protocol-badge-row">
-                <span className="protocol-badge">ONDC / BECKN PROTOCOL v1.2</span>
-                <span className="protocol-status">✓ Verified</span>
+              <div className="protocol-badge-row" role="status">
+                <span className="protocol-badge" aria-label="Protocol: ONDC Beckn version 1.2">ONDC / BECKN PROTOCOL v1.2</span>
+                <span className="protocol-status" aria-label="Verification status: Verified">✓ Verified</span>
               </div>
 
               {/* Transaction Summary */}
-              <div className="summary-section">
-                <h3 className="section-title">📦 {getText("crop")} Details</h3>
-                <div className="info-grid">
+              <section className="summary-section" aria-labelledby="crop-section-title">
+                <h3 id="crop-section-title" className="section-title"><span aria-hidden="true">📦</span> {getText("crop")} Details</h3>
+                <dl className="info-grid" role="list">
                   <div className="info-item">
                     <span className="info-label">{getText("crop")}</span>
                     <span className="info-value">{broadcastResult.catalogItem?.descriptor?.name || 'N/A'}</span>
@@ -949,8 +1022,8 @@ export function SetuVoice() {
                     <span className="info-label">{getText("your_price")}</span>
                     <span className="info-value price">₹{broadcastResult.catalogItem?.price?.value || 0}/kg</span>
                   </div>
-                </div>
-              </div>
+                </dl>
+              </section>
 
               {/* Buyer Response Section */}
               <div className="buyer-section">
@@ -1016,8 +1089,8 @@ export function SetuVoice() {
               </button>
 
               {showDebug && (
-                <div className="json-debug">
-                  <pre className="json-content">
+                <div id="json-debug-panel" className="json-debug" role="region" aria-label="Raw JSON data">
+                  <pre className="json-content" tabIndex={0} aria-label="Beckn Protocol JSON payload">
                     {JSON.stringify({
                       context: {
                         domain: "nic2004:52110",
@@ -1056,7 +1129,7 @@ export function SetuVoice() {
                   {new Date(broadcastResult.timestamp).toLocaleString(selectedLanguage?.code === "hi" ? 'hi-IN' : 'en-IN')}
                 </span>
               </div>
-            </div>
+            </article>
 
             {/* Action Button */}
             <button
@@ -1067,6 +1140,8 @@ export function SetuVoice() {
                 setBroadcastResult(null);
               }}
               className="success-button"
+              type="button"
+              aria-label="Sell another crop - Start a new listing"
             >
               {getText("sell_another")}
             </button>
@@ -1081,14 +1156,21 @@ export function SetuVoice() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="error-container"
+            role="alertdialog"
+            aria-labelledby="error-title"
+            aria-describedby="error-description"
           >
-            <div className="error-icon">⚠️</div>
-            <p className="error-text">{error || "Something went wrong"}</p>
+            <div className="error-icon" aria-hidden="true">⚠️</div>
+            <h2 id="error-title" className="sr-only">Error / त्रुटि</h2>
+            <p id="error-description" className="error-text" role="alert">{error || "Something went wrong"}</p>
             <button
               onClick={() => setStage("idle")}
               className="error-button"
+              type="button"
+              aria-label="Try again - Return to home screen"
+              autoFocus
             >
-              Try Again
+              Try Again / फिर से कोशिश करें
             </button>
           </motion.div>
         )}
@@ -1096,6 +1178,11 @@ export function SetuVoice() {
       </AnimatePresence>
 
       <style jsx>{`
+        /* =====================================================
+         * INDIA GOVERNMENT DESIGN SYSTEM COMPLIANT STYLES
+         * Following: India.gov.in, Digital India Guidelines
+         * ===================================================== */
+        
         .setu-voice-container {
           position: fixed;
           inset: 0;
@@ -1103,7 +1190,7 @@ export function SetuVoice() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+          background: #FFFFFF;
           overflow-x: hidden;
           overflow-y: auto;
         }
@@ -1112,7 +1199,7 @@ export function SetuVoice() {
           justify-content: flex-start;
         }
         
-        /* ============== LANDING PAGE (New Idle State) ============== */
+        /* ============== LANDING PAGE (Official Style) ============== */
         .landing-container {
           display: flex;
           flex-direction: column;
@@ -1120,27 +1207,31 @@ export function SetuVoice() {
           height: 100%;
           width: 100%;
           padding: 1.5rem;
-          max-width: 600px;
+          max-width: 720px;
           margin: 0 auto;
           position: relative;
+          background: #FFFFFF;
         }
 
         .landing-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 1rem;
+          padding: 1rem 0;
+          border-bottom: 2px solid #E5E7EB;
         }
 
         .logo-badge {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: rgba(255, 255, 255, 0.05);
+          background: #1A365D;
           padding: 0.5rem 1rem;
-          border-radius: 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
+          border-radius: 6px;
+        }
+
+        .logo-icon {
+          font-size: 1.25rem;
         }
 
         .logo-text {
@@ -1151,7 +1242,7 @@ export function SetuVoice() {
 
         .version {
           font-size: 0.7rem;
-          opacity: 0.6;
+          opacity: 0.8;
           margin-left: 4px;
           font-weight: 400;
         }
@@ -1160,19 +1251,20 @@ export function SetuVoice() {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 0.8rem;
-          color: #4ade80;
-          background: rgba(74, 222, 128, 0.1);
-          padding: 4px 8px;
-          border-radius: 12px;
+          font-size: 0.85rem;
+          color: #138808;
+          background: rgba(19, 136, 8, 0.1);
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-weight: 600;
+          border: 1px solid #138808;
         }
 
         .status-dot {
-          width: 6px;
-          height: 6px;
-          background: #4ade80;
+          width: 8px;
+          height: 8px;
+          background: #138808;
           border-radius: 50%;
-          box-shadow: 0 0 8px #4ade80;
         }
 
         .landing-hero {
@@ -1185,39 +1277,37 @@ export function SetuVoice() {
         }
 
         .hero-title {
-          font-size: clamp(2.5rem, 6vw, 3.5rem);
-          line-height: 1.1;
-          font-weight: 800;
+          font-size: clamp(2rem, 5vw, 3rem);
+          line-height: 1.2;
+          font-weight: 700;
           margin-bottom: 1.5rem;
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
+          gap: 0.25rem;
+          color: #1A365D;
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #FF6B35, #F7931A);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #E07800;
         }
 
         .hero-subtitle {
-          font-size: clamp(1.2rem, 4vw, 1.8rem);
-          color: white;
-          opacity: 0.9;
+          font-size: clamp(1rem, 3vw, 1.5rem);
+          color: #1F2937;
           font-weight: 400;
           font-family: var(--font-noto-devanagari), sans-serif;
         }
 
         .hero-description {
-          color: rgba(255, 255, 255, 0.7);
+          color: #6B7280;
           font-size: 1rem;
           line-height: 1.6;
-          max-width: 80%;
+          max-width: 85%;
           margin: 0 auto;
         }
 
         .highlight-text {
-          color: white;
+          color: #1A365D;
           font-weight: 600;
           display: block;
           margin-top: 0.5rem;
@@ -1229,28 +1319,31 @@ export function SetuVoice() {
           align-items: center;
           gap: 1.5rem;
           margin-bottom: 2rem;
+          padding: 2rem;
+          background: #F9FAFB;
+          border-radius: 12px;
+          border: 1px solid #E5E7EB;
         }
 
         .mic-button-futuristic {
           position: relative;
-          width: 90px;
-          height: 90px;
+          width: 100px;
+          height: 100px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #FF6B35, #F7C41A);
-          border: none;
+          background: linear-gradient(135deg, #E07800 0%, #FF9933 100%);
+          border: 4px solid #1A365D;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+          box-shadow: 0 4px 20px rgba(224, 120, 0, 0.3);
           z-index: 10;
           transition: transform 0.2s, box-shadow 0.2s;
-          margin-bottom: 0.5rem;
         }
 
         .mic-button-futuristic:hover {
           transform: scale(1.05);
-          box-shadow: 0 15px 40px rgba(255, 107, 53, 0.6);
+          box-shadow: 0 8px 30px rgba(224, 120, 0, 0.4);
         }
 
         .mic-button-futuristic:active {
@@ -1259,8 +1352,8 @@ export function SetuVoice() {
 
         .mic-icon-wrapper {
           color: white;
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           z-index: 2;
         }
         
@@ -1272,7 +1365,7 @@ export function SetuVoice() {
         .mic-rings {
           position: absolute;
           inset: -15px;
-          border: 1px solid rgba(255, 107, 53, 0.3);
+          border: 2px solid rgba(224, 120, 0, 0.4);
           border-radius: 50%;
           animation: pulse-ring 2s infinite;
         }
@@ -1281,23 +1374,21 @@ export function SetuVoice() {
           content: '';
           position: absolute;
           inset: -15px;
-          border: 1px solid rgba(255, 107, 53, 0.1);
+          border: 2px solid rgba(224, 120, 0, 0.2);
           border-radius: 50%;
           animation: pulse-ring 2s infinite 0.5s;
         }
 
         @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 0.5; }
+          0% { transform: scale(0.8); opacity: 0.6; }
           100% { transform: scale(1.5); opacity: 0; }
         }
 
         .action-hint {
           font-size: 1rem;
-          color: white;
-          opacity: 0.8;
-          letter-spacing: 1px;
-          font-weight: 500;
-          text-transform: uppercase;
+          color: #1F2937;
+          letter-spacing: 0.5px;
+          font-weight: 600;
         }
 
         .landing-footer {
@@ -1306,53 +1397,61 @@ export function SetuVoice() {
           gap: 1rem;
           flex-wrap: wrap;
           margin-bottom: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid #E5E7EB;
         }
 
         .feature-pill {
-          font-size: 0.75rem;
-          color: rgba(255, 255, 255, 0.6);
-          background: rgba(255, 255, 255, 0.05);
-          padding: 6px 12px;
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 0.8rem;
+          color: #1A365D;
+          background: #F3F4F6;
+          padding: 8px 16px;
+          border-radius: 6px;
+          border: 1px solid #D1D5DB;
+          font-weight: 500;
         }
 
         .test-buttons-compact {
           display: flex;
           justify-content: center;
           gap: 1rem;
-          opacity: 0.4;
           margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px dashed #D1D5DB;
         }
 
         .test-link {
           background: none;
-          border: none;
-          color: white;
-          text-decoration: underline;
+          border: 1px solid #1A365D;
+          color: #1A365D;
+          text-decoration: none;
           cursor: pointer;
-          font-size: 0.75rem;
-          opacity: 0.8;
+          font-size: 0.8rem;
+          padding: 6px 12px;
+          border-radius: 4px;
+          transition: all 0.2s;
         }
         
         .test-link:hover {
-            opacity: 1;
+          background: #1A365D;
+          color: white;
         }
         
-        /* ============== LANGUAGE SELECT ============== */
+        /* ============== LANGUAGE SELECT (Official Style) ============== */
         .language-select-container {
           width: 100%;
           min-height: 100vh;
-          padding: 1.5rem;
+          padding: 2rem;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           overflow-y: auto;
+          background: #FFFFFF;
         }
         
         .language-title {
-          color: white;
+          color: #1A365D;
           font-size: clamp(1.5rem, 4vw, 2rem);
           font-weight: 700;
           margin-bottom: 0.5rem;
@@ -1363,17 +1462,17 @@ export function SetuVoice() {
           display: block;
           font-size: clamp(0.875rem, 2vw, 1rem);
           font-weight: 400;
-          opacity: 0.7;
+          color: #6B7280;
           margin-top: 0.25rem;
         }
         
         .language-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-          gap: 0.75rem;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 1rem;
           width: 100%;
-          max-width: 600px;
-          padding: 1rem 0;
+          max-width: 640px;
+          padding: 1.5rem 0;
         }
         
         .language-button {
@@ -1381,44 +1480,57 @@ export function SetuVoice() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 1rem 0.75rem;
-          border: 2px solid rgba(255, 255, 255, 0.2);
-          border-radius: 1rem;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
+          padding: 1.25rem 1rem;
+          border: 2px solid #D1D5DB;
+          border-radius: 8px;
+          background: #FFFFFF;
           cursor: pointer;
           transition: all 0.2s ease;
-          color: white;
+          color: #1F2937;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .language-button:hover {
-          background: rgba(255, 107, 53, 0.3);
-          border-color: rgba(255, 107, 53, 0.5);
+          background: #FFF7ED;
+          border-color: #E07800;
+          box-shadow: 0 2px 8px rgba(224, 120, 0, 0.2);
+        }
+        
+        .language-button:focus {
+          outline: 3px solid #E07800;
+          outline-offset: 2px;
         }
         
         .language-native {
           font-size: 1.25rem;
           font-weight: 600;
+          color: #1A365D;
         }
         
         .language-region {
-          font-size: 0.7rem;
-          opacity: 0.7;
+          font-size: 0.75rem;
+          color: #6B7280;
           margin-top: 0.25rem;
         }
         
         .back-button {
-          margin-top: 1rem;
-          padding: 0.75rem 1.5rem;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 2rem;
+          margin-top: 1.5rem;
+          padding: 0.75rem 2rem;
+          background: #1A365D;
+          border: none;
+          border-radius: 6px;
           color: white;
           cursor: pointer;
-          font-size: 0.9rem;
+          font-size: 1rem;
+          font-weight: 500;
+          transition: background 0.2s;
         }
         
-        /* ============== LISTENING ============== */
+        .back-button:hover {
+          background: #2D4A6F;
+        }
+        
+        /* ============== LISTENING (Official Style) ============== */
         .listening-container {
           display: flex;
           flex-direction: column;
@@ -1427,12 +1539,13 @@ export function SetuVoice() {
           width: 100%;
           min-height: 100vh;
           padding: 2rem;
+          background: #FFFFFF;
         }
         
         .listening-animation {
           position: relative;
-          width: min(50vw, 250px);
-          height: min(50vw, 250px);
+          width: min(50vw, 200px);
+          height: min(50vw, 200px);
           margin: 0 auto;
         }
         
@@ -1440,7 +1553,7 @@ export function SetuVoice() {
           position: absolute;
           inset: 0;
           border-radius: 50%;
-          border: 3px solid rgba(255, 107, 53, 0.5);
+          border: 3px solid rgba(224, 120, 0, 0.4);
           animation: listening-pulse 1.5s ease-out infinite;
         }
         
@@ -1458,30 +1571,29 @@ export function SetuVoice() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(145deg, #ff6b35, #f7931a);
+          background: linear-gradient(145deg, #E07800, #FF9933);
           border-radius: 50%;
-          box-shadow: 0 10px 40px rgba(255, 107, 53, 0.5);
+          border: 3px solid #1A365D;
+          box-shadow: 0 4px 20px rgba(224, 120, 0, 0.4);
         }
         
         .listening-mic {
-          width: 60%;
-          height: 60%;
+          width: 55%;
+          height: 55%;
         }
         
         .listening-text {
-          color: white;
-          font-size: clamp(1.25rem, 3vw, 1.5rem);
-          margin-top: 2rem;
+          color: #1F2937;
+          font-size: 1.25rem;
           text-align: center;
-          font-weight: 600;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          width: 100%;
-          max-width: 800px;
+          margin-top: 2rem;
+          font-weight: 500;
+          max-width: 600px;
           margin-left: auto;
           margin-right: auto;
         }
         
-        /* ============== PROCESSING ============== */
+        /* ============== PROCESSING (Official Style) ============== */
         .processing-container {
           display: flex;
           flex-direction: column;
@@ -1490,6 +1602,7 @@ export function SetuVoice() {
           width: 100%;
           min-height: 100vh;
           padding: 2rem;
+          background: #FFFFFF;
         }
         
         .processing-animation {
@@ -1498,31 +1611,30 @@ export function SetuVoice() {
         }
         
         .processing-dot {
-          width: 20px;
-          height: 20px;
-          background: linear-gradient(145deg, #ff6b35, #f7931a);
+          width: 18px;
+          height: 18px;
+          background: #1A365D;
           border-radius: 50%;
           animation: bounce 0.6s ease-in-out infinite alternate;
         }
         
         @keyframes bounce {
           from { transform: translateY(0); }
-          to { transform: translateY(-20px); }
+          to { transform: translateY(-15px); }
         }
         
         .processing-text {
-          color: white;
-          font-size: clamp(1rem, 3vw, 1.25rem);
+          color: #1F2937;
+          font-size: 1.125rem;
           margin-top: 2rem;
           text-align: center;
-          max-width: 90%;
+          max-width: 500px;
           font-weight: 500;
-          width: 100%;
           margin-left: auto;
           margin-right: auto;
         }
         
-        /* ============== SPEAKING ============== */
+        /* ============== SPEAKING (Official Style) ============== */
         .speaking-container {
           display: flex;
           flex-direction: column;
@@ -1531,12 +1643,13 @@ export function SetuVoice() {
           width: 100%;
           min-height: 100vh;
           padding: 2rem;
+          background: #FFFFFF;
         }
         
         .speaking-avatar {
           position: relative;
-          width: min(50vw, 250px);
-          height: min(50vw, 250px);
+          width: min(40vw, 180px);
+          height: min(40vw, 180px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1547,7 +1660,7 @@ export function SetuVoice() {
           position: absolute;
           inset: 0;
           border-radius: 50%;
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          border: 2px solid rgba(26, 54, 93, 0.3);
           animation: speak-wave 1s ease-out infinite;
         }
         
@@ -1560,26 +1673,23 @@ export function SetuVoice() {
         }
         
         .avatar-face {
-          font-size: 6rem;
+          font-size: 5rem;
           z-index: 1;
-          filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
         }
         
         .speaking-text {
-          color: white;
-          font-size: clamp(1.5rem, 4vw, 2rem);
+          color: #1F2937;
+          font-size: clamp(1.25rem, 3vw, 1.5rem);
           font-weight: 600;
-          margin-top: 2.5rem;
+          margin-top: 2rem;
           text-align: center;
-          max-width: 80%;
-          line-height: 1.4;
-          text-shadow: 0 4px 12px rgba(0,0,0,0.5);
-          width: 100%;
+          max-width: 600px;
+          line-height: 1.5;
           margin-left: auto;
           margin-right: auto;
         }
         
-        /* ============== BROADCASTING ============== */
+        /* ============== BROADCASTING (Official Style) ============== */
         .broadcasting-container {
           display: flex;
           flex-direction: column;
@@ -1588,12 +1698,13 @@ export function SetuVoice() {
           width: 100%;
           min-height: 100vh;
           padding: 2rem;
+          background: #FFFFFF;
         }
         
         .broadcast-animation {
           position: relative;
-          width: 150px;
-          height: 150px;
+          width: 140px;
+          height: 140px;
           margin: 0 auto;
         }
         
@@ -1601,17 +1712,17 @@ export function SetuVoice() {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 40px;
-          height: 40px;
-          border-top: 3px solid rgba(255, 107, 53, 0.8);
-          border-right: 3px solid rgba(255, 107, 53, 0.8);
+          width: 35px;
+          height: 35px;
+          border-top: 3px solid rgba(224, 120, 0, 0.8);
+          border-right: 3px solid rgba(224, 120, 0, 0.8);
           border-radius: 0 100% 0 0;
           transform: translate(-50%, -50%) rotate(-45deg);
           animation: broadcast 1s ease-out infinite;
         }
         
-        .signal-2 { animation-delay: 0.2s; width: 70px; height: 70px; }
-        .signal-3 { animation-delay: 0.4s; width: 100px; height: 100px; }
+        .signal-2 { animation-delay: 0.2s; width: 60px; height: 60px; }
+        .signal-3 { animation-delay: 0.4s; width: 90px; height: 90px; }
         
         @keyframes broadcast {
           0% { opacity: 0; }
@@ -1625,34 +1736,32 @@ export function SetuVoice() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 5rem;
-          filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
+          font-size: 4rem;
         }
         
         .broadcasting-text {
-          color: white;
-          font-size: clamp(1.5rem, 4vw, 2rem);
+          color: #1F2937;
+          font-size: clamp(1.25rem, 3vw, 1.5rem);
           font-weight: 600;
-          margin-top: 3rem;
+          margin-top: 2rem;
           text-align: center;
-          text-shadow: 0 4px 12px rgba(0,0,0,0.5);
-          width: 100%;
-          max-width: 800px;
+          max-width: 500px;
           margin-left: auto;
           margin-right: auto;
         }
         
-        /* ============== SUCCESS / SUMMARY ============== */
+        /* ============== SUCCESS / SUMMARY (Official Style) ============== */
         .success-container {
           display: flex;
           flex-direction: column;
           align-items: center;
           width: 100%;
-          padding: 2rem 1rem 4rem 1rem;
+          padding: 2rem 1.5rem 4rem 1.5rem;
+          background: #FFFFFF;
         }
 
         .success-container > * {
-          max-width: 550px;
+          max-width: 600px;
           width: 100%;
         }
         
@@ -1660,15 +1769,14 @@ export function SetuVoice() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
           flex-shrink: 0;
         }
         
         .success-icon {
-          font-size: 3rem;
-          margin-bottom: 0.25rem;
+          font-size: 3.5rem;
+          margin-bottom: 0.5rem;
           animation: success-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.5));
         }
         
         @keyframes success-pop {
@@ -1678,21 +1786,21 @@ export function SetuVoice() {
         }
         
         .success-title {
-          color: #4ade80;
-          font-size: clamp(1rem, 3vw, 1.5rem);
+          color: #138808;
+          font-size: clamp(1.25rem, 3vw, 1.75rem);
           font-weight: 700;
           text-align: center;
         }
 
-        /* Summary Card */
+        /* Summary Card - Official Government Style */
         .summary-card {
           width: 100%;
-          max-width: 500px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 1rem;
-          padding: 1.25rem;
-          backdrop-filter: blur(10px);
+          max-width: 560px;
+          background: #FFFFFF;
+          border: 2px solid #D1D5DB;
+          border-radius: 8px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           margin-bottom: 1.5rem;
         }
 
@@ -1701,76 +1809,79 @@ export function SetuVoice() {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 1rem;
-          padding-bottom: 0.75rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding-bottom: 1rem;
+          border-bottom: 2px solid #E5E7EB;
         }
 
         .protocol-badge {
-          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          background: #1A365D;
           color: white;
-          font-size: 0.65rem;
+          font-size: 0.7rem;
           font-weight: 600;
-          padding: 0.25rem 0.5rem;
-          border-radius: 0.25rem;
+          padding: 0.35rem 0.75rem;
+          border-radius: 4px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
 
         .protocol-status {
-          color: #4ade80;
-          font-size: 0.75rem;
-          font-weight: 600;
+          color: #138808;
+          font-size: 0.85rem;
+          font-weight: 700;
         }
 
         /* Sections */
         .summary-section, .buyer-section, .protocol-section {
-          margin-bottom: 1rem;
+          margin-bottom: 1.25rem;
         }
 
         .section-title {
-          color: white;
-          font-size: 0.85rem;
-          font-weight: 600;
+          color: #1A365D;
+          font-size: 1rem;
+          font-weight: 700;
           margin-bottom: 0.75rem;
           padding-bottom: 0.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border-bottom: 2px solid #E5E7EB;
         }
 
         /* Info Grid */
         .info-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.5rem;
+          gap: 0.75rem;
         }
 
         .info-item {
           display: flex;
           flex-direction: column;
-          padding: 0.5rem;
-          background: rgba(255, 255, 255, 0.04);
-          border-radius: 0.5rem;
+          padding: 0.75rem;
+          background: #F9FAFB;
+          border-radius: 6px;
+          border: 1px solid #E5E7EB;
         }
 
         .info-item.highlight {
-          background: rgba(255, 107, 53, 0.15);
+          background: #FFF7ED;
+          border-color: #E07800;
           grid-column: span 2;
         }
 
         .info-label {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.7rem;
+          color: #6B7280;
+          font-size: 0.75rem;
+          font-weight: 500;
           margin-bottom: 0.25rem;
         }
 
         .info-value {
-          color: white;
-          font-size: 0.9rem;
-          font-weight: 500;
+          color: #1F2937;
+          font-size: 1rem;
+          font-weight: 600;
         }
 
         .info-value.price {
-          color: #4ade80;
-          font-size: 1.1rem;
+          color: #138808;
+          font-size: 1.25rem;
           font-weight: 700;
         }
 
@@ -1779,10 +1890,10 @@ export function SetuVoice() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1rem;
-          background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(34, 197, 94, 0.08));
-          border: 1px solid rgba(74, 222, 128, 0.3);
-          border-radius: 0.75rem;
+          padding: 1.25rem;
+          background: #F0FDF4;
+          border: 2px solid #138808;
+          border-radius: 8px;
         }
 
         .buyer-info {
@@ -1791,14 +1902,15 @@ export function SetuVoice() {
         }
 
         .buyer-name {
-          color: white;
-          font-size: 1rem;
+          color: #1F2937;
+          font-size: 1.1rem;
           font-weight: 600;
         }
 
         .buyer-type {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.7rem;
+          color: #138808;
+          font-size: 0.8rem;
+          font-weight: 500;
         }
 
         .buyer-bid-amount {
@@ -1807,137 +1919,143 @@ export function SetuVoice() {
         }
 
         .buyer-bid-amount .currency {
-          color: #4ade80;
-          font-size: 1rem;
+          color: #138808;
+          font-size: 1.25rem;
           font-weight: 600;
         }
 
         .buyer-bid-amount .amount {
-          color: #4ade80;
-          font-size: 1.75rem;
+          color: #138808;
+          font-size: 2rem;
           font-weight: 700;
         }
 
         .buyer-bid-amount .unit {
-          color: rgba(74, 222, 128, 0.8);
-          font-size: 0.9rem;
+          color: #138808;
+          font-size: 1rem;
+          font-weight: 500;
         }
 
         /* Protocol Grid */
         .protocol-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.4rem;
+          gap: 0.5rem;
         }
 
         .protocol-item {
           display: flex;
           flex-direction: column;
-          padding: 0.4rem 0.5rem;
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 0.35rem;
-          overflow: hidden;
+          padding: 0.5rem 0.75rem;
+          background: #F3F4F6;
+          border-radius: 4px;
+          border: 1px solid #E5E7EB;
         }
 
         .protocol-label {
-          color: rgba(255, 255, 255, 0.5);
-          font-size: 0.6rem;
+          color: #6B7280;
+          font-size: 0.65rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          font-weight: 500;
         }
 
         .protocol-value {
-          color: rgba(255, 255, 255, 0.9);
-          font-size: 0.65rem;
-          font-family: monospace;
+          color: #1F2937;
+          font-size: 0.7rem;
+          font-family: 'Consolas', monospace;
           word-break: break-all;
         }
 
         .protocol-value.status-success {
-          color: #4ade80;
+          color: #138808;
+          font-weight: 600;
         }
 
         .protocol-value.status-active {
-          color: #60a5fa;
+          color: #1A365D;
+          font-weight: 600;
         }
 
         /* Debug Toggle Button */
         .debug-toggle-btn {
           width: 100%;
-          background: rgba(255, 107, 53, 0.1);
-          border: 1px solid rgba(255, 107, 53, 0.3);
-          border-radius: 0.5rem;
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 0.75rem;
-          padding: 0.6rem;
+          background: #F3F4F6;
+          border: 1px solid #D1D5DB;
+          border-radius: 6px;
+          color: #1F2937;
+          font-size: 0.85rem;
+          padding: 0.75rem;
           cursor: pointer;
-          margin-top: 0.75rem;
+          margin-top: 1rem;
           transition: all 0.2s;
+          font-weight: 500;
         }
 
         .debug-toggle-btn:hover {
-          background: rgba(255, 107, 53, 0.2);
+          background: #E5E7EB;
+          border-color: #9CA3AF;
         }
 
         /* JSON Debug */
         .json-debug {
-          margin-top: 0.75rem;
-          background: rgba(0, 0, 0, 0.4);
-          border-radius: 0.5rem;
-          padding: 0.75rem;
-          border: 1px solid rgba(255, 107, 53, 0.2);
+          margin-top: 1rem;
+          background: #1F2937;
+          border-radius: 6px;
+          padding: 1rem;
+          border: 1px solid #374151;
         }
 
         .json-content {
           font-family: 'Consolas', 'Monaco', monospace;
-          font-size: 0.6rem;
-          color: rgba(255, 255, 255, 0.85);
+          font-size: 0.7rem;
+          color: #E5E7EB;
           overflow-x: auto;
           white-space: pre-wrap;
           word-break: break-all;
           max-height: 300px;
           overflow-y: auto;
-          line-height: 1.4;
+          line-height: 1.5;
         }
 
         /* Card Footer */
         .card-footer {
-          margin-top: 1rem;
-          padding-top: 0.75rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin-top: 1.25rem;
+          padding-top: 1rem;
+          border-top: 1px solid #E5E7EB;
           text-align: center;
         }
 
         .footer-time {
-          color: rgba(255, 255, 255, 0.5);
-          font-size: 0.75rem;
+          color: #6B7280;
+          font-size: 0.85rem;
         }
 
-        /* Success Button */
+        /* Success Button - Official Saffron */
         .success-button {
-          padding: 0.875rem 2rem;
-          background: linear-gradient(145deg, #ff6b35, #f7931a);
+          padding: 1rem 2.5rem;
+          background: #E07800;
           border: none;
-          border-radius: 2rem;
+          border-radius: 6px;
           color: white;
-          font-size: 1rem;
+          font-size: 1.1rem;
           font-weight: 600;
           cursor: pointer;
-          box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
-          transition: transform 0.2s, box-shadow 0.2s;
-          margin-top: 1.5rem;
+          box-shadow: 0 2px 8px rgba(224, 120, 0, 0.3);
+          transition: all 0.2s;
+          margin-top: 2rem;
         }
         
         .success-button:hover {
-          transform: scale(1.05);
-          box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
+          background: #CC6B00;
+          box-shadow: 0 4px 16px rgba(224, 120, 0, 0.4);
         }
         
         .success-button:active {
           transform: scale(0.98);
         }
         
-        /* ============== ERROR ============== */
+        /* ============== ERROR (Official Style) ============== */
         .error-container {
           display: flex;
           flex-direction: column;
@@ -1947,28 +2065,37 @@ export function SetuVoice() {
           min-height: 100vh;
           padding: 2rem;
           text-align: center;
+          background: #FFFFFF;
         }
         
         .error-icon {
           font-size: 4rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
         }
         
         .error-text {
-          color: #f87171;
+          color: #B91C1C;
           font-size: 1.25rem;
-          max-width: 90%;
+          max-width: 500px;
           margin-bottom: 2rem;
+          font-weight: 500;
+          line-height: 1.5;
         }
         
         .error-button {
-          padding: 1rem 2rem;
-          background: rgba(255, 255, 255, 0.1);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 2rem;
+          padding: 1rem 2.5rem;
+          background: #1A365D;
+          border: none;
+          border-radius: 6px;
           color: white;
-          font-size: 1rem;
+          font-size: 1.1rem;
+          font-weight: 600;
           cursor: pointer;
+          transition: all 0.2s;
+        }
+        
+        .error-button:hover {
+          background: #2D4A6F;
         }
         
         /* ============== RESPONSIVE ============== */
@@ -1979,11 +2106,17 @@ export function SetuVoice() {
           }
           
           .language-button {
-            padding: 0.75rem 0.5rem;
+            padding: 0.875rem 0.5rem;
           }
           
           .language-native {
             font-size: 1rem;
+          }
+          
+          .success-button,
+          .error-button {
+            width: 100%;
+            max-width: 280px;
           }
         }
       `}</style>
