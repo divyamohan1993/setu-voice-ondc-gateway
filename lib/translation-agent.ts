@@ -27,6 +27,11 @@ export const COMMODITY_MAPPING: Record<string, string> = {
   "pyaaz": "Onions",
   "pyaz": "Onions",
   "kanda": "Onions",
+  "onion": "Onions",
+  "onions": "Onions",
+  "प्याज": "Onions",
+  "प्याज़": "Onions",
+  "कंदा": "Onions",
 
   // Mangoes
   "aam": "Mangoes",
@@ -36,20 +41,28 @@ export const COMMODITY_MAPPING: Record<string, string> = {
   // Tomatoes
   "tamatar": "Tomatoes",
   "tomato": "Tomatoes",
+  "tomatoes": "Tomatoes",
+  "टमाटर": "Tomatoes",
 
   // Potatoes
   "aloo": "Potatoes",
   "potato": "Potatoes",
+  "potatoes": "Potatoes",
+  "आलू": "Potatoes",
+  "बटाटा": "Potatoes",
   "batata": "Potatoes",
 
   // Wheat
   "gehun": "Wheat",
   "gehu": "Wheat",
   "wheat": "Wheat",
+  "गेहूं": "Wheat",
+  "गेहू": "Wheat",
 
   // Rice
   "chawal": "Rice",
   "rice": "Rice",
+  "चावल": "Rice",
   "basmati": "Basmati Rice",
 
   // Lentils
@@ -106,9 +119,12 @@ export function mapCommodityName(voiceText: string): string | null {
 
   for (const [hindiTerm, englishName] of Object.entries(COMMODITY_MAPPING)) {
     if (lowerText.includes(hindiTerm)) {
+      console.log(`[OK] Matched commodity: ${hindiTerm} -> ${englishName}`);
       return englishName;
     }
   }
+
+  console.log(`[X] No commodity match found for: "${voiceText}"`);
 
   return null;
 }
@@ -232,7 +248,7 @@ export async function translateVoiceToJson(voiceText: string): Promise<BecknCata
   const prompt = buildPrompt(voiceText);
 
   const result = await generateObject({
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-3-flash-preview"),
     schema: BecknCatalogItemSchema,
     prompt: prompt,
   });

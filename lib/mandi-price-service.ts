@@ -335,7 +335,7 @@ export async function getMandiPrices(commodity: string, state?: string): Promise
 async function normalizeCommodityName(input: string): Promise<string> {
     try {
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 englishName: z.string().describe("Standard English name of the agricultural commodity"),
                 category: z.enum(["vegetable", "fruit", "grain", "spice", "oilseed", "other"]).describe("Category of commodity"),

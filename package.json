@@ -38,6 +38,7 @@
     "prisma": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "server-only": "^0.0.1",
     "sonner": "latest",
     "tailwind-merge": "^3.4.0",
     "zod": "latest"

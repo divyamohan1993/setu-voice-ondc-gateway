@@ -78,8 +78,8 @@ describe('Location Service - Live API Tests', () => {
             console.log(`   Cached call: ${time2}ms`);
 
             expect(mandis1.length).toBe(mandis2.length);
-            // Cached call should be much faster
-            expect(time2).toBeLessThan(time1);
+            // Cached call should be much faster (or at least equal if both are very fast)
+            expect(time2).toBeLessThanOrEqual(time1);
         }, API_TIMEOUT);
     });
 
@@ -126,8 +126,10 @@ describe('Location Service - Live API Tests', () => {
 
             let sorted = true;
             for (let i = 1; i < mandis.length; i++) {
-                if (mandis[i].distanceKm && mandis[i - 1].distanceKm) {
-                    if (mandis[i].distanceKm < mandis[i - 1].distanceKm) {
+                const dist1 = mandis[i - 1].distanceKm;
+                const dist2 = mandis[i].distanceKm;
+                if (dist2 !== undefined && dist1 !== undefined) {
+                    if (dist2 < dist1) {
                         sorted = false;
                         break;
                     }

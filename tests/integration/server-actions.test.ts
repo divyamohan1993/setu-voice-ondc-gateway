@@ -353,7 +353,7 @@ describe('Server Actions - Live Integration Tests', () => {
 
             languages.forEach(lang => {
                 expect(lang.code).toBeDefined();
-                expect(lang.nativeName).toBeDefined();
+                expect(lang.name).toBeDefined();
                 expect(lang.englishName).toBeDefined();
             });
         });

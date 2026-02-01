@@ -151,6 +151,11 @@ export interface ConversationState {
         location?: string;
         preferredPrice?: number;
         useMarketPrice?: boolean;
+        // Custom location override - user can specify a different mandi/city/state
+        customState?: string;
+        customCity?: string;
+        customMandi?: string;
+        useCustomLocation?: boolean;
     };
     priceSuggestion?: PriceSuggestion;
     catalogItem?: BecknCatalogItem;
@@ -262,7 +267,244 @@ function handleGreeting(
 }
 
 /**
+ * Dynamic extraction schema for parsing all info from a single user sentence
+ * This enables users to speak naturally: "I want to sell wheat at 50 rs per quintal and I have 400 quintals from Punjab"
+ */
+const DynamicExtractionSchema = z.object({
+    // Commodity info
+    commodity: z.string().optional().describe("The agricultural commodity mentioned (in original language)"),
+    commodityEnglish: z.string().optional().describe("English name of the commodity"),
+
+    // Quantity info
+    quantity: z.number().optional().describe("Numerical quantity mentioned"),
+    quantityUnit: z.enum(["kg", "quintal", "ton", "kilogram", "quintals", "tons", "unknown"]).optional()
+        .describe("Unit of the quantity: kg, quintal (100kg), or ton (1000kg)"),
+    quantityKg: z.number().optional().describe("Quantity converted to kilograms"),
+
+    // Price info
+    price: z.number().optional().describe("Price mentioned by user"),
+    priceUnit: z.enum(["per_kg", "per_quintal", "per_ton", "total", "unknown"]).optional()
+        .describe("Unit of the price: per kg, per quintal, per ton, or total"),
+    pricePerKg: z.number().optional().describe("Price converted to per kg"),
+
+    // Quality info
+    quality: z.enum(["Premium", "A", "B", "Standard", "Mixed", "unknown"]).optional()
+        .describe("Quality grade if mentioned"),
+
+    // Custom location - user can specify a different mandi instead of GPS location
+    customState: z.string().optional().describe("Indian state if user specified (e.g., Punjab, Maharashtra, Karnataka)"),
+    customCity: z.string().optional().describe("City name if user specified"),
+    customMandi: z.string().optional().describe("Specific mandi name if user specified"),
+    wantsCustomLocation: z.boolean().optional()
+        .describe("True if user wants prices from a specific location instead of their GPS location"),
+
+    // Parsing confidence
+    understood: z.boolean().describe("Whether we could understand the input"),
+    hasAllInfo: z.boolean().describe("True if user provided commodity, quantity AND price in one sentence")
+});
+
+type DynamicExtraction = z.infer<typeof DynamicExtractionSchema>;
+
+/**
+ * Intelligently extract all available information from user's free-form speech.
+ * Allows users to say everything in one sentence instead of answering one question at a time.
+ * 
+ * Examples that work:
+ * - "I want to sell wheat at 50 rs per quintal and I have 400 quintals"
+ * - "मुझे 200 किलो प्याज़ 25 रुपये किलो में बेचना है"
+ * - "Give me Punjab mandi price for wheat"
+ * - "मुझे लसुन का भाव देखना है नासिक मंडी का"
+ */
+async function extractDynamicInfo(
+    userInput: string,
+    language: LanguageConfig
+): Promise<DynamicExtraction | null> {
+    try {
+        // Check if API key exists
+        if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+            console.warn("[!] No API key for dynamic extraction");
+            return null;
+        }
+
+        console.log(`[AI] Extracting all info from: "${userInput}"`);
+
+        const result = await generateObject({
+            model: google("gemini-3-flash-preview"),
+            schema: DynamicExtractionSchema,
+            prompt: `You are helping a farmer sell their produce. Extract ALL available information from their speech.
+The user is speaking in ${language.englishName}. Be flexible and understanding.
+
+User said: "${userInput}"
+
+Extract as much as possible:
+
+1. COMMODITY: What crop/produce they want to sell (onion, wheat, tomato, etc.)
+   - Extract in original language as 'commodity'
+   - Also provide English name as 'commodityEnglish'
+
+2. QUANTITY: How much they want to sell
+   - Extract the number as 'quantity'
+   - Identify unit as 'quantityUnit': "kg", "quintal" (100kg), "ton" (1000kg)
+   - Convert to kg and provide as 'quantityKg'
+   - Note: 1 quintal = 100 kg, 1 ton = 1000 kg
+
+3. PRICE: What price they want
+   - Extract the number as 'price'
+   - Identify unit as 'priceUnit': "per_kg", "per_quintal", "per_ton"
+   - Convert to per kg and provide as 'pricePerKg'
+   - Note: If price is per quintal, divide by 100 for per kg
+   - "50 rupees per quintal" = 0.5 rs per kg
+   - "50 rs per kg" = 50 rs per kg
+
+4. QUALITY: Grade of produce if mentioned
+   - "ache", "badhiya", "first class", "best", "organic" = Premium
+   - "achha", "good" = A
+   - "theek theek", "average" = B
+   - "normal" = Standard
+   - "mixed", "milaya" = Mixed
+
+5. CUSTOM LOCATION: If user wants prices from a specific place (not their GPS location)
+   - Set wantsCustomLocation=true if they mention any specific state/city/mandi
+   - Extract customState (Punjab, Maharashtra, Karnataka, UP, MP, etc.)
+   - Extract customCity (Ludhiana, Nasik, Bengaluru, Lucknow, etc.)
+   - Extract customMandi (Azadpur, Lasalgaon, Vashi, etc.)
+   
+   Examples:
+   - "Delhi mandi ka bhav" -> wantsCustomLocation=true, customCity="Delhi"
+   - "Punjab wheat price" -> wantsCustomLocation=true, customState="Punjab"
+   - "Lasalgaon onion rate" -> wantsCustomLocation=true, customMandi="Lasalgaon"
+
+6. Set 'hasAllInfo'=true ONLY if user provided: commodity + quantity + price all in one sentence
+   Example: "400 quintal wheat at 50 rs" -> hasAllInfo=true
+   Example: "I want to sell wheat" -> hasAllInfo=false (missing quantity and price)
+
+Be generous in understanding. Farmers speak naturally, not formally.
+If you can't extract something, leave it undefined (don't guess).
+Set understood=true if you could parse any meaningful info.`
+        });
+
+        console.log("[AI] Extraction result:", JSON.stringify(result.object, null, 2));
+        return result.object;
+
+    } catch (error) {
+        console.error("[X] Dynamic extraction failed:", error);
+        return null;
+    }
+}
+
+/**
+ * Generate a natural conversational response using Gemini
+ * This creates human-like responses instead of rigid template-based replies
+ */
+async function generateNaturalResponse(
+    context: {
+        language: LanguageConfig;
+        stage: ConversationStage;
+        collectedData: ConversationState['collectedData'];
+        userInput: string;
+        nextStage: ConversationStage;
+        priceSuggestion?: PriceSuggestion;
+        additionalContext?: string;
+    }
+): Promise<string> {
+    try {
+        if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+            // Fallback to template if no API key
+            return getLocalizedText(getTemplateKeyForStage(context.nextStage), context.language.code, {
+                commodity: context.collectedData.commodity || "crop",
+                quantity: (context.collectedData.quantityKg || 0).toString(),
+                price: (context.collectedData.preferredPrice || 0).toString(),
+                quality: context.collectedData.quality || "Standard"
+            });
+        }
+
+        console.log(`[AI] Generating natural response for stage: ${context.nextStage}`);
+
+        const result = await generateText({
+            model: google("gemini-3-flash-preview"),
+            prompt: `You are a friendly agricultural assistant helping an Indian farmer sell their produce. 
+Generate a natural, warm conversational response in ${context.language.englishName} (${context.language.name}).
+
+Current conversation context:
+- User just said: "${context.userInput}"
+- We are now moving to: ${context.nextStage}
+- Information collected so far:
+  ${context.collectedData.commodity ? `• Commodity: ${context.collectedData.commodity}` : '• Commodity: Not yet known'}
+  ${context.collectedData.quantityKg ? `• Quantity: ${context.collectedData.quantityKg} kg` : '• Quantity: Not yet known'}
+  ${context.collectedData.quality ? `• Quality: ${context.collectedData.quality}` : '• Quality: Not yet known'}
+  ${context.collectedData.preferredPrice ? `• Price: ₹${context.collectedData.preferredPrice}/kg` : '• Price: Not yet known'}
+  ${context.collectedData.location ? `• Location: ${context.collectedData.location}` : ''}
+${context.priceSuggestion ? `
+Market price info:
+  • Min price: ₹${context.priceSuggestion.pricePerKg.min}/kg
+  • Max price: ₹${context.priceSuggestion.pricePerKg.max}/kg
+  • Average: ₹${context.priceSuggestion.pricePerKg.average}/kg
+  • Source: ${context.priceSuggestion.market || 'Local mandi'}` : ''}
+${context.additionalContext ? `\nAdditional context: ${context.additionalContext}` : ''}
+
+Instructions:
+1. Be warm, friendly and encouraging - farmers appreciate a supportive tone
+2. If we have collected some information, acknowledge it naturally (don't just repeat it robotically)
+3. Based on the next stage, naturally guide the conversation:
+   - asking_commodity: Ask what they want to sell in a friendly way
+   - asking_quantity: Ask how much they have, mentioning the commodity name naturally
+   - asking_quality: Ask about quality in a conversational way
+   - asking_price_preference: Ask about their price expectation or if they want to see market rates
+   - showing_market_prices: Share the market prices and ask for confirmation
+   - confirming_listing: Summarize everything and ask for final confirmation to broadcast
+4. Keep the response concise (1-3 sentences max)
+5. Don't force questions unnaturally - if the user provided multiple pieces of info, acknowledge that
+6. Speak naturally like a helpful friend, not like a formal system
+7. Use the local language appropriately - ${context.language.englishName} speakers expect certain phrases and idioms
+
+Generate ONLY the response text, nothing else.`
+        });
+
+        console.log(`[AI] Generated response: ${result.text}`);
+        return result.text;
+
+    } catch (error) {
+        console.error("[X] Natural response generation failed:", error);
+        // Fallback to template
+        return getLocalizedText(getTemplateKeyForStage(context.nextStage), context.language.code, {
+            commodity: context.collectedData.commodity || "crop",
+            quantity: (context.collectedData.quantityKg || 0).toString(),
+            price: (context.collectedData.preferredPrice || 0).toString(),
+            quality: context.collectedData.quality || "Standard"
+        });
+    }
+}
+
+/**
+ * Get the template key for a given stage (fallback)
+ */
+function getTemplateKeyForStage(stage: ConversationStage): string {
+    switch (stage) {
+        case "asking_commodity": return "ask_commodity";
+        case "asking_quantity": return "ask_quantity";
+        case "asking_quality": return "ask_quality";
+        case "asking_price_preference": return "ask_price_preference";
+        case "showing_market_prices": return "confirm_price";
+        case "confirming_listing": return "confirm_broadcast";
+        default: return "error_general";
+    }
+}
+
+/**
+ * Determine next stage based on what info we still need
+ */
+function determineNextStage(collectedData: ConversationState['collectedData']): ConversationStage {
+    if (!collectedData.commodity) return "asking_commodity";
+    if (!collectedData.quantityKg) return "asking_quantity";
+    if (!collectedData.quality) return "asking_quality";
+    if (!collectedData.preferredPrice) return "asking_price_preference";
+    return "confirming_listing";
+}
+
+/**
  * Handle commodity extraction
+ * ENHANCED: Uses dynamic extraction to parse ALL info from user's speech in one go
+ * Users can say: "I want to sell 400 quintals of wheat at 50 rs per quintal from Punjab"
  */
 async function handleCommodity(
     state: ConversationState,
@@ -270,125 +512,163 @@ async function handleCommodity(
 ): Promise<{ response: VoiceResponse; newState: ConversationState }> {
     const lang = state.language;
 
-    // Helper for successful commodity found
-    const onCommodityFound = (commodity: string, commodityEnglish: string, quantity?: number, quality?: string) => {
-        const newState: ConversationState = {
-            ...state,
-            collectedData: {
-                ...state.collectedData,
-                commodity: commodityEnglish,
-                quantityKg: quantity,
-                quality: quality
-            }
-        };
-
-        // If quantity was also mentioned/found
-        if (quantity && quantity > 0) {
-            if (quality) {
-                newState.stage = "asking_price_preference";
-                return {
-                    response: {
-                        text: getLocalizedText("ask_price_preference", lang.code, {
-                            commodity: commodity,
-                            quantity: quantity.toString()
-                        }),
-                        stage: "asking_price_preference" as ConversationStage,
-                        expectsResponse: true
-                    },
-                    newState
-                };
-            } else {
-                newState.stage = "asking_quality";
-                return {
-                    response: {
-                        text: getLocalizedText("ask_quality", lang.code, {
-                            commodity: commodity
-                        }),
-                        stage: "asking_quality" as ConversationStage,
-                        expectsResponse: true
-                    },
-                    newState
-                };
-            }
-        }
-
-        // Ask for quantity
-        newState.stage = "asking_quantity";
-        return {
-            response: {
-                text: getLocalizedText("ask_quantity", lang.code, {
-                    commodity: commodity
-                }),
-                stage: "asking_quantity" as ConversationStage,
-                expectsResponse: true
-            },
-            newState
-        };
-    };
-
     try {
-        // Fallback: Check if API key is missing, if so, use regex directly
-        if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-            throw new Error("No API Key");
+        // STEP 1: Try dynamic extraction first - this can parse everything in one go
+        const extracted = await extractDynamicInfo(userInput, lang);
+
+        if (extracted && extracted.understood) {
+            console.log("[AI] Dynamic extraction successful:", extracted);
+
+            // Build collected data from extracted info
+            const newCollectedData: ConversationState['collectedData'] = {
+                ...state.collectedData,
+                // Commodity
+                commodity: extracted.commodityEnglish || extracted.commodity,
+                // Quantity (convert to kg if needed)
+                quantityKg: extracted.quantityKg || (extracted.quantity ?
+                    (extracted.quantityUnit === 'quintal' || extracted.quantityUnit === 'quintals' ? extracted.quantity * 100 :
+                        extracted.quantityUnit === 'ton' || extracted.quantityUnit === 'tons' ? extracted.quantity * 1000 :
+                            extracted.quantity) : undefined),
+                // Quality
+                quality: extracted.quality && extracted.quality !== 'unknown' ? extracted.quality : undefined,
+                // Price (convert to per kg if needed)
+                preferredPrice: extracted.pricePerKg || (extracted.price ?
+                    (extracted.priceUnit === 'per_quintal' ? extracted.price / 100 :
+                        extracted.priceUnit === 'per_ton' ? extracted.price / 1000 :
+                            extracted.price) : undefined),
+                // Custom location
+                customState: extracted.customState,
+                customCity: extracted.customCity,
+                customMandi: extracted.customMandi,
+                useCustomLocation: extracted.wantsCustomLocation
+            };
+
+            // Determine what stage to go to based on what info we have
+            const nextStage = determineNextStage(newCollectedData);
+
+            console.log(`[AI] Extraction: understood=${extracted.understood}, hasAllInfo=${extracted.hasAllInfo}`);
+            console.log(`[AI] Collected data:`, JSON.stringify(newCollectedData, null, 2));
+            console.log(`[AI] Next stage: ${nextStage}`);
+
+            const newState: ConversationState = {
+                ...state,
+                stage: nextStage,
+                collectedData: newCollectedData
+            };
+
+            // If user provided ALL info (commodity + quantity + price), fast-track to confirmation
+            if (extracted.hasAllInfo && newCollectedData.commodity && newCollectedData.quantityKg && newCollectedData.preferredPrice) {
+                // Set quality to Standard if not provided
+                if (!newCollectedData.quality) {
+                    newCollectedData.quality = "Standard";
+                }
+                newState.collectedData = newCollectedData;
+
+                // Skip directly to showing market prices for comparison
+                newState.stage = "showing_market_prices";
+
+                const commodity = extracted.commodity || extracted.commodityEnglish || "produce";
+                const quantityKg = newCollectedData.quantityKg;
+                const pricePerKg = newCollectedData.preferredPrice;
+
+                // Create a confirmation message with all the extracted info
+                const summaryText = getLocalizedText("fast_track_summary", lang.code, {
+                    commodity: commodity,
+                    quantity: quantityKg.toString(),
+                    price: pricePerKg.toFixed(2)
+                }) || `Got it! ${quantityKg} kg of ${commodity} at ₹${pricePerKg.toFixed(2)} per kg. Let me check the market prices for you.`;
+
+                return {
+                    response: {
+                        text: summaryText,
+                        stage: "showing_market_prices",
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            }
+
+            // If we have commodity, generate appropriate next question
+            if (newCollectedData.commodity) {
+                // Generate natural response based on next stage
+                const naturalText = await generateNaturalResponse({
+                    language: lang,
+                    stage: state.stage,
+                    collectedData: newCollectedData,
+                    userInput,
+                    nextStage
+                });
+
+                return {
+                    response: {
+                        text: naturalText,
+                        stage: nextStage,
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            }
         }
 
-        // Use AI to extract commodity from natural speech
-        const result = await generateObject({
-            model: google("gemini-2.0-flash"),
-            schema: z.object({
-                commodity: z.string().describe("The agricultural commodity mentioned"),
-                commodityEnglish: z.string().describe("English name of the commodity"),
-                location: z.string().optional().describe("Location if mentioned"),
-                quantity: z.number().optional().describe("Quantity in kg if mentioned"),
-                quality: z.string().optional().describe("Quality grade if mentioned"),
-                understood: z.boolean().describe("Whether we could understand the input")
-            }),
-            prompt: `User is a farmer speaking in ${lang.englishName}. Extract commodity information from their speech:
-            
-User said: "${userInput}"
+        // FALLBACK: If dynamic extraction didn't get commodity, try regex
+        console.log("[!] Dynamic extraction didn't find commodity, trying fallback...");
+        const fallbackEnglish = mapCommodityName(userInput);
 
-Extract:
-1. commodity: The name of the crop in ${lang.englishName} script/language.
-2. commodityEnglish: The English name.
-3. Any location mentioned
-4. Quantity in kg if mentioned
-5. Quality grade if mentioned
-
-If you cannot understand, set understood to false.`
-        });
-
-        if (!result.object.understood || !result.object.commodity) {
-            // AI couldn't match, maybe try regex fallback before giving up?
-            const fallbackEnglish = mapCommodityName(userInput);
-            if (fallbackEnglish) {
-                return onCommodityFound(fallbackEnglish, fallbackEnglish);
-            }
+        if (fallbackEnglish) {
+            console.log(`[OK] Regex fallback found: ${fallbackEnglish}`);
+            const newState: ConversationState = {
+                ...state,
+                stage: "asking_quantity",
+                collectedData: {
+                    ...state.collectedData,
+                    commodity: fallbackEnglish
+                }
+            };
 
             return {
                 response: {
-                    text: getLocalizedText("not_understood_commodity", lang.code),
-                    stage: "asking_commodity",
+                    text: getLocalizedText("ask_quantity", lang.code, { commodity: fallbackEnglish }),
+                    stage: "asking_quantity" as ConversationStage,
                     expectsResponse: true
                 },
-                newState: state
+                newState
             };
         }
 
-        return onCommodityFound(
-            result.object.commodity,
-            result.object.commodityEnglish || result.object.commodity,
-            result.object.quantity,
-            result.object.quality
-        );
+        // Nothing understood - ask again
+        return {
+            response: {
+                text: getLocalizedText("not_understood_commodity", lang.code),
+                stage: "asking_commodity",
+                expectsResponse: true
+            },
+            newState: state
+        };
 
     } catch (error) {
-        console.warn("[!] Commodity extraction failed (or no key), trying regex fallback:", error);
+        console.error("[X] Commodity extraction error:", error);
 
         // Regex Fallback
         const fallbackEnglish = mapCommodityName(userInput);
         if (fallbackEnglish) {
-            console.log(`[OK] Regex fallback found: ${fallbackEnglish}`);
-            return onCommodityFound(fallbackEnglish, fallbackEnglish);
+            console.log(`[OK] Error recovery fallback found: ${fallbackEnglish}`);
+            const newState: ConversationState = {
+                ...state,
+                stage: "asking_quantity",
+                collectedData: {
+                    ...state.collectedData,
+                    commodity: fallbackEnglish
+                }
+            };
+
+            return {
+                response: {
+                    text: getLocalizedText("ask_quantity", lang.code, { commodity: fallbackEnglish }),
+                    stage: "asking_quantity" as ConversationStage,
+                    expectsResponse: true
+                },
+                newState
+            };
         }
 
         return {
@@ -404,6 +684,7 @@ If you cannot understand, set understood to false.`
 
 /**
  * Handle quantity extraction
+ * ENHANCED: Uses dynamic extraction to also capture price, quality, location if user provides them
  */
 async function handleQuantity(
     state: ConversationState,
@@ -412,8 +693,77 @@ async function handleQuantity(
     const lang = state.language;
 
     try {
+        // Use dynamic extraction to capture all info user might provide
+        const extracted = await extractDynamicInfo(userInput, lang);
+
+        if (extracted && extracted.understood) {
+            // Get quantity from dynamic extraction
+            const quantityKg = extracted.quantityKg || (extracted.quantity ?
+                (extracted.quantityUnit === 'quintal' || extracted.quantityUnit === 'quintals' ? extracted.quantity * 100 :
+                    extracted.quantityUnit === 'ton' || extracted.quantityUnit === 'tons' ? extracted.quantity * 1000 :
+                        extracted.quantity) : undefined);
+
+            if (quantityKg && quantityKg > 0) {
+                // Build new collected data with all extracted info
+                const newCollectedData: ConversationState['collectedData'] = {
+                    ...state.collectedData,
+                    quantityKg,
+                    // Also pick up any extra info user provided
+                    quality: extracted.quality && extracted.quality !== 'unknown'
+                        ? extracted.quality
+                        : state.collectedData.quality,
+                    preferredPrice: extracted.pricePerKg || (extracted.price ?
+                        (extracted.priceUnit === 'per_quintal' ? extracted.price / 100 :
+                            extracted.priceUnit === 'per_ton' ? extracted.price / 1000 :
+                                extracted.price) : state.collectedData.preferredPrice),
+                    customState: extracted.customState || state.collectedData.customState,
+                    customCity: extracted.customCity || state.collectedData.customCity,
+                    customMandi: extracted.customMandi || state.collectedData.customMandi,
+                    useCustomLocation: extracted.wantsCustomLocation || state.collectedData.useCustomLocation
+                };
+
+                // Determine next stage based on what we have
+                const nextStage = determineNextStage(newCollectedData);
+
+                const newState: ConversationState = {
+                    ...state,
+                    stage: nextStage,
+                    collectedData: newCollectedData
+                };
+
+                // Generate natural response based on what info we have
+                const naturalText = await generateNaturalResponse({
+                    language: lang,
+                    stage: state.stage,
+                    collectedData: newCollectedData,
+                    userInput,
+                    nextStage,
+                    additionalContext: newCollectedData.quality && newCollectedData.preferredPrice
+                        ? `User provided all remaining info in one go - quality and price`
+                        : newCollectedData.quality
+                            ? `User also mentioned quality`
+                            : undefined
+                });
+
+                // If user provided all info, fast-track
+                if (newCollectedData.quality && newCollectedData.preferredPrice) {
+                    newState.stage = "showing_market_prices";
+                }
+
+                return {
+                    response: {
+                        text: naturalText,
+                        stage: newState.stage,
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            }
+        }
+
+        // Fallback: Simple quantity extraction
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 quantityKg: z.number().describe("Quantity in kilograms"),
                 understood: z.boolean()
@@ -475,6 +825,7 @@ Return quantity in kilograms.`
 
 /**
  * Handle quality extraction
+ * ENHANCED: Uses dynamic extraction to also capture price and location if user provides them
  */
 async function handleQuality(
     state: ConversationState,
@@ -483,8 +834,66 @@ async function handleQuality(
     const lang = state.language;
 
     try {
+        // Try dynamic extraction first to capture all info
+        const extracted = await extractDynamicInfo(userInput, lang);
+
+        if (extracted && extracted.understood) {
+            // Get quality from dynamic extraction
+            const quality = extracted.quality && extracted.quality !== 'unknown'
+                ? extracted.quality
+                : undefined;
+
+            if (quality) {
+                // Build new collected data with all extracted info
+                const newCollectedData: ConversationState['collectedData'] = {
+                    ...state.collectedData,
+                    quality,
+                    // Also pick up price and location if provided
+                    preferredPrice: extracted.pricePerKg || (extracted.price ?
+                        (extracted.priceUnit === 'per_quintal' ? extracted.price / 100 :
+                            extracted.priceUnit === 'per_ton' ? extracted.price / 1000 :
+                                extracted.price) : state.collectedData.preferredPrice),
+                    customState: extracted.customState || state.collectedData.customState,
+                    customCity: extracted.customCity || state.collectedData.customCity,
+                    customMandi: extracted.customMandi || state.collectedData.customMandi,
+                    useCustomLocation: extracted.wantsCustomLocation || state.collectedData.useCustomLocation
+                };
+
+                // Determine next stage
+                const nextStage = newCollectedData.preferredPrice ? "showing_market_prices" : "asking_price_preference";
+
+                const newState: ConversationState = {
+                    ...state,
+                    stage: nextStage,
+                    collectedData: newCollectedData
+                };
+
+                // Generate natural response
+                const naturalText = await generateNaturalResponse({
+                    language: lang,
+                    stage: state.stage,
+                    collectedData: newCollectedData,
+                    userInput,
+                    nextStage,
+                    additionalContext: newCollectedData.preferredPrice
+                        ? `User also provided price - can fast-track to market prices`
+                        : undefined
+                });
+
+                return {
+                    response: {
+                        text: naturalText,
+                        stage: nextStage,
+                        expectsResponse: true
+                    },
+                    newState
+                };
+            }
+        }
+
+        // Fallback: Simple quality extraction
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 quality: z.enum(["Premium", "A", "B", "Standard", "Mixed"]).describe("Quality grade"),
                 understood: z.boolean()
@@ -536,6 +945,7 @@ Common terms:
 
 /**
  * Handle price preference
+ * ENHANCED: Also extracts custom location if user specifies a different mandi
  */
 async function handlePricePreference(
     state: ConversationState,
@@ -545,37 +955,48 @@ async function handlePricePreference(
 
     try {
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 wantsMarketPrice: z.boolean().describe("User wants to see current market prices"),
                 specificPrice: z.number().optional().describe("Specific price per kg mentioned"),
+                // Also extract custom location at this stage
+                customState: z.string().optional().describe("Indian state if user specified"),
+                customCity: z.string().optional().describe("City name if user specified"),
+                customMandi: z.string().optional().describe("Specific mandi name if user specified"),
+                wantsCustomLocation: z.boolean().optional().describe("True if user wants prices from specific location"),
                 understood: z.boolean()
             }),
-            prompt: `Understand farmer's price preference.
+            prompt: `Understand farmer's price preference and any custom location they want.
       
 User said: "${userInput}"
 
 Determine:
 1. Do they want to see current market prices first? (mention of "mandi", "market", "rate", "kitna chal raha")
 2. Or do they have a specific price in mind? (mentioned rupees/price/rate with a number)
+3. Did they mention a specific location? (state, city, mandi name)
+   - Examples: "Punjab ka rate", "Lasalgaon mandi", "Delhi market price", "Maharashtra mein"
+   - If yes, set wantsCustomLocation=true and extract customState/customCity/customMandi
 
 If specific price mentioned, convert to per kg if needed.`
         });
 
+        // Determine location for fetching prices
+        // Priority: 1) Custom location from this input, 2) Custom location from earlier, 3) GPS-based
+        const customState = result.object.customState || state.collectedData.customState;
+        const customCity = result.object.customCity || state.collectedData.customCity;
+        const customMandi = result.object.customMandi || state.collectedData.customMandi;
+        const useCustomLocation = result.object.wantsCustomLocation || state.collectedData.useCustomLocation;
+
+        // Build location string for fetching prices
+        const locationForPrices = useCustomLocation
+            ? (customState || customCity || customMandi || state.collectedData.location)
+            : state.collectedData.location;
+
+        console.log(`[PRICE] Fetching prices for location: ${locationForPrices || 'GPS-based'}`);
+
         // Fetch market prices
         const commodity = state.collectedData.commodity || "unknown";
-        const priceSuggestion = await getPriceSuggestion(commodity, state.collectedData.location);
-
-        let priceText = formatPriceForVoice(priceSuggestion, lang.code);
-
-        if (result.object.specificPrice && result.object.specificPrice > 0) {
-            // User has specific price in mind
-            const suggestedCompare = result.object.specificPrice >= priceSuggestion.pricePerKg.average
-                ? getLocalizedText("price_good", lang.code)
-                : getLocalizedText("price_low", lang.code);
-
-            priceText += suggestedCompare;
-        }
+        const priceSuggestion = await getPriceSuggestion(commodity, locationForPrices);
 
         const newState: ConversationState = {
             ...state,
@@ -583,14 +1004,35 @@ If specific price mentioned, convert to per kg if needed.`
             collectedData: {
                 ...state.collectedData,
                 preferredPrice: result.object.specificPrice,
-                useMarketPrice: result.object.wantsMarketPrice
+                useMarketPrice: result.object.wantsMarketPrice,
+                // Store custom location
+                customState,
+                customCity,
+                customMandi,
+                useCustomLocation
             },
             priceSuggestion
         };
 
+        // Generate natural response with market price info
+        const naturalText = await generateNaturalResponse({
+            language: lang,
+            stage: state.stage,
+            collectedData: newState.collectedData,
+            userInput,
+            nextStage: "showing_market_prices",
+            priceSuggestion,
+            additionalContext: result.object.specificPrice
+                ? `User mentioned specific price of ₹${result.object.specificPrice}/kg. ${result.object.specificPrice >= priceSuggestion.pricePerKg.average
+                    ? "Their price is good - at or above market average"
+                    : "Their price is below market average - might want to increase"
+                }`
+                : `User wants to know market prices before deciding`
+        });
+
         return {
             response: {
-                text: priceText + " " + getLocalizedText("confirm_price", lang.code),
+                text: naturalText,
                 stage: "showing_market_prices",
                 expectsResponse: true,
                 priceSuggestion
@@ -622,7 +1064,7 @@ async function handleMarketPriceConfirmation(
 
     try {
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 confirmed: z.boolean().describe("User confirmed/agreed"),
                 newPrice: z.number().optional().describe("If user specified a different price"),
@@ -720,7 +1162,7 @@ async function handleListingConfirmation(
 
     try {
         const result = await generateObject({
-            model: google("gemini-2.0-flash"),
+            model: google("gemini-3-flash-preview"),
             schema: z.object({
                 confirmed: z.boolean(),
                 understood: z.boolean()
@@ -786,7 +1228,7 @@ export function getSuccessMessage(lang: LanguageConfig, buyerName: string, bidAm
  */
 const LOCALIZED_TEXTS: Record<string, Record<string, string>> = {
     "hi": {
-        ask_commodity: "आप कौन सी फसल बेचना चाहते हैं? जैसे प्याज़, आलू, टमाटर...",
+        ask_commodity: "आप कौन सी फसल बेचना चाहते हैं? जैसे प्याज़, आलू, टमाटर... आप एक ही बार में सब कुछ बता सकते हैं जैसे '400 क्विंटल गेहूं 50 रुपये क्विंटल में बेचना है'",
         ask_quantity: "कितना {commodity} बेचना है? किलो या क्विंटल में बताइए।",
         ask_quality: "{commodity} की क्वालिटी कैसी है? अच्छी, मीडियम, या मिक्स?",
         ask_price_preference: "आपको कितने रुपये प्रति किलो चाहिए? या मंडी का भाव देखना है?",
@@ -801,48 +1243,51 @@ const LOCALIZED_TEXTS: Record<string, Record<string, string>> = {
         not_understood_commodity: "माफ़ कीजिए, समझ नहीं आया। कौन सी फसल बेचनी है?",
         not_understood_quantity: "कितना किलो या क्विंटल है? कृपया दोबारा बताइए।",
         error_retry: "माफ़ कीजिए, कृपया दोबारा बोलें।",
-        error_general: "कुछ गड़बड़ हो गई। कृपया दोबारा कोशिश करें।"
+        error_general: "कुछ गड़बड़ हो गई। कृपया दोबारा कोशिश करें।",
+        fast_track_summary: "समझ गया! {quantity} किलो {commodity}, ₹{price} प्रति किलो। मंडी का भाव देखता हूं..."
     },
     "mr": {
-        ask_commodity: "तुम्हाला कोणते पीक विकायचे आहे? जसे कांदा, बटाटा, टोमॅटो...",
-        ask_quantity: "किती {commodity} विकायचे आहे? किलो किंवा क्विंटल मध्ये सांगा।",
-        ask_quality: "{commodity} ची क्वालिटी कशी आहे? चांगली, मध्यम, किंवा मिक्स?",
-        ask_price_preference: "तुम्हाला प्रति किलो किती रुपये हवे आहेत? किंवा बाजार भाव बघायचा आहे?",
+        ask_commodity: "तुम्हाला कोणते पीक विकायचे आहे? जसे कांदा, बटाटा, टोमॅटो... तुम्ही एकदम सगळे सांगू शकता जसे '४०० क्विंटल गहू ५० रुपये क्विंटलला विकायचा आहे'",
+        ask_quantity: "किती {commodity} विकायचे आहे? किलो किंवा क्विंटल मध्ये सांगा.",
+        ask_quality: "{commodity} ची गुणवत्ता कशी आहे? चांगली, मध्यम, किंवा मिश्र?",
+        ask_price_preference: "तुम्हाला प्रति किलो किती रुपये हवे आहेत? किंवा बाजार भाव बघायचा आहे का?",
         confirm_price: "हा भाव ठीक आहे का?",
-        price_good: "तुमचा भाव चांगला आहे।",
-        price_low: "तुमचा भाव बाजार भावापेक्षा थोडा कमी आहे।",
-        listing_summary: "{quantity} किलो {commodity}, {quality} क्वालिटी, {price} रुपये प्रति किलो।",
+        price_good: "तुमचा भाव चांगला आहे.",
+        price_low: "तुमचा भाव बाजार भावापेक्षा थोडा कमी आहे.",
+        listing_summary: "{quantity} किलो {commodity}, {quality} गुणवत्ता, {price} रुपये प्रति किलो.",
         confirm_broadcast: "खरेदीदारांना पाठवू का?",
-        broadcasting: "ठीक आहे। खरेदीदारांना पाठवत आहे. कृपया प्रतीक्षा करा...",
-        success: "अभिनंदन! {buyer} ने {amount} रुपये प्रति किलोची ऑफर दिली आहे!",
-        cancelled: "काही हरकत नाही। पुन्हा केव्हाही बोला।",
-        not_understood_commodity: "माफ करा, समजले नाही। कोणते पीक विकायचे आहे?",
-        not_understood_quantity: "किती किलो किंवा क्विंटल आहे? कृपया पुन्हा सांगा।",
-        error_retry: "माफ करा, कृपया पुन्हा बोला।",
-        error_general: "काहीतरी चूक झाली। कृपया पुन्हा प्रयत्न करा।"
+        broadcasting: "ठीक आहे. खरेदीदारांना पाठवत आहे. कृपया वाट पहा...",
+        success: "अभिनंदन! {buyer} यांनी प्रति किलो {amount} रुपयांची ऑफर दिली आहे!",
+        cancelled: "काही हरकत नाही. पुन्हा केव्हाही बोला.",
+        not_understood_commodity: "माफ करा, समजले नाही. कोणते पीक विकायचे आहे?",
+        not_understood_quantity: "किती किलो किंवा क्विंटल आहे? कृपया पुन्हा सांगा.",
+        error_retry: "माफ करा, कृपया पुन्हा बोला.",
+        error_general: "काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.",
+        fast_track_summary: "समजले! {quantity} किलो {commodity}, ₹{price} प्रति किलो. बाजार भाव तपासतो..."
     },
     "ta": {
-        ask_commodity: "எந்த பயிரை விற்க விரும்புகிறீர்கள்? வெங்காயம், உருளைக்கிழங்கு, தக்காளி போன்றவை...",
-        ask_quantity: "எவ்வளவு {commodity} விற்க வேண்டும்? கிலோ அல்லது குவிண்டால் சொல்லுங்கள்।",
+        ask_commodity: "எந்த பயிரை விற்க விரும்புகிறீர்கள்? வெங்காயம், உருளைக்கிழங்கு, தக்காளி போன்றவை... நீங்கள் எல்லாவற்றையும் ஒரே நேரத்தில் சொல்லலாம், எ.கா. '400 குவிண்டால் கோதுமை 50 ரூபாய்க்கு விற்க வேண்டும்'",
+        ask_quantity: "எவ்வளவு {commodity} விற்க வேண்டும்? கிலோ அல்லது குவிண்டாலில் சொல்லுங்கள்.",
         ask_quality: "{commodity} தரம் எப்படி இருக்கிறது? நல்லது, நடுத்தரம், அல்லது கலப்பு?",
         ask_price_preference: "கிலோவுக்கு எவ்வளவு விலை வேண்டும்? அல்லது சந்தை விலை பார்க்கணுமா?",
         confirm_price: "இந்த விலை சரியா?",
-        price_good: "உங்கள் விலை நல்லது।",
-        price_low: "உங்கள் விலை சந்தை விலையை விட சற்று குறைவு।",
-        listing_summary: "{quantity} கிலோ {commodity}, {quality} தரம், {price} ரூபாய் கிலோவுக்கு।",
+        price_good: "உங்கள் விலை நல்லது.",
+        price_low: "உங்கள் விலை சந்தை விலையை விட சற்று குறைவு.",
+        listing_summary: "{quantity} கிலோ {commodity}, {quality} தரம், {price} ரூபாய் கிலோவுக்கு.",
         confirm_broadcast: "வாங்குபவர்களுக்கு அனுப்பட்டுமா?",
-        broadcasting: "சரி। வாங்குபவர்களுக்கு அனுப்புகிறேன். தயவுசெய்து காத்திருங்கள்...",
+        broadcasting: "சரி. வாங்குபவர்களுக்கு அனுப்புகிறேன். தயவுசெய்து காத்திருங்கள்...",
         success: "வாழ்த்துக்கள்! {buyer} கிலோவுக்கு {amount} ரூபாய் கொடுக்க முன்வந்துள்ளார்!",
-        cancelled: "பரவாயில்லை। எப்போது வேண்டுமானாலும் மீண்டும் பேசுங்கள்।",
-        not_understood_commodity: "மன்னிக்கவும், புரியவில்லை। எந்த பயிரை விற்க வேண்டும்?",
+        cancelled: "பரவாயில்லை. எப்போது வேண்டுமானாலும் மீண்டும் பேசுங்கள்.",
+        not_understood_commodity: "மன்னிக்கவும், புரியவில்லை. எந்த பயிரை விற்க வேண்டும்?",
         not_understood_quantity: "எத்தனை கிலோ அல்லது குவிண்டால்? மீண்டும் சொல்லுங்கள்.",
         error_retry: "மன்னிக்கவும், மீண்டும் பேசுங்கள்.",
-        error_general: "ஏதோ பிழை ஏற்பட்டது। மீண்டும் முயற்சிக்கவும்."
+        error_general: "ஏதோ பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
+        fast_track_summary: "புரிந்தது! {quantity} கிலோ {commodity}, ₹{price} கிலோவுக்கு. சந்தை விலை பார்க்கிறேன்..."
     },
     "te": {
-        ask_commodity: "ఏ పంట అమ్మాలనుకుంటున్నారు? ఉల్లిపాయలు, బంగాళాదుంపలు, టొమాటోలు వంటివి...",
-        ask_quantity: "ఎంత {commodity} అమ్మాలి? కిలోలు లేదా క్వింటాల్లలో చెప్పండి.",
-        ask_quality: "{commodity} నాణ్యత ఎలా ఉంది? మంచిది, మధ్యస్థం, లేదా కలపడం?",
+        ask_commodity: "ఏ పంట అమ్మాలనుకుంటున్నారు? ఉల్లిపాయలు, బంగాళాదుంపలు, టొమాటోలు వంటివి... మీరు అన్నీ ఒకేసారి చెప్పవచ్చు, ఉదా. '400 క్వింటాళ్ల గోధుమలు 50 రూపాయలకు అమ్మాలి'",
+        ask_quantity: "ఎంత {commodity} అమ్మాలి? కిలోలు లేదా క్వింటాళ్లలో చెప్పండి.",
+        ask_quality: "{commodity} నాణ్యత ఎలా ఉంది? మంచిది, మధ్యస్థం, లేదా మిశ్రమం?",
         ask_price_preference: "కిలోకు ఎంత రూపాయలు కావాలి? లేదా మార్కెట్ ధర చూడాలా?",
         confirm_price: "ఈ ధర సరేనా?",
         price_good: "మీ ధర బాగుంది.",
@@ -853,12 +1298,13 @@ const LOCALIZED_TEXTS: Record<string, Record<string, string>> = {
         success: "అభినందనలు! {buyer} కిలోకు {amount} రూపాయలు ఆఫర్ చేశారు!",
         cancelled: "పర్వాలేదు. ఎప్పుడైనా మళ్ళీ మాట్లాడండి.",
         not_understood_commodity: "క్షమించండి, అర్థం కాలేదు. ఏ పంట అమ్మాలనుకుంటున్నారు?",
-        not_understood_quantity: "ఎన్ని కిలోలు లేదా క్వింటాల్లు? దయచేసి మళ్ళీ చెప్పండి.",
+        not_understood_quantity: "ఎన్ని కిలోలు లేదా క్వింటాళ్లు? దయచేసి మళ్ళీ చెప్పండి.",
         error_retry: "క్షమించండి, దయచేసి మళ్ళీ చెప్పండి.",
-        error_general: "ఏదో తప్పు జరిగింది. దయచేసి మళ్ళీ ప్రయత్నించండి."
+        error_general: "ఏదో తప్పు జరిగింది. దయచేసి మళ్ళీ ప్రయత్నించండి.",
+        fast_track_summary: "అర్థమైంది! {quantity} కిలోల {commodity}, ₹{price} కిలోకు. మార్కెట్ ధర చూస్తున్నాను..."
     },
     "en": {
-        ask_commodity: "What crop do you want to sell? Like onion, potato, tomato...",
+        ask_commodity: "What crop do you want to sell? Like onion, potato, tomato... You can also tell everything at once, like '400 quintals of wheat at 50 rupees per quintal'",
         ask_quantity: "How much {commodity} do you want to sell? Tell in kg or quintal.",
         ask_quality: "What is the quality of {commodity}? Good, medium, or mixed?",
         ask_price_preference: "How much rupees per kg do you want? Or want to see market price?",
@@ -873,7 +1319,8 @@ const LOCALIZED_TEXTS: Record<string, Record<string, string>> = {
         not_understood_commodity: "Sorry, I didn't understand. What crop do you want to sell?",
         not_understood_quantity: "How many kg or quintals? Please tell again.",
         error_retry: "Sorry, please speak again.",
-        error_general: "Something went wrong. Please try again."
+        error_general: "Something went wrong. Please try again.",
+        fast_track_summary: "Got it! {quantity} kg of {commodity} at ₹{price} per kg. Let me check the market prices for you..."
     }
 };
 
