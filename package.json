@@ -1,6 +1,7 @@
 {
-  "name": "setu-voice-ondc-gateway",
-  "version": "1.0.0",
+  "name": "agrivox-smart-agriculture",
+  "version": "2.0.0",
+  "description": "Voice-powered smart agriculture platform with AI and IoT integration",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
@@ -19,6 +20,16 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "tsx prisma/seed.ts"
   },
+  "keywords": [
+    "smart-agriculture",
+    "voice-ai",
+    "ondc",
+    "farmers",
+    "iot",
+    "gemini",
+    "india"
+  ],
+  "author": "AgriVox Team",
   "dependencies": {
     "@ai-sdk/google": "^3.0.15",
     "@prisma/adapter-better-sqlite3": "latest",

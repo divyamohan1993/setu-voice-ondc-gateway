@@ -1,6 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ===========================================
+# Dependencies
+# ===========================================
 /node_modules
 /.pnp
 .pnp.*
@@ -10,30 +12,27 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# ===========================================
+# Build outputs
+# ===========================================
 /.next/
 /out/
-
-# production
 /build
+/dist
+/docs/*
 
-# misc
-.DS_Store
-*.pem
+# ===========================================
+# Database files (dev only)
+# ===========================================
 *.db
 *.sqlite
 *.sqlite3
-*.log
+dev.db
+dev.db-journal
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
+# ===========================================
 # Environment files (NEVER commit API keys!)
+# ===========================================
 .env
 .env.*
 .env.local
@@ -45,7 +44,9 @@ yarn-error.log*
 .env.production.local
 !.env.example
 
+# ===========================================
 # API Keys and Secrets (extra safety)
+# ===========================================
 *.key
 *.secret
 *_key
@@ -55,18 +56,111 @@ temp_agent_key.pub
 gcp_deploy_key.pub
 gcp_deploy_key
 
-# vercel
-.vercel
+# ===========================================
+# Testing & Coverage
+# ===========================================
+/coverage
+*.lcov
+.nyc_output
 
-# typescript
+# ===========================================
+# TypeScript
+# ===========================================
 *.tsbuildinfo
-next-env.d.ts
+tsconfig.tsbuildinfo
 
-# prisma
-prisma/migrations/
+# ===========================================
+# Logs
+# ===========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
+# ===========================================
+# OS generated files
+# ===========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================================
 # IDE and editor files
+# ===========================================
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
+*.sublime-workspace
+*.sublime-project
+
+# ===========================================
+# Prisma
+# ===========================================
+prisma/migrations/
+
+# ===========================================
+# Vercel
+# ===========================================
+.vercel
+
+# ===========================================
+# Docker (local volumes)
+# ===========================================
+docker-data/
+.docker/
+
+# ===========================================
+# Temporary files
+# ===========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ===========================================
+# Misc generated files
+# ===========================================
+*.pem
+next-env.d.ts
+.mailmap
+
+# ===========================================
+# Cache directories
+# ===========================================
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
+
+# ===========================================
+# Documentation builds (keep source)
+# ===========================================
+docs/_build/
+docs/.docusaurus/
+
+# ===========================================
+# Test artifacts
+# ===========================================
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ===========================================
+# Package manager lock files (keep one)
+# ===========================================
+# Keep package-lock.json, ignore others
+yarn.lock
+pnpm-lock.yaml
+bun.lockb

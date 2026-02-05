@@ -1,6 +1,6 @@
-# Contributing to Setu Voice-to-ONDC Gateway
+# Contributing to AgriVox Smart Agriculture Platform
 
-Thank you for your interest in contributing to Setu! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to AgriVox! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -71,12 +71,12 @@ Before you begin, ensure you have:
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/setu-voice-ondc-gateway.git
-   cd setu-voice-ondc-gateway
+   git clone https://github.com/YOUR_USERNAME/agrivox.git
+   cd agrivox
    ```
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL_OWNER/setu-voice-ondc-gateway.git
+   git remote add upstream https://github.com/ORIGINAL_OWNER/agrivox.git
    ```
 
 ### Initial Setup
@@ -713,7 +713,7 @@ Contributors will be:
 
 ## License
 
-By contributing to Setu, you agree that your contributions will be licensed under the MIT License.
+By contributing to AgriVox, you agree that your contributions will be licensed under the MIT License.
 
 ---
 
@@ -724,4 +724,4 @@ If you have questions about contributing, please:
 2. Search existing issues and discussions
 3. Create a new discussion if your question isn't answered
 
-Thank you for contributing to Setu!
+Thank you for contributing to AgriVox!

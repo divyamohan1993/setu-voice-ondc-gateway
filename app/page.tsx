@@ -1,34 +1,31 @@
 "use client";
 
 /**
- * Home Page - Setu Voice-to-ONDC Gateway
+ * AgriVox - Smart Agriculture Voice Platform
  * 
- * Formal, futuristic voice-first interface for farmers.
- * "Farmer is King" - Empowering users with direct market access.
- * 
- * Features:
- * - Intuitive voice interaction
- * - Support for 12 Indian languages
- * - Context-aware "Farmer First" design
- * - Works on all smartphones
+ * A modern voice-first interface for farmers:
+ * - Real-time market access through voice
+ * - Multi-language support (12+ Indian languages)
+ * - IoT-ready architecture
+ * - AI-powered price recommendations
  */
 
 import dynamic from "next/dynamic";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
-// Lazy load the main component for faster initial load
-const SetuVoice = dynamic(
-  () => import("@/components/SetuVoice").then((mod) => ({ default: mod.SetuVoice })),
+// Lazy load the main interface
+const AgriVoxInterface = dynamic(
+  () => import("@/components/AgriVoxInterface").then((mod) => ({ default: mod.AgriVoxInterface })),
   {
     loading: () => (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <LoadingSpinner size="lg" text="Connecting to ONDC Network..." />
+      <div className="min-h-screen flex items-center justify-center bg-[#0D1117]">
+        <LoadingSpinner size="lg" text="Initializing AgriVox..." />
       </div>
     ),
-    ssr: false, // Disable SSR for speech APIs
+    ssr: false,
   }
 );
 
 export default function Home() {
-  return <SetuVoice />;
+  return <AgriVoxInterface />;
 }

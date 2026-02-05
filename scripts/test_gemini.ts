@@ -2,7 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { translateVoiceToJsonWithFallback } from './lib/translation-agent';
+import { translateVoiceToJsonWithFallback } from '../lib/translation-agent';
 
 async function test() {
     console.log("Testing Gemini 3 Flash Preview...");

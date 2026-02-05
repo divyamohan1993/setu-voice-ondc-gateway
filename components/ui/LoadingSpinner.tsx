@@ -37,11 +37,11 @@ export function LoadingSpinner({
       aria-busy="true"
     >
       <Loader2
-        className={cn(sizeClasses[size], "animate-spin text-primary", className)}
+        className={cn(sizeClasses[size], "animate-spin text-emerald-500", className)}
         aria-hidden="true"
       />
       {text ? (
-        <span className="text-gray-600 font-medium">{text}</span>
+        <span className="text-gray-400 font-medium">{text}</span>
       ) : (
         <span className="sr-only">{ariaLabel}</span>
       )}

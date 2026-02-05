@@ -1,20 +1,18 @@
 # Authors and Contributors
 
-The Setu Voice-to-ONDC Gateway is a collaborative project built for the **AI for Bharat Hackathon - Republic Day 2026**.
+The AgriVox Smart Agriculture Platform is a collaborative project built for the **Hacksagon 2026 - Open Innovation Track**.
 
 ## Core Team
 
 *   **[@divyamohan1993](https://github.com/divyamohan1993)** - *Architecture, Backend, AI Integration*
-*   **[@kumkum-thakur](https://github.com/kumkum-thakur)** - *Frontend, UX/UI, Documentation*
 
 ## Acknowledgments
 
 Special thanks to:
 
-*   **AI for Bharat** for the problem statement and inspiration.
+*   **Hacksagon** for the platform and opportunity.
 *   **ONDC** for the open network protocols and documentation.
-*   **Vercel** for the Next.js framework and AI SDK.
-*   **OpenAI**, **Google**, **Anthropic** for the LLM capabilities.
+*   **Google AI** for Gemini 3.0 Flash capabilities.
 *   All the open-source contributors whose libraries made this project possible.
 
 ## Contributing

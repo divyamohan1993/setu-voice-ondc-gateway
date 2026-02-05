@@ -4,112 +4,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setu Project Overview</title>
+    <title>AgriVox - Smart Agriculture Platform</title>
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            color: #333;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        h1 {
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #0D1117 0%, #161B22 100%);
+            color: #F8FAFC;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .logo span {
+            color: #10B981;
+        }
+
+        .tagline {
+            color: #8B949E;
+            font-size: 1.1rem;
         }
 
         h2 {
-            margin-top: 30px;
-            color: #2563eb;
+            color: #10B981;
+            margin: 40px 0 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #30363D;
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid #30363D;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
         }
 
         code {
-            background-color: #f1f5f9;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-family: monospace;
+            background: #21262D;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #10B981;
         }
 
-        .flow-step {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-item {
+            background: #21262D;
             padding: 15px;
-            margin-bottom: 10px;
             border-radius: 8px;
+            border: 1px solid #30363D;
         }
 
-        .note {
-            background-color: #fffbeb;
-            border-left: 4px solid #f59e0b;
-            padding: 15px;
+        .tech-item strong {
+            color: #10B981;
+        }
+
+        .highlight {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10B981;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
             margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #30363D;
+            color: #8B949E;
         }
     </style>
 </head>
 
 <body>
-    <h1>Setu: Voice-to-ONDC Gateway - Project Overview</h1>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌱 Agri<span>Vox</span></div>
+            <p class="tagline">Smart Agriculture Voice Platform</p>
+        </div>
 
-    <p>This document explains how the application works, how data flows through the system, and the technology choices involved.</p>
+        <div class="card">
+            <p>AgriVox is an AI-powered voice platform that brings smart agriculture capabilities to every farmer. This document explains the system architecture and data flow.</p>
+        </div>
 
-    <h2>1. How Data Flows</h2>
-    <p>The application follows a linear flow from user voice input to network broadcasting:</p>
+        <h2>📊 Data Flow</h2>
 
-    <div class="flow-step">
-        <strong>1. Input (Client Side):</strong>
-        <br>User selects or speaks a command (e.g., "500kg onions from Nasik").
+        <div class="card">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div><strong>Voice Input:</strong> User speaks naturally in any of 12+ Indian languages</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div><strong>Processing:</strong> Server action calls <code>processVoiceAction</code> with AI processing</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div><strong>AI Engine:</strong> Google Gemini 3.0 Flash extracts structured data using schema validation</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div><strong>Validation:</strong> Output mapped to Beckn Protocol schema with Zod validation</div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div><strong>Storage:</strong> Catalog stored in database via Prisma ORM</div>
+            </div>
+            <div class="step">
+                <div class="step-number">6</div>
+                <div><strong>Broadcast:</strong> ONDC network simulation with real-time buyer matching</div>
+            </div>
+        </div>
+
+        <h2>🛠️ Technology Stack</h2>
+
+        <div class="tech-grid">
+            <div class="tech-item">
+                <strong>Framework:</strong><br>Next.js 15 + React 19
+            </div>
+            <div class="tech-item">
+                <strong>Styling:</strong><br>Tailwind CSS 4
+            </div>
+            <div class="tech-item">
+                <strong>Database:</strong><br>PostgreSQL / SQLite
+            </div>
+            <div class="tech-item">
+                <strong>AI Engine:</strong><br>Google Gemini 3.0 Flash
+            </div>
+            <div class="tech-item">
+                <strong>Protocol:</strong><br>ONDC Beckn v1.2.0
+            </div>
+            <div class="tech-item">
+                <strong>Infrastructure:</strong><br>Docker + GCP
+            </div>
+        </div>
+
+        <h2>🤖 Why Gemini 3.0 Flash?</h2>
+
+        <div class="highlight">
+            <strong>Current Implementation:</strong> Uses <code>google('gemini-3-flash-preview')</code> via Vercel AI SDK
+        </div>
+
+        <div class="card">
+            <ol style="margin-left: 20px;">
+                <li style="margin-bottom: 10px;"><strong>Speed:</strong> Flash model provides sub-second response times for voice interactions</li>
+                <li style="margin-bottom: 10px;"><strong>Multilingual:</strong> Native support for 12+ Indian languages including dialect handling</li>
+                <li style="margin-bottom: 10px;"><strong>Structured Output:</strong> JSON mode ensures Beckn Protocol compliance</li>
+                <li><strong>Cost Effective:</strong> Optimized for high-volume, low-latency use cases</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p>Built for Hacksagon 2026 - Open Innovation Track</p>
+            <p style="margin-top: 10px;">🌱 Empowering Smart Agriculture Through Voice AI</p>
+        </div>
     </div>
-
-    <div class="flow-step">
-        <strong>2. Processing (Server Action):</strong>
-        <br>The app calls <code>translateVoiceAction</code> in <code>app/actions.ts</code>. This runs securely on the server.
-    </div>
-
-    <div class="flow-step">
-        <strong>3. AI Translation (Logic Layer):</strong>
-        <br>The server calls <code>translateVoiceToJsonWithFallback</code> in <code>lib/translation-agent.ts</code>.
-        <br>It constructs a prompt and sends the text to <strong>Google Gemini (Gemini 3 Flash Preview)</strong>.
-    </div>
-
-    <div class="flow-step">
-        <strong>4. Structured Output:</strong>
-        <br>The AI analyzes the text and returns a strictly formatted <strong>JSON</strong> object adhering to the <strong>Beckn Protocol</strong> (Standard for ONDC).
-        <br>It extracts: Product Name, Location, Quality, Quantity, and Price.
-    </div>
-
-    <div class="flow-step">
-        <strong>5. Validation & Storage:</strong>
-        <br>The returned JSON is validated against a schema.
-        <br>When the user clicks "Save", it is stored in a <strong>SQLite database</strong> (for local dev) via **Prisma ORM**.
-    </div>
-
-    <div class="flow-step">
-        <strong>6. Broadcasting:</strong>
-        <br>Finally, the user "broadcasts" the catalog. This triggers a network simulation where a fake "Buyer" places a bid, completing the demo loop.
-    </div>
-
-    <h2>2. Technology Stack</h2>
-    <ul>
-        <li><strong>Framework:</strong> Next.js 15 (App Router) & React 19</li>
-        <li><strong>Styling:</strong> Tailwind CSS 4 & Shadcn/UI</li>
-        <li><strong>Database:</strong> SQLite (Local) / PostgreSQL (Production) with Prisma ORM</li>
-        <li><strong>AI SDK:</strong> Vercel AI SDK (Use <code>generateObject</code> for type-safe JSON)</li>
-    </ul>
-
-    <h2>3. Why Gemini instead of OpenAI?</h2>
-    <div class="note">
-        <strong>Current Implementation:</strong> The project uses <code>google('gemini-3-flash-preview')</code> via the Vercel AI SDK.
-    </div>
-
-    <p>We have switched to Google Gemini for the following reasons:</p>
-    <ol>
-        <li><strong>Performance/Cost:</strong> Gemini 3 Flash Preview is extremely fast and cost-effective for high-volume tasks like this.</li>
-        <li><strong>Vercel AI SDK Integration:</strong> The SDK supports Gemini via <code>@ai-sdk/google</code>, making it easy to swap providers with minimal code changes.</li>
-        <li><strong>Structured Output:</strong> Gemini also supports structured object generation, essential for the Beckn Protocol.</li>
-    </ol>
-
 </body>
 
 </html>
