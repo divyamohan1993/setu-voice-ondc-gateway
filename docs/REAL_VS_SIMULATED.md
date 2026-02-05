@@ -23,7 +23,7 @@ This document clarifies which components of the Setu Voice-to-ONDC Gateway are *
 - **No simulation**: Direct audio output to device speakers
 
 ### 3. AI Processing (Google Gemini)
-- **Technology**: Google Gemini 1.5/2.0 Flash API via Vercel AI SDK
+- **Technology**: Google Gemini 3 Flash API via Vercel AI SDK
 - **Status**: 100% Real (requires API key)
 - **Features**:
   - Natural language understanding in Indian languages

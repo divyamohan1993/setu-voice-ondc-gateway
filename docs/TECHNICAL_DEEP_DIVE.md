@@ -17,7 +17,7 @@ graph TD
     NextFE -->|Server Action| VoiceOrchestrator[Voice Orchestrator]
     
     subgraph "Core Logic Layer"
-        VoiceOrchestrator -->|Raw Audio| GoogleAI[Google Gemini 1.5]
+        VoiceOrchestrator -->|Raw Audio| GoogleAI[Google Gemini 3 Flash]
         VoiceOrchestrator -->|Extracted Data| Validator[Zod Schema Validator]
         Validator -->|Valid JSON| BecknBuilder[Beckn Protocol Builder]
     end
