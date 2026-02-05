@@ -42,7 +42,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "Continue"
-clean
+Clear-Host
+$RootDir = $PSScriptRoot
+if (Split-Path -Leaf $PSScriptRoot -eq "scripts") {
+    $RootDir = Split-Path -Parent $PSScriptRoot
+}
 $Script:CONFIG = @{
     AppName          = "Setu Voice-to-ONDC Gateway"
     Version          = "1.0.0"
@@ -464,8 +468,8 @@ function Resolve-PortConflict {
 function Initialize-Environment {
     Write-Step "Initializing Environment"
     
-    $envFile = Join-Path $PSScriptRoot ".env"
-    $envExampleFile = Join-Path $PSScriptRoot ".env.example"
+    $envFile = Join-Path $RootDir ".env"
+    $envExampleFile = Join-Path $RootDir ".env.example"
     
     if ((Test-Path $envFile) -and -not $Force) {
         Write-Info ".env file already exists"
@@ -504,9 +508,9 @@ NEXT_TELEMETRY_DISABLED=1
 function Install-Dependencies {
     Write-Step "Installing Node.js Dependencies"
     
-    $nodeModules = Join-Path $PSScriptRoot "node_modules"
-    $packageJson = Join-Path $PSScriptRoot "package.json"
-    $packageLock = Join-Path $PSScriptRoot "package-lock.json"
+    $nodeModules = Join-Path $RootDir "node_modules"
+    $packageJson = Join-Path $RootDir "package.json"
+    $packageLock = Join-Path $RootDir "package-lock.json"
     
     if ((Test-Path $nodeModules) -and -not $Force) {
         $moduleCount = (Get-ChildItem $nodeModules -Directory).Count
@@ -524,7 +528,7 @@ function Install-Dependencies {
     
     Write-Info "Running npm install..."
     $npmCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npm.cmd" } else { "npm" }
-    $result = Invoke-CommandWithOutput -Command $npmCmd -Arguments "install" -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command $npmCmd -Arguments "install" -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Failure "npm install failed" $result.StdErr
@@ -544,7 +548,7 @@ function Initialize-Database-Docker {
     Write-Step "Initializing Database (Docker)"
     
     Write-Info "Starting database container..."
-    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d db" -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d db" -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Failure "Failed to start database container" $result.StdErr
@@ -559,7 +563,7 @@ function Initialize-Database-Docker {
         $attempt++
         Write-Verbose-Detail "Attempt $attempt/$maxAttempts..."
         
-        $healthCheck = Invoke-CommandWithOutput -Command "docker" -Arguments "compose exec -T db pg_isready -U setu -d setu_db" -WorkingDirectory $PSScriptRoot -PassThru
+        $healthCheck = Invoke-CommandWithOutput -Command "docker" -Arguments "compose exec -T db pg_isready -U setu -d setu_db" -WorkingDirectory $RootDir -PassThru
         
         if ($healthCheck.ExitCode -eq 0) {
             Write-Success "Database is ready"
@@ -577,7 +581,7 @@ function Initialize-Database-Docker {
     # Run Prisma migrations
     Write-Info "Running database migrations..."
     $npxCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
-    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma db push" -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command $npxCmd -Arguments "prisma db push" -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
@@ -595,7 +599,7 @@ function Initialize-Database-Local {
     Write-Info "Using SQLite for local development..."
     
     # Update prisma schema if needed for SQLite
-    $prismaSchema = Join-Path $PSScriptRoot "prisma\schema.prisma"
+    $prismaSchema = Join-Path $RootDir "prisma\schema.prisma"
     if (Test-Path $prismaSchema) {
         $schemaContent = Get-Content $prismaSchema -Raw
         $newContent = $schemaContent
@@ -621,7 +625,7 @@ function Initialize-Database-Local {
     }
 
     # Update .env for SQLite if needed
-    $envFile = Join-Path $PSScriptRoot ".env"
+    $envFile = Join-Path $RootDir ".env"
     if (Test-Path $envFile) {
         $envContent = Get-Content $envFile -Raw
         if ($envContent -match "DATABASE_URL=postgresql") {
@@ -635,7 +639,7 @@ function Initialize-Database-Local {
     # Generate Prisma client
     Write-Info "Generating Prisma client..."
     
-    $prismaCmd = Join-Path $PSScriptRoot "node_modules\.bin\prisma.cmd"
+    $prismaCmd = Join-Path $RootDir "node_modules\.bin\prisma.cmd"
     if (-not (Test-Path $prismaCmd)) {
         # Fallback to npx if local binary not found
         $prismaCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npx.cmd" } else { "npx" }
@@ -648,7 +652,7 @@ function Initialize-Database-Local {
 
 
     $genArgs = if ($prismaArgs) { "$prismaArgs generate" } else { "generate" }
-    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $genArgs -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $genArgs -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma generate had issues: $($result.StdErr)"
@@ -657,7 +661,7 @@ function Initialize-Database-Local {
     # Push schema
     Write-Info "Pushing database schema..."
     $pushArgs = if ($prismaArgs) { "$prismaArgs db push" } else { "db push" }
-    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $pushArgs -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command $prismaCmd -Arguments $pushArgs -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Prisma db push had issues: $($result.StdErr)"
@@ -666,7 +670,7 @@ function Initialize-Database-Local {
     # Run Seed using tsx.cmd directly from node_modules\.bin (bypasses npm/npx issues)
     Write-Info "Seeding database..."
     
-    $tsxCmd = Join-Path $PSScriptRoot "node_modules\.bin\tsx.cmd"
+    $tsxCmd = Join-Path $RootDir "node_modules\.bin\tsx.cmd"
     
     if (Test-Path $tsxCmd) {
         # Use local tsx directly with PowerShell call operator
@@ -679,7 +683,7 @@ function Initialize-Database-Local {
         $pinfo.RedirectStandardError = $true
         $pinfo.RedirectStandardOutput = $true
         $pinfo.UseShellExecute = $false
-        $pinfo.WorkingDirectory = $PSScriptRoot
+        $pinfo.WorkingDirectory = $RootDir
         $pinfo.CreateNoWindow = $true
         
         $process = New-Object System.Diagnostics.Process
@@ -693,25 +697,28 @@ function Initialize-Database-Local {
             
             $result = @{
                 ExitCode = $process.ExitCode
-                StdOut = $stdout
-                StdErr = $stderr
-            }
-        } catch {
-            $result = @{
-                ExitCode = 1
-                StdOut = ""
-                StdErr = $_.Exception.Message
+                StdOut   = $stdout
+                StdErr   = $stderr
             }
         }
-    } else {
+        catch {
+            $result = @{
+                ExitCode = 1
+                StdOut   = ""
+                StdErr   = $_.Exception.Message
+            }
+        }
+    }
+    else {
         # Fallback: Try using the global npm to run tsx
         Write-Info "tsx.cmd not found locally, trying global npm..."
-        $result = Invoke-CommandWithOutput -Command "npm" -Arguments "exec tsx -- prisma/seed.ts" -WorkingDirectory $PSScriptRoot -PassThru
+        $result = Invoke-CommandWithOutput -Command "npm" -Arguments "exec tsx -- prisma/seed.ts" -WorkingDirectory $RootDir -PassThru
     }
     
     if ($result.ExitCode -ne 0) {
         Write-Warning "Database seeding had issues: $($result.StdErr)"
-    } else {
+    }
+    else {
         Write-Success "Database seeded successfully"
     }
 
@@ -727,7 +734,7 @@ function Start-Application-Docker {
     Write-Step "Starting Application (Docker Mode)"
     
     Write-Info "Building and starting containers..."
-    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d --build" -WorkingDirectory $PSScriptRoot -PassThru
+    $result = Invoke-CommandWithOutput -Command "docker" -Arguments "compose up -d --build" -WorkingDirectory $RootDir -PassThru
     
     if ($result.ExitCode -ne 0) {
         Write-Failure "Failed to start Docker containers" $result.StdErr
@@ -773,7 +780,7 @@ function Start-Application-Local {
     Write-Info "The server will start in a new window. Press Ctrl+C to stop."
     
     $npmCmd = if ($IsWindows -or $env:OS -like "*Windows*") { "npm.cmd" } else { "npm" }
-    Start-Process -FilePath $npmCmd -ArgumentList "run", "dev" -WorkingDirectory $PSScriptRoot -NoNewWindow
+    Start-Process -FilePath $npmCmd -ArgumentList "run", "dev" -WorkingDirectory $RootDir -NoNewWindow
     
     Write-Info "Waiting for application to be ready..."
     $maxAttempts = 30
@@ -807,9 +814,9 @@ function Test-Installation {
     Write-Step "Verifying Installation"
     
     $checks = @(
-        @{ Name = "node_modules exists"; Test = { Test-Path (Join-Path $PSScriptRoot "node_modules") } },
-        @{ Name = ".env file exists"; Test = { Test-Path (Join-Path $PSScriptRoot ".env") } },
-        @{ Name = "Prisma client generated"; Test = { Test-Path (Join-Path $PSScriptRoot "lib\generated-client") } }
+        @{ Name = "node_modules exists"; Test = { Test-Path (Join-Path $RootDir "node_modules") } },
+        @{ Name = ".env file exists"; Test = { Test-Path (Join-Path $RootDir ".env") } },
+        @{ Name = "Prisma client generated"; Test = { Test-Path (Join-Path $RootDir "lib\generated-client") } }
     )
     
     $passed = 0

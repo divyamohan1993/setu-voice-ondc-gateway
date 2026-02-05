@@ -27,7 +27,7 @@ REM Check if PowerShell is available
 where powershell >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: PowerShell is not available on this system.
-    echo Please install PowerShell or run setup.ps1 manually.
+    echo Please install PowerShell or run scripts/setup.ps1 manually.
     pause
     exit /b 1
 )
@@ -44,9 +44,9 @@ powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 3001 -ErrorActio
 echo Cleanup complete.
 echo.
 
-REM Check if setup.ps1 exists
-if not exist "%~dp0setup.ps1" (
-    echo ERROR: setup.ps1 not found in %~dp0
+REM Check if setup.ps1 exists in scripts/
+if not exist "%~dp0scripts\setup.ps1" (
+    echo ERROR: setup.ps1 not found in %~dp0scripts\
     echo Please ensure you're running this from the repository root.
     pause
     exit /b 1
@@ -56,7 +56,7 @@ echo Launching PowerShell setup script...
 echo.
 
 REM Run the PowerShell script with execution policy bypass for this session
-powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0setup.ps1" %*
+powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0scripts\setup.ps1" %*
 
 REM Capture the exit code
 set EXIT_CODE=%ERRORLEVEL%

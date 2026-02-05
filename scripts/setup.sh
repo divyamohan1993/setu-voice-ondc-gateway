@@ -27,6 +27,7 @@ set -e
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 APP_NAME="Setu Voice-to-ONDC Gateway"
 APP_PORT=3000
 DB_PORT=5432
@@ -258,8 +259,8 @@ check_git() {
 initialize_environment() {
     print_step "Initializing Environment"
     
-    local env_file="$SCRIPT_DIR/.env"
-    local env_example="$SCRIPT_DIR/.env.example"
+    local env_file="$ROOT_DIR/.env"
+    local env_example="$ROOT_DIR/.env.example"
     
     if [ -f "$env_file" ] && [ "$FORCE" = false ]; then
         print_info ".env file already exists"
@@ -296,8 +297,8 @@ EOF
 install_dependencies() {
     print_step "Installing Node.js Dependencies"
     
-    local node_modules="$SCRIPT_DIR/node_modules"
-    local package_json="$SCRIPT_DIR/package.json"
+    local node_modules="$ROOT_DIR/node_modules"
+    local package_json="$ROOT_DIR/package.json"
     
     if [ -d "$node_modules" ] && [ "$FORCE" = false ]; then
         local module_count=$(ls -1 "$node_modules" | wc -l)
@@ -481,7 +482,7 @@ verify_installation() {
     local failed=0
     
     # Check node_modules
-    if [ -d "$SCRIPT_DIR/node_modules" ]; then
+    if [ -d "$ROOT_DIR/node_modules" ]; then
         print_success "node_modules exists"
         ((passed++))
     else
@@ -490,7 +491,7 @@ verify_installation() {
     fi
     
     # Check .env
-    if [ -f "$SCRIPT_DIR/.env" ]; then
+    if [ -f "$ROOT_DIR/.env" ]; then
         print_success ".env file exists"
         ((passed++))
     else
@@ -499,7 +500,7 @@ verify_installation() {
     fi
     
     # Check Prisma client
-    if [ -d "$SCRIPT_DIR/node_modules/.prisma" ]; then
+    if [ -d "$ROOT_DIR/node_modules/.prisma" ]; then
         print_success "Prisma client generated"
         ((passed++))
     else
@@ -626,7 +627,7 @@ main() {
     echo ""
     
     # Change to script directory
-    cd "$SCRIPT_DIR"
+    cd "$ROOT_DIR"
     
     # Step 1: Check dependencies
     print_step "Checking Dependencies"
