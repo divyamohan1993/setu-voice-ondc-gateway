@@ -1,5 +1,6 @@
 {
   "name": "agrivox-smart-agriculture",
+  "packageManager": "pnpm@10.30.1",
   "version": "2.0.0",
   "description": "Voice-powered smart agriculture platform with AI and IoT integration",
   "private": true,
